@@ -1,0 +1,22 @@
+Package: walker
+Type: Package
+Title: Fully Bayesian linear regression with time-varying coefficients
+Version: 0.0.1
+Date: 2017-06-07
+Author: Jouni Helske
+Maintainer: Jouni Helske <jouni.helske@iki.fi>
+Description: Fully Bayesian linear regression where the regression coeffients 
+    are allowed to vary over "time", either as independent random walks. 
+    All computations are done using Hamiltonian Monte Carlo provided by Stan, 
+    using a state space representation of the model in order to marginalise 
+    over the coefficients for efficient sampling.
+License: GPL (>= 2)
+Depends:
+    R (>= 3.0.2)
+Imports:
+    rstan (>= 2.14.1),
+    Rcpp (>= 0.12.9),
+    methods
+LinkingTo: StanHeaders (>= 2.14.0.1), rstan (>= 2.14.1), BH (>= 1.62.0.1),
+    Rcpp (>= 0.12.9), RcppEigen (>= 0.3.2.9.0)
+RoxygenNote: 6.0.1
