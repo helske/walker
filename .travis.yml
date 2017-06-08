@@ -1,0 +1,15 @@
+language: r
+sudo: false
+cache: packages
+
+r:
+ - oldrel
+ - release
+ - devel
+
+warnings_are_errors: true
+
+after_failure:
+- ./travis-tool.sh dump_logs
+
+r_check_args: "--as-cran"
