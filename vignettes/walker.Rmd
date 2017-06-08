@@ -69,7 +69,7 @@ stan_plot(kalman_walker, pars = "sigma")
 
 We often get few (typically one) warning message about numerical problems, as the sampling algorithm warms up, but this is nothing to be concerned with (if more errors occur, then a Github issue for `walker` package is more than welcome). 
 
-Using the `extract` method of `rstan` we can pick up the samples corresponding to $\beta$'s, and we can for example plot the posterior mean paths with `ts.plot` (the dashed lines correspond to true coefficients), or uncertainty intervals:
+Using the `extract` method of `rstan` we can pick up the samples corresponding to $\beta$'s, and we can for example plot the posterior mean paths with `ts.plot` (the dashed lines correspond to true coefficients):
 
 ```{r plot_betas}
 betas <- extract(kalman_walker, "beta")[[1]]
