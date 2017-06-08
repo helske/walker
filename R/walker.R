@@ -7,12 +7,12 @@
 #' Monte Carlo provided by Stan, using a state space representation of the model 
 #' in order to marginalise over the coefficients for efficient sampling.
 #' 
-#' @importFrom rstan sampling
-#' @importFrom stats ts.plot
+#' @import rstan Rcpp methods
+#' @importFrom stats ts.plot formula model.matrix model.response rnorm
 #' @rdname walker
 #' @useDynLib walker, .registration = TRUE
-#' @param formula An object of class \link{\code{"formula"}}. See \link{code{"lm"}} for details.
-#' @param data An optional data.frame or object coercible to such, as in \link{code{"lm"}}.
+#' @param formula An object of class \code{\link[stats]{formula}}. See \code{\link[stats]{lm}} for details.
+#' @param data An optional data.frame or object coercible to such, as in \code{\link[stats]{lm}}.
 #' @param beta_prior A matrix with \eqn{k} rows and 2 columns, where first columns defines the 
 #' prior means of the Gaussian priors of the corresponding \eqn{k} regression coefficients, 
 #' and the second column defines the the standard deviations of those prior distributions.
@@ -27,6 +27,12 @@
 #' \eqn{p(beta | sigma, y)} using state space modelling techniques 
 #' (namely simulation smoother by Durbin and Koopman (2002)). Both methods give asymptotically 
 #' identical results, but the latter approach is computationally much more efficient.
+#' @param chains Number of Markov chains. Default is 4.
+#' @param init Initial value specification, see \code{\link[rstan]{sampling}}. 
+#' Note that compared to default in \code{rstan}, here the default is a to sample from the priors.
+#' @param return_x_reg if \code{TRUE}, does not perform sampling, but instead returns the matrix of 
+#' predictors after processing the \code{formula}.
+#' @param ... Further arguments to \code{\link[rstan]{sampling}}.
 #' @export
 #' @examples 
 #' \dontrun{
@@ -99,14 +105,6 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains,
   naive = FALSE, return_x_reg = FALSE, ...) {
   
   # build y and xreg
-  
-  if (missing(data)) {
-    data <- environment(formula)
-    period <- NULL
-  } else {
-    period <- tsp(data)[3]
-    data <- as.data.frame(data)
-  }
   mf <- match.call(expand.dots = FALSE)
   mf <- mf[c(1L, match(c("formula", "data"), names(mf), 0L))]
   mf$drop.unused.levels <- TRUE
@@ -116,7 +114,9 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains,
   y <- model.response(mf, "numeric")
   n <- length(y)
   xreg <- model.matrix(attr(mf, "terms"), mf)
+  if (return_x_reg) return(xreg)
   k <- ncol(xreg)
+  
   
   if(!identical(dim(beta_prior), c(k, 2L))) {
     stop("beta_prior should be k x 2 matrix containing columns of prior means and sds for each k coefficients. ")
@@ -135,11 +135,11 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains,
         beta = rnorm(k, beta_prior[, 1], beta_prior[, 2])), simplify = FALSE)
   }
   if (naive) {
-    sampling(walker:::stanmodels$rw_model_naive,
+    sampling(stanmodels$rw_model_naive,
       data = stan_data, chains = chains, init = init,
       pars = c("sigma", "beta"), ...)
   } else {
-  sampling(walker:::stanmodels$rw_model,
+  sampling(stanmodels$rw_model,
     data = stan_data, chains = chains, init = init,
     pars = c("sigma", "beta"), ...)
   }

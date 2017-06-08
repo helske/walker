@@ -6,6 +6,11 @@ output:
 html_document: default
 bibliography: walker.bib
 link-citations: true
+vignette: |
+  %\VignetteIndexEntry{Efficient Bayesian linear regression with time-varying coefficients}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{rstan}
 ---
 
 ```{r setup, include=FALSE}
@@ -20,7 +25,7 @@ Dynamic linear regression models are extension to basic linear regression models
 More specifically, the dynamic regression model is defined as
 $$
 \begin{aligned}
-y_t &= x_t \beta_t + \epsilon_t, \quad t = 1,\ldots, n\\
+y_t &= x'_t \beta_t + \epsilon_t, \quad t = 1,\ldots, n\\
 \beta_{t+1} &= \beta_t + \eta_t,
 \end{aligned}
 $$
@@ -58,12 +63,13 @@ Then we can call function `walker`. The model is defined as a formula like in `l
 kalman_walker <- walker(y ~ x1 + x2, iter = 2000, chains = 1, seed = 1, refresh = 0,
   beta_prior = cbind(0, rep(2, 3)), sigma_prior = cbind(0, rep(2, 4)))
 print(kalman_walker, pars = "sigma")
-plot(kalman_walker, pars = "sigma")
+library("rstan")
+stan_plot(kalman_walker, pars = "sigma")
 ```
 
 We often get few (typically one) warning message about numerical problems, as the sampling algorithm warms up, but this is nothing to be concerned with (if more errors occur, then a Github issue for `walker` package is more than welcome). 
 
-Using the `extract` method of `rstan` we can pick up the samples corresponding to $\beta$'s, and we can for example plot the posterior mean paths with `ts.plot` (the dashed lines correspond to true coefficients):
+Using the `extract` method of `rstan` we can pick up the samples corresponding to $\beta$'s, and we can for example plot the posterior mean paths with `ts.plot` (the dashed lines correspond to true coefficients), or uncertainty intervals:
 
 ```{r plot_betas}
 betas <- extract(kalman_walker, "beta")[[1]]

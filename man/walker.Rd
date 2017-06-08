@@ -8,9 +8,9 @@ walker(formula, data, beta_prior, sigma_prior, init, chains, naive = FALSE,
   return_x_reg = FALSE, ...)
 }
 \arguments{
-\item{formula}{An object of class \link{\code{"formula"}}. See \link{code{"lm"}} for details.}
+\item{formula}{An object of class \code{\link[stats]{formula}}. See \code{\link[stats]{lm}} for details.}
 
-\item{data}{An optional data.frame or object coercible to such, as in \link{code{"lm"}}.}
+\item{data}{An optional data.frame or object coercible to such, as in \code{\link[stats]{lm}}.}
 
 \item{beta_prior}{A matrix with \eqn{k} rows and 2 columns, where first columns defines the 
 prior means of the Gaussian priors of the corresponding \eqn{k} regression coefficients, 
@@ -22,12 +22,20 @@ observation level noise, and rest of the rows define the priors for the standard
 random walk noise terms. The prior distributions for all sigmas are 
 Gaussians truncated to positive real axis.}
 
+\item{init}{Initial value specification, see \code{\link[rstan]{sampling}}. 
+Note that compared to default in \code{rstan}, here the default is a to sample from the priors.}
+
+\item{chains}{Number of Markov chains. Default is 4.}
+
 \item{naive}{If \code{TRUE}, use "standard" approach which samples the joint posterior 
 \eqn{p(beta, sigma | y)}. If \code{FALSE} (the default), use marginalisation approach 
 where we sample the marginal posterior \eqn{p(sigma | y)} and generate the samples of 
 \eqn{p(beta | sigma, y)} using state space modelling techniques 
 (namely simulation smoother by Durbin and Koopman (2002)). Both methods give asymptotically 
 identical results, but the latter approach is computationally much more efficient.}
+
+\item{return_x_reg}{if \code{TRUE}, does not perform sampling, but instead returns the matrix of 
+predictors after processing the \code{formula}.}
 }
 \description{
 Function \code{walker} performs Bayesian inference of a linear 

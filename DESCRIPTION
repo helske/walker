@@ -1,6 +1,6 @@
 Package: walker
 Type: Package
-Title: Efficient Bayesian linear regression with time-varying coefficients
+Title: Efficient Bayesian Linear Regression with Time-Varying Coefficients
 Version: 0.1.0
 Date: 2017-06-08
 Author: Jouni Helske
@@ -11,11 +11,16 @@ Description: Fully Bayesian linear regression where the regression coeffients
     using a state space representation of the model in order to marginalise 
     over the coefficients for efficient sampling.
 License: GPL (>= 2)
+Suggests: 
+    knitr (>= 1.11),
+    rmarkdown (>= 0.8.1)
 Depends:
-    R (>= 3.0.2),
+    R (>= 3.0.2)
+Imports:
     Rcpp (>= 0.12.9),
     rstan (>= 2.14.1),
     methods
 LinkingTo: StanHeaders (>= 2.14.0.1), rstan (>= 2.14.1), BH (>= 1.62.0.1),
     Rcpp (>= 0.12.9), RcppEigen (>= 0.3.2.9.0)
+VignetteBuilder: knitr
 RoxygenNote: 6.0.1
