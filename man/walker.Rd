@@ -5,7 +5,7 @@
 \title{Fully Bayesian linear regression with time-varying coefficients}
 \usage{
 walker(formula, data, beta_prior, sigma_prior, init, chains, naive = FALSE,
-  return_x_reg = FALSE, ...)
+  return_x_reg = FALSE, return_y_rep = TRUE, ...)
 }
 \arguments{
 \item{formula}{An object of class \code{\link[stats]{formula}}. See \code{\link[stats]{lm}} for details.}
@@ -34,8 +34,15 @@ where we sample the marginal posterior \eqn{p(sigma | y)} and generate the sampl
 (namely simulation smoother by Durbin and Koopman (2002)). Both methods give asymptotically 
 identical results, but the latter approach is computationally much more efficient.}
 
-\item{return_x_reg}{if \code{TRUE}, does not perform sampling, but instead returns the matrix of 
+\item{return_x_reg}{If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
 predictors after processing the \code{formula}.}
+
+\item{return_y_rep}{If \code{TRUE} (default), \code{walker} also returns the samples from the 
+posterior predictive distribution \eqn{p(y_rep | y) = int} which are computed during the 
+coefficient sampling. (i.e. this does not add any computational burden except due to 
+increased storage space). This argument is ignored if argument \code{naive} is \code{TRUE}.}
+
+\item{...}{Further arguments to \code{\link[rstan]{sampling}}.}
 }
 \description{
 Function \code{walker} performs Bayesian inference of a linear 

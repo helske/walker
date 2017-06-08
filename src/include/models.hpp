@@ -600,7 +600,7 @@ public:
         names__.push_back("sigma");
         names__.push_back("R_vector");
         names__.push_back("P1_vector");
-        names__.push_back("y_sim");
+        names__.push_back("y_rep");
         names__.push_back("beta");
     }
 
@@ -695,12 +695,12 @@ public:
 
         if (!include_gqs__) return;
         // declare and define generated quantities
-        validate_non_negative_index("y_sim", "n", n);
-        vector_d y_sim(static_cast<Eigen::VectorXd::Index>(n));
-        (void) y_sim;  // dummy to suppress unused var warning
+        validate_non_negative_index("y_rep", "n", n);
+        vector_d y_rep(static_cast<Eigen::VectorXd::Index>(n));
+        (void) y_rep;  // dummy to suppress unused var warning
 
-        stan::math::initialize(y_sim, std::numeric_limits<double>::quiet_NaN());
-        stan::math::fill(y_sim,DUMMY_VAR__);
+        stan::math::initialize(y_rep, std::numeric_limits<double>::quiet_NaN());
+        stan::math::fill(y_rep,DUMMY_VAR__);
         validate_non_negative_index("beta", "k", k);
         validate_non_negative_index("beta", "n", n);
         matrix_d beta(static_cast<Eigen::VectorXd::Index>(k),static_cast<Eigen::VectorXd::Index>(n));
@@ -724,9 +724,9 @@ public:
             }
             for (int t = 1; t <= n; ++t) {
 
-                stan::math::assign(get_base1_lhs(y_sim,t,"y_sim",1), ((get_base1(y,t,"y",1) - multiply(stan::model::rvalue(xreg, stan::model::cons_list(stan::model::index_uni(t), stan::model::cons_list(stan::model::index_omni(), stan::model::nil_index_list())), "xreg"),stan::model::rvalue(beta, stan::model::cons_list(stan::model::index_min_max(1, k), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "beta"))) + normal_rng(0,get_base1(sigma,1,"sigma",1), base_rng__)));
+                stan::math::assign(get_base1_lhs(y_rep,t,"y_rep",1), (multiply(stan::model::rvalue(xreg, stan::model::cons_list(stan::model::index_uni(t), stan::model::cons_list(stan::model::index_omni(), stan::model::nil_index_list())), "xreg"),stan::model::rvalue(beta, stan::model::cons_list(stan::model::index_min_max(1, k), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "beta")) + normal_rng(0,get_base1(sigma,1,"sigma",1), base_rng__)));
             }
-            stan::math::assign(beta, add(beta,gaussian_smoother(y_sim,beta_mean,P1_vector,pow(get_base1(sigma,1,"sigma",1),2),diag_matrix(R_vector),xreg, pstream__)));
+            stan::math::assign(beta, add(beta,gaussian_smoother(subtract(y,y_rep),beta_mean,P1_vector,pow(get_base1(sigma,1,"sigma",1),2),diag_matrix(R_vector),xreg, pstream__)));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -737,7 +737,7 @@ public:
 
         // write generated quantities
         for (int k_0__ = 0; k_0__ < n; ++k_0__) {
-            vars__.push_back(y_sim[k_0__]);
+            vars__.push_back(y_rep[k_0__]);
         }
         for (int k_1__ = 0; k_1__ < n; ++k_1__) {
             for (int k_0__ = 0; k_0__ < k; ++k_0__) {
@@ -795,7 +795,7 @@ public:
         if (!include_gqs__) return;
         for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
             param_name_stream__.str(std::string());
-            param_name_stream__ << "y_sim" << '.' << k_0__;
+            param_name_stream__ << "y_rep" << '.' << k_0__;
             param_names__.push_back(param_name_stream__.str());
         }
         for (int k_1__ = 1; k_1__ <= n; ++k_1__) {
@@ -833,7 +833,7 @@ public:
         if (!include_gqs__) return;
         for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
             param_name_stream__.str(std::string());
-            param_name_stream__ << "y_sim" << '.' << k_0__;
+            param_name_stream__ << "y_rep" << '.' << k_0__;
             param_names__.push_back(param_name_stream__.str());
         }
         for (int k_1__ = 1; k_1__ <= n; ++k_1__) {

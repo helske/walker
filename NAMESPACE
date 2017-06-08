@@ -2,7 +2,11 @@
 
 export(walker)
 import(Rcpp)
+import(methods)
 import(rstan)
 importFrom(stats,formula)
+importFrom(stats,model.matrix)
+importFrom(stats,model.response)
+importFrom(stats,rnorm)
 importFrom(stats,ts.plot)
 useDynLib(walker, .registration = TRUE)

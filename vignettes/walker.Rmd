@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(walker)
 ```
 
-# Introduction
+## Introduction
 
 Dynamic linear regression models are extension to basic linear regression models where instead of constant but unknown regression coefficients, the underlying coefficients are assumed to vary over "time" according to random walk. These types of models allow robust modelling of phenomenas where the effect size of the predictor variables and the response variable can vary during the period of the study. The `R` [@R] package `walker` provides an efficient method for fully Bayesian inference of such models, where the main computations are performed using state-of-the-art Markov chain Monte Carlo (MCMC) algorithms provided by `Stan` [@stan, @rstan]. This also allows the straightforward use of many diagnostic and graphical tools provided by several `Stan` related `R` packages such as `ShinyStan` [@shinystan].
 
@@ -90,7 +90,10 @@ rstan:::throw_sampler_warnings(naive_walker)
 
 With naive implementation we get smaller effective sample sizes and higher computation time, as well as some indications of divergence problems.
 
-# Discussion
+## Posterior predictive checks
+
+There is one one perhaps less known coincidence of using the simulation smoothing algorithm by @durbin-koopman2012 in this context.
+## Discussion
 
 In this vignette we illustrated the benefits of marginalisation in dynamic regression context. The underlying idea is not new; this approach is typical especially in classic Metropolis-type algorithms for linear-Gaussian state space models where the marginal likelihood $p(y | \theta)$ is used in the computation of the acceptance probability. Here instead of building specific MCMC machinery, we rely on readily available Hamiltonian Monte Carlo based `Stan` software, thus allowing us to enjoy the benefits of diverse tools of the `Stan` community. Due to the restricted class of models considered, we can also simplify the underlying Kalman filter considerably, thus leading efficient likelihood evaluation.
 

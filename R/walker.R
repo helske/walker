@@ -30,8 +30,12 @@
 #' @param chains Number of Markov chains. Default is 4.
 #' @param init Initial value specification, see \code{\link[rstan]{sampling}}. 
 #' Note that compared to default in \code{rstan}, here the default is a to sample from the priors.
-#' @param return_x_reg if \code{TRUE}, does not perform sampling, but instead returns the matrix of 
+#' @param return_x_reg If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
 #' predictors after processing the \code{formula}.
+#' @param return_y_rep If \code{TRUE} (default), \code{walker} also returns the samples from the 
+#' posterior predictive distribution \eqn{p(y_rep | y) = int} which are computed during the 
+#' coefficient sampling. (i.e. this does not add any computational burden except due to 
+#' increased storage space). This argument is ignored if argument \code{naive} is \code{TRUE}.
 #' @param ... Further arguments to \code{\link[rstan]{sampling}}.
 #' @export
 #' @examples 
@@ -102,7 +106,7 @@
 #' }
 
 walker <- function(formula, data, beta_prior, sigma_prior, init, chains,
-  naive = FALSE, return_x_reg = FALSE, ...) {
+  naive = FALSE, return_x_reg = FALSE, return_y_rep = TRUE, ...) {
   
   # build y and xreg
   mf <- match.call(expand.dots = FALSE)
@@ -141,7 +145,7 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains,
   } else {
   sampling(stanmodels$rw_model,
     data = stan_data, chains = chains, init = init,
-    pars = c("sigma", "beta"), ...)
+    pars = c("sigma", "beta", if (return_y_rep) "y_rep"), ...)
   }
 }
 

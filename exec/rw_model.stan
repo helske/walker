@@ -98,7 +98,7 @@ model {
 }
 
 generated quantities{
-    vector[n] y_sim;
+    vector[n] y_rep;
     matrix[k, n] beta;
     for(i in 1:k) {
        beta[i, 1] = normal_rng(beta_mean[i], beta_sd[i]);
@@ -110,7 +110,7 @@ generated quantities{
       }
     }
     for(t in 1:n) {
-      y_sim[t] = y[t] - xreg[t,] * beta[1:k, t] + normal_rng(0, sigma[1]);
+      y_rep[t] = xreg[t,] * beta[1:k, t] + normal_rng(0, sigma[1]);
     }
-    beta = beta + gaussian_smoother(y_sim, beta_mean, P1_vector, sigma[1]^2, diag_matrix(R_vector), xreg);
+    beta = beta + gaussian_smoother(y - y_rep, beta_mean, P1_vector, sigma[1]^2, diag_matrix(R_vector), xreg);
 }
