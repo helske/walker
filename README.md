@@ -8,4 +8,4 @@ regression coeffients are allowed to vary over "time", either as independent ran
 All computations are done using Hamiltonian Monte Carlo provided by Stan, 
 using a state space representation of the model in order to marginalise over the coefficients for accurate and efficient sampling.
 
-See the package [vignette](http://htmlpreview.github.io/?https://github.com/helske/walker/blob/master/vignettes/walker.html) for details and example.
+See the package [vignette](http://htmlpreview.github.io/?https://github.com/helske/walker/blob/master/vignettes/walker.html) for details and an example (unfortunately the model formulation of the vignette might not work on all browsers). 
