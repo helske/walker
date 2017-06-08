@@ -4,8 +4,8 @@
 \alias{walker}
 \title{Fully Bayesian linear regression with time-varying coefficients}
 \usage{
-walker(formula, data, beta_prior, sigma_prior, init, chains, naive = FALSE,
-  return_x_reg = FALSE, return_y_rep = TRUE, ...)
+walker(formula, data, beta_prior, sigma_prior, init, chains, newdata,
+  naive = FALSE, return_x_reg = FALSE, return_y_rep = TRUE, ...)
 }
 \arguments{
 \item{formula}{An object of class \code{\link[stats]{formula}}. See \code{\link[stats]{lm}} for details.}
@@ -27,6 +27,9 @@ Note that compared to default in \code{rstan}, here the default is a to sample f
 
 \item{chains}{Number of Markov chains. Default is 4.}
 
+\item{newdata}{Optional data.frame containing covariates used for prediction. This argument is 
+ignored if argument \code{naive} is \code{TRUE}.}
+
 \item{naive}{If \code{TRUE}, use "standard" approach which samples the joint posterior 
 \eqn{p(beta, sigma | y)}. If \code{FALSE} (the default), use marginalisation approach 
 where we sample the marginal posterior \eqn{p(sigma | y)} and generate the samples of 
@@ -38,9 +41,8 @@ identical results, but the latter approach is computationally much more efficien
 predictors after processing the \code{formula}.}
 
 \item{return_y_rep}{If \code{TRUE} (default), \code{walker} also returns the samples from the 
-posterior predictive distribution \eqn{p(y_rep | y) = int} which are computed during the 
-coefficient sampling. (i.e. this does not add any computational burden except due to 
-increased storage space). This argument is ignored if argument \code{naive} is \code{TRUE}.}
+posterior predictive distribution \eqn{p(y_rep | y)}. This argument is ignored if 
+argument \code{naive} is \code{TRUE}.}
 
 \item{...}{Further arguments to \code{\link[rstan]{sampling}}.}
 }

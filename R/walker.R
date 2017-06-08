@@ -33,9 +33,10 @@
 #' @param return_x_reg If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
 #' predictors after processing the \code{formula}.
 #' @param return_y_rep If \code{TRUE} (default), \code{walker} also returns the samples from the 
-#' posterior predictive distribution \eqn{p(y_rep | y) = int} which are computed during the 
-#' coefficient sampling. (i.e. this does not add any computational burden except due to 
-#' increased storage space). This argument is ignored if argument \code{naive} is \code{TRUE}.
+#' posterior predictive distribution \eqn{p(y_rep | y)}. This argument is ignored if 
+#' argument \code{naive} is \code{TRUE}.
+#' @param newdata Optional data.frame containing covariates used for prediction. This argument is 
+#' ignored if argument \code{naive} is \code{TRUE}.
 #' @param ... Further arguments to \code{\link[rstan]{sampling}}.
 #' @export
 #' @examples 
@@ -105,7 +106,7 @@
 #' sum(get_elapsed_time(naive_walker))
 #' }
 
-walker <- function(formula, data, beta_prior, sigma_prior, init, chains,
+walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata,
   naive = FALSE, return_x_reg = FALSE, return_y_rep = TRUE, ...) {
   
   # build y and xreg
@@ -120,7 +121,14 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains,
   xreg <- model.matrix(attr(mf, "terms"), mf)
   if (return_x_reg) return(xreg)
   k <- ncol(xreg)
-  
+
+  if (!missing(newdata)) {
+    xreg_new <- model.matrix(delete.response(terms(mf)), data = newdata)
+    n_new <- nrow(xreg_new)
+  } else {
+    xreg_new <- matrix(0, 0, k)
+    n_new <- 0L
+  }
   
   if(!identical(dim(beta_prior), c(k, 2L))) {
     stop("beta_prior should be k x 2 matrix containing columns of prior means and sds for each k coefficients. ")
@@ -128,7 +136,8 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains,
   if(!identical(dim(sigma_prior), c(k + 1L, 2L))) {
     stop("sigma_prior should be (k + 1) x 2 matrix containing columns of prior means and sds for each k + 1 standard deviations. ")
   }
-  stan_data <- list(k = k, n = n, y = y, xreg = xreg,
+  stan_data <- list(k = k, n = n, y = y, xreg = xreg, 
+    n_new = n_new, xreg_new = xreg_new,
     beta_mean = beta_prior[, 1], beta_sd = beta_prior[, 2], 
     sigma_mean = sigma_prior[, 1], sigma_sd = sigma_prior[, 2])
   
@@ -145,7 +154,7 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains,
   } else {
   sampling(stanmodels$rw_model,
     data = stan_data, chains = chains, init = init,
-    pars = c("sigma", "beta", if (return_y_rep) "y_rep"), ...)
+    pars = c("sigma", "beta", if (return_y_rep) "y_rep", if (n_new > 0) "y_new"), ...)
   }
 }
 

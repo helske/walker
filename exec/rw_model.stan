@@ -79,6 +79,8 @@ data {
   vector[k] beta_sd;
   vector[k + 1] sigma_mean;
   vector[k + 1] sigma_sd;
+  int<lower=0> n_new;
+  matrix[n_new, k] xreg_new;
 }
 
 parameters {
@@ -98,19 +100,43 @@ model {
 }
 
 generated quantities{
-    vector[n] y_rep;
-    matrix[k, n] beta;
+    
+  vector[n] y_rep;
+  matrix[k, n] beta;
+  vector[n_new] y_new;
+  vector[k] beta_new;
+  
+  // sample coefficients given sigma's (no conditioning on y)  
+  for(i in 1:k) {
+     beta[i, 1] = normal_rng(beta_mean[i], beta_sd[i]);
+  }
+  for (t in 1:(n - 1)) {
     for(i in 1:k) {
-       beta[i, 1] = normal_rng(beta_mean[i], beta_sd[i]);
+      beta[i, t+1]  = normal_rng(beta[i, t], sigma[1 + i]);
     }
-
-    for (t in 1:(n - 1)) {
+  }
+  // sample new observations given previously simulated beta
+  for(t in 1:n) {
+    y_rep[t] = xreg[t,] * beta[1:k, t] + normal_rng(0, sigma[1]);
+  }
+  // perform mean correction to obtain sample from the posterior
+  beta = beta + gaussian_smoother(y - y_rep, beta_mean, P1_vector, sigma[1]^2, diag_matrix(R_vector), xreg);
+  
+  // replicated data from posterior predictive distribution
+  for(t in 1:n) {
+    y_rep[t] = xreg[t,] * beta[1:k, t] + normal_rng(0, sigma[1]);
+  }
+  
+  // prediction 
+  if (n_new > 0) {
+    for(i in 1:k) {
+      beta_new[i] = normal_rng(beta[i, n], sigma[1 + i]);
+    }
+    for(t in 1:n_new) {
+      y_new[t] = xreg_new[t,] * beta_new + normal_rng(0, sigma[1]);
       for(i in 1:k) {
-        beta[i, t+1]  = normal_rng(beta[i, t], sigma[1 + i]);
-      }
+        beta_new[i] = normal_rng(beta_new[i], sigma[1 + i]);
+      } 
     }
-    for(t in 1:n) {
-      y_rep[t] = xreg[t,] * beta[1:k, t] + normal_rng(0, sigma[1]);
-    }
-    beta = beta + gaussian_smoother(y - y_rep, beta_mean, P1_vector, sigma[1]^2, diag_matrix(R_vector), xreg);
+  }
 }
