@@ -83,9 +83,11 @@
 #'   col = 1:3, lty = rep(2:1, each = 3))
 #' sum(get_elapsed_time(kalman_walker))
 #' # need to increase adapt_delta in order to get rid of divergences
+#' # and max_treedepth to get rid of related warnings
+#' # and still we end up with low BFMI warning after hours of computation
 #' naive_walker <- walker(y ~ x1 + x2 + x3 + x4, iter = 2000, chains = 1, seed = 1,
 #'   beta_prior = cbind(0, rep(2, 5)), sigma_prior = cbind(0, rep(2, 6)),
-#'   naive = TRUE, control = list(adapt_delta = 0.9)) 
+#'   naive = TRUE, control = list(adapt_delta = 0.9, max_treedepth = 15)) 
 #' print(naive_walker, pars = c("sigma"))
 #' # check rstan:::throw_sampler_warnings(naive_walker)
 #' # (does not work automatically for single chain)
