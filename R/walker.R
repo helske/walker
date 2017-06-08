@@ -8,7 +8,7 @@
 #' in order to marginalise over the coefficients for efficient sampling.
 #' 
 #' @import rstan Rcpp methods
-#' @importFrom stats ts.plot formula model.matrix model.response rnorm
+#' @importFrom stats ts.plot formula model.matrix model.response rnorm delete.response terms
 #' @rdname walker
 #' @useDynLib walker, .registration = TRUE
 #' @param formula An object of class \code{\link[stats]{formula}}. See \code{\link[stats]{lm}} for details.
