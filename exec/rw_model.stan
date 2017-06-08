@@ -1,5 +1,8 @@
 functions {
- // univariate Kalman filter, return log-likelihood
+// Functions for Kalman filter and smoother for dynamic regression model
+// note that these functions are not fully optimised yet
+
+// univariate Kalman filter, returns the log-likelihood
 real gaussian_filter(vector y, vector a1, vector P1, real Ht, matrix Rt, matrix xreg) {
 
   int n = rows(y);
@@ -22,6 +25,7 @@ real gaussian_filter(vector y, vector a1, vector P1, real Ht, matrix Rt, matrix 
   }
    return loglik;
   }
+  
 matrix gaussian_smoother(vector y, vector a1, vector P1, real Ht, matrix Rt, matrix xreg) {
 
   int n = rows(y);

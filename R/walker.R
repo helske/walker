@@ -8,6 +8,7 @@
 #' in order to marginalise over the coefficients for efficient sampling.
 #' 
 #' @importFrom rstan sampling
+#' @importFrom stats ts.plot
 #' @rdname walker
 #' @useDynLib walker, .registration = TRUE
 #' @param formula An object of class \link{\code{"formula"}}. See \link{code{"lm"}} for details.

@@ -1,6 +1,6 @@
 Package: walker
 Type: Package
-Title: Fully Bayesian linear regression with time-varying coefficients
+Title: Efficient Bayesian linear regression with time-varying coefficients
 Version: 0.0.1
 Date: 2017-06-07
 Author: Jouni Helske

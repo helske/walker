@@ -1,4 +1,4 @@
-# walker: Baysian dynamic linear regression models with Stan/R
+# walker: Efficient Baysian dynamic linear regression models with Stan/R
 
 Walker provides a method for fully Bayesian linear regression where the 
 regression coeffients are allowed to vary over "time", either as independent random walks. 
