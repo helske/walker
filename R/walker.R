@@ -138,7 +138,8 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata
   }
   stan_data <- list(k = k, n = n, y = y, xreg = xreg, 
     n_new = n_new, xreg_new = xreg_new,
-    beta_mean = beta_prior[, 1], beta_sd = beta_prior[, 2], 
+    beta_mean = structure(beta_prior[, 1], dim = k), 
+    beta_sd = structure(beta_prior[, 2], dim = k),
     sigma_mean = sigma_prior[, 1], sigma_sd = sigma_prior[, 2])
   
   if (missing(chains)) chains <- 4
