@@ -11,9 +11,9 @@ vignette: |
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   %\VignetteDepends{rstan}
-  ---
+---
   
-  ```{r setup, include=FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(walker)
 ```
@@ -78,7 +78,9 @@ ts.plot(cbind(u, beta1, beta2,
   matrix(betas[, c("mean", "2.5%", "97.5%")], ncol = 9)),
   col = c(1:3, rep(1:3, 3)), lty = rep(1:2, times = c(3, 9)))
 ```
+
 We can perform the same analysis with naive implementation by setting the argument `naive` to `TRUE`:
+
 ```{r naive}
 naive_walker <- walker(y ~ x1 + x2, seed = 1, refresh = 0, chains = 2,
   beta_prior = cbind(0, rep(5, 3)), sigma_prior = cbind(0, rep(2, 4)),
