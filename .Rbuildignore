@@ -2,4 +2,4 @@
 ^\.Rproj\.user$
 .travis.yml
 README.md
-vignettes/walker.html
+walker_html
