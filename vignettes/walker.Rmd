@@ -60,7 +60,7 @@ lines(y, col = 2)
 Then we can call function `walker`. The model is defined as a formula like in `lm`, and we can give several arguments which are passed to `sampling` method of `rstan`, such as number of iteration `iter` and number of chains `chains` (default values for these are 2000 and 4). In addition to these, we use arguments `beta_prior` and `sigma_prior`, which define the prior distributions for $\beta$ and $\sigma$ respectively. These arguments should be two-column matrices, where the first column defines the prior means, and the second column defines the prior standard deviations.
 
 ```{r walker}
-kalman_walker <- walker(y ~ x1 + x2, refresh = 0,
+kalman_walker <- walker(y ~ x1 + x2, refresh = 0, chains = 2,
   beta_prior = cbind(0, rep(5, 3)), sigma_prior = cbind(0, rep(2, 4)))
 print(kalman_walker, pars = "sigma")
 library("rstan")
@@ -78,10 +78,9 @@ ts.plot(cbind(u, beta1, beta2,
   matrix(betas[, c("mean", "2.5%", "97.5%")], ncol = 9)),
   col = c(1:3, rep(1:3, 3)), lty = rep(1:2, times = c(3, 9)))
 ```
-
 We can perform the same analysis with naive implementation by setting the argument `naive` to `TRUE`:
 ```{r naive}
-naive_walker <- walker(y ~ x1 + x2, seed = 1, refresh = 0,
+naive_walker <- walker(y ~ x1 + x2, seed = 1, refresh = 0, chains = 2,
   beta_prior = cbind(0, rep(5, 3)), sigma_prior = cbind(0, rep(2, 4)),
   naive = TRUE, control = list(adapt_delta = 0.9, max_treedepth = 15))
 print(naive_walker, pars = c("sigma"))

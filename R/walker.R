@@ -8,7 +8,7 @@
 #' in order to marginalise over the coefficients for efficient sampling.
 #' 
 #' @import rstan Rcpp methods
-#' @importFrom stats ts.plot formula model.matrix model.response rnorm delete.response terms
+#' @importFrom stats ts.plot formula model.matrix model.response rnorm delete.response terms window ts end
 #' @rdname walker
 #' @useDynLib walker, .registration = TRUE
 #' @param formula An object of class \code{\link[stats]{formula}}. See \code{\link[stats]{lm}} for details.
@@ -40,6 +40,27 @@
 #' @param ... Further arguments to \code{\link[rstan]{sampling}}.
 #' @export
 #' @examples 
+#' library(walker)
+#' y <- window(log10(UKgas), end = time(UKgas)[100])
+#' trend <- 1:length(y)
+#' cos_t <- cos(2 * pi * trend /4)
+#' sin_t <- sin(2 * pi * trend /4)
+#' dat <- data.frame(y, trend, cos_t, sin_t)
+#' future <- length(y) + 1:8
+#' new_data <- data.frame(trend = future, cos_t = cos(2 * pi * future / 4), 
+#'   sin_t = sin(2 * pi * future / 4))
+#' fit <- walker(y ~ trend + cos_t + sin_t, data = dat, chains = 2, 
+#'   newdata = new_data, beta = cbind(0, rep(10, 4)), sigma = cbind(0, rep(10, 5)))
+#' print(fit, "sigma")
+#' mean_fit <- matrix(summary(fit, "beta")$summary[, "mean"], ncol = 4)
+#'
+#' # still needs bit manual work..  
+#' ts.plot(cbind(y, rowSums(mean_fit * cbind(1, as.matrix(dat[, -1])))),
+#'   col = 1:2, lwd = 2:1)
+#' intervals <- summary(fit, pars = "y_new")$summary[, c("mean", "2.5%", "97.5%")]
+#' ts.plot(log10(UKgas), ts(intervals, start = end(y) + c(0,1), frequency = 4),
+#'   col = c(1, 2, 2, 2), lty = c(1, 1, 2, 2))
+#'  
 #' \dontrun{
 #' ## Comparing the approaches, note that with such a small data 
 #' ## the differences aren't huge, but try same with n = 500 and/or more terms...
@@ -149,7 +170,7 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata
         beta = rnorm(k, beta_prior[, 1], beta_prior[, 2])), simplify = FALSE)
   }
   if (naive) {
-    sampling(stanmodels$rw_model_naive,
+  sampling(stanmodels$rw_model_naive,
       data = stan_data, chains = chains, init = init,
       pars = c("sigma", "beta"), ...)
   } else {
