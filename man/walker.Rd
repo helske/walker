@@ -55,7 +55,6 @@ Monte Carlo provided by Stan, using a state space representation of the model
 in order to marginalise over the coefficients for efficient sampling.
 }
 \examples{
-library(walker)
 y <- window(log10(UKgas), end = time(UKgas)[100])
 trend <- 1:length(y)
 cos_t <- cos(2 * pi * trend /4)
@@ -64,7 +63,7 @@ dat <- data.frame(y, trend, cos_t, sin_t)
 future <- length(y) + 1:8
 new_data <- data.frame(trend = future, cos_t = cos(2 * pi * future / 4), 
   sin_t = sin(2 * pi * future / 4))
-fit <- walker(y ~ trend + cos_t + sin_t, data = dat, chains = 2, 
+fit <- walker(y ~ trend + cos_t + sin_t, data = dat, chains = 1, iter = 500, 
   newdata = new_data, beta = cbind(0, rep(10, 4)), sigma = cbind(0, rep(10, 5)))
 print(fit, "sigma")
 mean_fit <- matrix(summary(fit, "beta")$summary[, "mean"], ncol = 4)
