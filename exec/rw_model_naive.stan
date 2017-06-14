@@ -1,7 +1,7 @@
 data {
   int<lower=0> k;
   int<lower=0> n;
-  matrix[n, k] xreg;
+  matrix[k, n] xreg;
   vector[n] y;
   vector[k] beta_mean;
   vector[k] beta_sd;
@@ -9,29 +9,36 @@ data {
   vector[k + 1] sigma_sd;
 
 }
+transformed data {
+  vector[k] sigma_b_mean = sigma_mean[2:];
+  vector[k] sigma_b_sd = sigma_sd[2:];
+  real sigma_y_mean = sigma_mean[1];
+  real sigma_y_sd = sigma_sd[1];
+}
+
 parameters {
-  real<lower=0> sigma[1 + k];
+  real<lower=0> sigma_b[k];
+  real<lower=0> sigma_y;
   matrix[k, n] beta_raw;
 }
+
 transformed parameters {
   matrix[k, n] beta;
-  vector[k] sigma_vec;
   
   vector[k] tmp;
-  for(i in 1:k) sigma_vec[i] = sigma[1 + i];
-  
   beta[, 1] = beta_mean + beta_sd .* beta_raw[, 1]; 
   for(t in 2:n) {
     tmp = beta[, t - 1];
-    beta[, t] = tmp + sigma_vec .* beta_raw[, t];  
+    beta[, t] = tmp + to_vector(sigma_b) .* beta_raw[, t];  
   }
 }
-model {
-  target += normal_lpdf(sigma | sigma_mean, sigma_sd);
- 
-  for(t in 1:n) {
-    target += normal_lpdf(beta_raw[, t] | 0, 1);
-    target += normal_lpdf(y[t] | xreg[t, ] * beta[, t], sigma[1]);    
-  }
 
+model {
+  sigma_b ~ normal(sigma_b_mean, sigma_b_sd);
+  sigma_y ~ normal(sigma_y_mean, sigma_y_sd);
+  to_vector(beta_raw) ~ normal(0, 1);
+  {
+    row_vector[n] mu = columns_dot_product(xreg, beta);
+    y ~ normal(mu, sigma_y);
+  }
 }

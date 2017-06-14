@@ -62,9 +62,9 @@ Then we can call function `walker`. The model is defined as a formula like in `l
 ```{r walker}
 kalman_walker <- walker(y ~ x1 + x2, refresh = 0, chains = 2,
   beta_prior = cbind(0, rep(5, 3)), sigma_prior = cbind(0, rep(2, 4)))
-print(kalman_walker, pars = "sigma")
+print(kalman_walker, pars = c("sigma_y", "sigma_b"))
 library("rstan")
-stan_plot(kalman_walker, pars = "sigma")
+stan_plot(kalman_walker, pars = c("sigma_y", "sigma_b"))
 ```
 
 We often get few (typically one) warning message about numerical problems, as the sampling algorithm warms up, but this is nothing to be concerned with (if more errors occur, then a Github issue for `walker` package is more than welcome). 
@@ -85,7 +85,7 @@ We can perform the same analysis with naive implementation by setting the argume
 naive_walker <- walker(y ~ x1 + x2, seed = 1, refresh = 0, chains = 2,
   beta_prior = cbind(0, rep(5, 3)), sigma_prior = cbind(0, rep(2, 4)),
   naive = TRUE, control = list(adapt_delta = 0.9, max_treedepth = 15))
-print(naive_walker, pars = c("sigma"))
+print(naive_walker, pars = c("sigma_y", "sigma_b"))
 
 sum(get_elapsed_time(kalman_walker))
 sum(get_elapsed_time(naive_walker))

@@ -50,7 +50,7 @@
 #'   sin_t = sin(2 * pi * future / 4))
 #' fit <- walker(y ~ trend + cos_t + sin_t, data = dat, chains = 1, iter = 500, 
 #'   newdata = new_data, beta = cbind(0, rep(10, 4)), sigma = cbind(0, rep(10, 5)))
-#' print(fit, "sigma")
+#' print(fit, pars = c("sigma_y", "sigma_b"))
 #' mean_fit <- matrix(summary(fit, "beta")$summary[, "mean"], ncol = 4)
 #'
 #' # still needs bit manual work..  
@@ -74,17 +74,17 @@
 #' y <- rnorm(n, u + beta1 * x1 + beta2 * x2)
 #' ts.plot(y)
 #' lines(u + beta1 * x1 + beta2 * x2, col = 2)
-#' kalman_walker <- walker(y ~ x1 + x2, iter = 2000, chains = 1, seed = 1,
+#' kalman_walker <- walker(y ~ x1 + x2, iter = 2000, chains = 1,
 #'   beta_prior = cbind(0, rep(2, 3)), sigma_prior = cbind(0, rep(2, 4)))
-#' print(kalman_walker, pars = "sigma")
+#' print(kalman_walker, pars = c("sigma_y", "sigma_b"))
 #' betas <- extract(kalman_walker, "beta")[[1]]
 #' ts.plot(cbind(u, beta1, beta2, apply(betas, 2, colMeans)), 
 #'   col = 1:3, lty = rep(2:1, each = 3))
 #' sum(get_elapsed_time(kalman_walker))
-#' naive_walker <- walker(y ~ x1 + x2, iter = 2000, chains = 1, seed = 1, 
+#' naive_walker <- walker(y ~ x1 + x2, iter = 2000, chains = 1, 
 #'   beta_prior = cbind(0, rep(2, 3)), sigma_prior = cbind(0, rep(2, 4)), 
 #'   naive = TRUE)
-#' print(naive_walker, pars = "sigma")
+#' print(naive_walker, pars = c("sigma_y", "sigma_b"))
 #' # check rstan:::throw_sampler_warnings(naive_walker) 
 #' # (does not work automatically for single chain)
 #' sum(get_elapsed_time(naive_walker))
@@ -107,9 +107,9 @@
 #' y <- rnorm(n, signal)
 #' ts.plot(y)
 #' lines(signal, col = 2)
-#' kalman_walker <- walker(y ~ x1 + x2 + x3 + x4, iter = 2000, chains = 1, seed = 1,
+#' kalman_walker <- walker(y ~ x1 + x2 + x3 + x4, iter = 2000, chains = 1,
 #'   beta_prior = cbind(0, rep(2, 5)), sigma_prior = cbind(0, rep(2, 6)))
-#' print(kalman_walker, pars = "sigma")
+#' print(kalman_walker, pars = c("sigma_y", "sigma_b"))
 #' betas <- extract(kalman_walker, "beta")[[1]]
 #' ts.plot(cbind(u, beta1, beta2, apply(betas, 2, colMeans)), 
 #'   col = 1:3, lty = rep(2:1, each = 3))
@@ -117,15 +117,15 @@
 #' # need to increase adapt_delta in order to get rid of divergences
 #' # and max_treedepth to get rid of related warnings
 #' # and still we end up with low BFMI warning after hours of computation
-#' naive_walker <- walker(y ~ x1 + x2 + x3 + x4, iter = 2000, chains = 1, seed = 1,
+#' naive_walker <- walker(y ~ x1 + x2 + x3 + x4, iter = 2000, chains = 1, 
 #'   beta_prior = cbind(0, rep(2, 5)), sigma_prior = cbind(0, rep(2, 6)),
 #'   naive = TRUE, control = list(adapt_delta = 0.9, max_treedepth = 15)) 
-#' print(naive_walker, pars = c("sigma"))
+#' print(naive_walker, pars = c("sigma_y", "sigma_b"))
 #' # check rstan:::throw_sampler_warnings(naive_walker)
 #' # (does not work automatically for single chain)
 #' sum(get_elapsed_time(naive_walker))
 #' }
-
+#' 
 walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata,
   naive = FALSE, return_x_reg = FALSE, return_y_rep = TRUE, ...) {
   
@@ -156,8 +156,8 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata
   if(!identical(dim(sigma_prior), c(k + 1L, 2L))) {
     stop("sigma_prior should be (k + 1) x 2 matrix containing columns of prior means and sds for each k + 1 standard deviations. ")
   }
-  stan_data <- list(k = k, n = n, y = y, xreg = xreg, 
-    n_new = n_new, xreg_new = xreg_new,
+  stan_data <- list(k = k, n = n, y = y, xreg = t(xreg), 
+    n_new = n_new, xreg_new = t(xreg_new),
     beta_mean = structure(beta_prior[, 1], dim = k), 
     beta_sd = structure(beta_prior[, 2], dim = k),
     sigma_mean = sigma_prior[, 1], sigma_sd = sigma_prior[, 2])
@@ -165,17 +165,18 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata
   if (missing(chains)) chains <- 4
   if (missing(init)) {
     init <- replicate(chains, 
-      list(sigma = abs(rnorm(k + 1, sigma_prior[, 1], sigma_prior[, 2])), 
+      list(sigma_y  = abs(rnorm(1, sigma_prior[1, 1], sigma_prior[1, 2])), 
+        sigma_b = abs(rnorm(k, sigma_prior[-1, 1], sigma_prior[-1, 2])), 
         beta = rnorm(k, beta_prior[, 1], beta_prior[, 2])), simplify = FALSE)
   }
   if (naive) {
   sampling(stanmodels$rw_model_naive,
       data = stan_data, chains = chains, init = init,
-      pars = c("sigma", "beta"), ...)
+      pars = c("sigma_y", "sigma_b", "beta"), ...)
   } else {
   sampling(stanmodels$rw_model,
     data = stan_data, chains = chains, init = init,
-    pars = c("sigma", "beta", if (return_y_rep) "y_rep", if (n_new > 0) "y_new"), ...)
+    pars = c("sigma_y", "sigma_b", "beta", if (return_y_rep) "y_rep", if (n_new > 0) "y_new"), ...)
   }
 }
 
