@@ -224,6 +224,10 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                 stan::math::assign(x, add(x,multiply(stan::model::rvalue(K, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "K"),get_base1(v,t,"v",1))));
                 stan::math::assign(P, add(subtract(P,multiply(multiply(stan::model::rvalue(K, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "K"),transpose(stan::model::rvalue(K, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "K"))),get_base1(F,t,"F",1))),Rt));
             }
+            if (pstream__) {
+                stan_print(pstream__,F);
+                *pstream__ << std::endl;
+            }
             stan::model::assign(r, 
                         stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((n + 1)), stan::model::nil_index_list())), 
                         rep_vector(0.0,m), 
@@ -248,7 +252,7 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
                         stan::model::assign(r, 
                                     stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), 
-                                    subtract(add(divide(multiply(stan::model::rvalue(xreg, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg"),get_base1(v,t,"v",1)),get_base1(F,t,"F",1)),tmp),multiply(dot_product(stan::model::rvalue(K, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "K"),stan::model::rvalue(xreg, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg")),tmp)), 
+                                    subtract(add(divide(multiply(stan::model::rvalue(xreg, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg"),get_base1(v,t,"v",1)),get_base1(F,t,"F",1)),tmp),multiply(stan::model::rvalue(xreg, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg"),dot_product(stan::model::rvalue(K, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "K"),tmp))), 
                                     "assigning variable r");
                     }
                 }
@@ -808,7 +812,7 @@ public:
             }
             for (int t = 1; t <= n; ++t) {
 
-                stan::math::assign(get_base1_lhs(y_rep,t,"y_rep",1), (dot_product(stan::model::rvalue(xreg, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg"),stan::model::rvalue(beta, stan::model::cons_list(stan::model::index_min_max(1, k), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "beta")) + normal_rng(0,sigma_y, base_rng__)));
+                stan::math::assign(get_base1_lhs(y_rep,t,"y_rep",1), normal_rng(dot_product(stan::model::rvalue(xreg, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg"),stan::model::rvalue(beta, stan::model::cons_list(stan::model::index_min_max(1, k), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "beta")),sigma_y, base_rng__));
             }
             stan::math::assign(beta, add(beta,gaussian_smoother(subtract(y,y_rep),beta_mean,P1_vector,pow(sigma_y,2),diag_matrix(R_vector),xreg, pstream__)));
             for (int t = 1; t <= n; ++t) {

@@ -41,13 +41,12 @@ matrix gaussian_smoother(vector y, vector a1, vector P1, real Ht, matrix Rt, mat
     x = x + K[, t] * v[t];
     P = P - K[, t] * K[, t]' * F[t] + Rt;
   }
- 
   r[,n+1] = rep_vector(0.0, m);
   for (tt in 1:n) {
     int t = n + 1 - tt;
     vector[m] tmp = r[,t+1];
     if(F[t] > 1.0e-8) {
-      r[,t] =  xreg[, t] * v[t] / F[t] + tmp - dot_product(K[,t], xreg[, t]) * tmp;
+      r[,t] =  xreg[, t] * v[t] / F[t] + tmp - xreg[, t] * dot_product(K[,t], tmp);
     }
   }
 
@@ -115,12 +114,12 @@ generated quantities{
   }
   for (t in 1:(n - 1)) {
     for(i in 1:k) {
-      beta[i, t+1]  = normal_rng(beta[i, t], sigma_b[i]);
+      beta[i, t+1] = normal_rng(beta[i, t], sigma_b[i]);
     }
   }
   // sample new observations given previously simulated beta
   for(t in 1:n) {
-    y_rep[t] = dot_product(xreg[, t], beta[1:k, t]) + normal_rng(0, sigma_y);
+    y_rep[t] = normal_rng(dot_product(xreg[, t], beta[1:k, t]), sigma_y);
   }
   // perform mean correction to obtain sample from the posterior
   beta = beta + gaussian_smoother(y - y_rep, beta_mean, P1_vector, sigma_y^2, diag_matrix(R_vector), xreg);
