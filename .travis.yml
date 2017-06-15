@@ -6,6 +6,14 @@ r:
  - release
  - devel
 
+os:
+  - linux
+  - osx
+  
+env:
+  matrix: 
+    - CXX=clang++
+
 warnings_are_errors: true
 
 after_failure:
