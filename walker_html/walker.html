@@ -279,7 +279,7 @@ predictors) it is very difficult to get naive implementation to work at
 all, as even after tweaking several parameters of the underlying MCMC 
 sampler, one typically ends up with divergent transitions or low BMFI 
 index, meaning that the results are not to be trusted.</p>
-<p>First we simulate the coeffients and the predictors:</p>
+<p>First we simulate the coefficients and the predictors:</p>
 <pre class="r"><code class="r"><span class="identifier">set.seed</span><span class="paren">(</span><span class="number">1</span><span class="paren">)</span>
 <span class="identifier">n</span> <span class="operator">&lt;-</span> <span class="number">100</span>
 <span class="identifier">beta1</span> <span class="operator">&lt;-</span> <span class="identifier">cumsum</span><span class="paren">(</span><span class="identifier">c</span><span class="paren">(</span><span class="number">0.5</span>, <span class="identifier">rnorm</span><span class="paren">(</span><span class="identifier">n</span> <span class="operator">-</span> <span class="number">1</span>, <span class="number">0</span>, <span class="identifier">sd</span> <span class="operator">=</span> <span class="number">0.05</span><span class="paren">)</span><span class="paren">)</span><span class="paren">)</span>
