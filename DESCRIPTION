@@ -13,7 +13,8 @@ Description: Fully Bayesian linear regression where the regression
 License: GPL (>= 2)
 Suggests: 
     knitr (>= 1.11),
-    rmarkdown (>= 0.8.1)
+    rmarkdown (>= 0.8.1),
+    testthat
 Depends:
     R (>= 3.0.2),
     rstan (>= 2.14.1)
@@ -24,4 +25,3 @@ LinkingTo: StanHeaders (>= 2.14.0.1), rstan (>= 2.14.1), BH (>= 1.62.0.1),
     Rcpp (>= 0.12.9), RcppEigen (>= 0.3.2.9.0)
 VignetteBuilder: knitr
 RoxygenNote: 6.0.1
-SystemRequirements: C++11
