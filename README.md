@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/helske/walker.png?branch=master)](https://travis-ci.org/helske/walker)
+[![cran version](http://www.r-pkg.org/badges/version/walker)](http://cran.r-project.org/package=walker)
 
 # walker: Efficient Baysian dynamic linear regression models with Stan/R
 
