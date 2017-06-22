@@ -20,7 +20,7 @@ and the second column defines the the standard deviations of those prior distrib
 \code{beta_prior}, with first row corresponding to the prior of the standard deviation of the 
 observation level noise, and rest of the rows define the priors for the standard deviations of 
 random walk noise terms. The prior distributions for all sigmas are 
-Gaussians truncated to positive real axis.}
+Gaussians truncated to positive real axis. For non-Gaussian models, this should contain only k rows.}
 
 \item{init}{Initial value specification, see \code{\link[rstan]{sampling}}. 
 Note that compared to default in \code{rstan}, here the default is a to sample from the priors.}
@@ -45,6 +45,9 @@ posterior predictive distribution \eqn{p(y_rep | y)}. This argument is ignored i
 argument \code{naive} is \code{TRUE}.}
 
 \item{...}{Further arguments to \code{\link[rstan]{sampling}}.}
+}
+\value{
+A \code{stanfit} object.
 }
 \description{
 Function \code{walker} performs Bayesian inference of a linear 

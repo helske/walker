@@ -45,9 +45,7 @@ matrix gaussian_smoother(vector y, vector a1, vector P1, real Ht, matrix Rt, mat
   for (tt in 1:n) {
     int t = n + 1 - tt;
     vector[m] tmp = r[,t+1];
-    if(F[t] > 1.0e-8) {
-      r[,t] =  xreg[, t] * v[t] / F[t] + tmp - xreg[, t] * dot_product(K[,t], tmp);
-    }
+    r[,t] =  xreg[, t] * v[t] / F[t] + tmp - xreg[, t] * dot_product(K[,t], tmp);
   }
 
   tmpr = r[,1];

@@ -8,7 +8,7 @@
 #' in order to marginalise over the coefficients for efficient sampling.
 #' 
 #' @import rstan Rcpp methods
-#' @importFrom stats ts.plot formula model.matrix model.response rnorm delete.response terms window ts end
+#' @importFrom stats ts.plot formula model.matrix model.response rnorm delete.response terms window ts end glm
 #' @rdname walker
 #' @useDynLib walker, .registration = TRUE
 #' @param formula An object of class \code{\link[stats]{formula}}. See \code{\link[stats]{lm}} for details.
@@ -20,7 +20,7 @@
 #' \code{beta_prior}, with first row corresponding to the prior of the standard deviation of the 
 #' observation level noise, and rest of the rows define the priors for the standard deviations of 
 #' random walk noise terms. The prior distributions for all sigmas are 
-#' Gaussians truncated to positive real axis.
+#' Gaussians truncated to positive real axis. For non-Gaussian models, this should contain only k rows.
 #' @param naive If \code{TRUE}, use "standard" approach which samples the joint posterior 
 #' \eqn{p(beta, sigma | y)}. If \code{FALSE} (the default), use marginalisation approach 
 #' where we sample the marginal posterior \eqn{p(sigma | y)} and generate the samples of 
@@ -38,6 +38,7 @@
 #' @param newdata Optional data.frame containing covariates used for prediction. This argument is 
 #' ignored if argument \code{naive} is \code{TRUE}.
 #' @param ... Further arguments to \code{\link[rstan]{sampling}}.
+#' @return A \code{stanfit} object.
 #' @export
 #' @examples 
 #' y <- window(log10(UKgas), end = time(UKgas)[100])
@@ -134,14 +135,14 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata
   mf <- mf[c(1L, match(c("formula", "data"), names(mf), 0L))]
   mf$drop.unused.levels <- TRUE
   mf[[1L]] <- quote(stats::model.frame)
-  mf$na.action <- as.name("na.pass")
   mf <- eval(mf, parent.frame())
   y <- model.response(mf, "numeric")
   n <- length(y)
   xreg <- model.matrix(attr(mf, "terms"), mf)
   if (return_x_reg) return(xreg)
   k <- ncol(xreg)
-
+  
+  
   if (!missing(newdata)) {
     xreg_new <- model.matrix(delete.response(terms(mf)), data = newdata)
     n_new <- nrow(xreg_new)
@@ -149,6 +150,9 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata
     xreg_new <- matrix(0, 0, k)
     n_new <- 0L
   }
+  if (any(is.na(xreg)) || any(is.na(xreg_new))) stop("Missing values in covariates are not allowed.")
+  if (any(is.na(y))) stop("Missing values in response are not (yet) allowed.")
+  
   
   if(!identical(dim(beta_prior), c(k, 2L))) {
     stop("beta_prior should be k x 2 matrix containing columns of prior means and sds for each k coefficients. ")
@@ -170,13 +174,119 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata
         beta = rnorm(k, beta_prior[, 1], beta_prior[, 2])), simplify = FALSE)
   }
   if (naive) {
-  sampling(stanmodels$rw_model_naive,
+    sampling(stanmodels$rw_model_naive,
       data = stan_data, chains = chains, init = init,
       pars = c("sigma_y", "sigma_b", "beta"), ...)
   } else {
-  sampling(stanmodels$rw_model,
-    data = stan_data, chains = chains, init = init,
-    pars = c("sigma_y", "sigma_b", "beta", if (return_y_rep) "y_rep", if (n_new > 0) "y_new"), ...)
+    sampling(stanmodels$rw_model,
+      data = stan_data, chains = chains, init = init,
+      pars = c("sigma_y", "sigma_b", "beta", 
+        if (return_y_rep) "y_rep", if (n_new > 0) "y_new"), ...)
   }
+}
+
+#' Fully Bayesian generalized linear regression with time-varying coefficients
+#' 
+#' Function \code{walker_glm} is a generalization of \code{walker} for non-Gaussian 
+#' models. Compared to \code{walker}, the returned samples are based on Gaussian approximation, 
+#' which can be used for exact analysis by weighting the sample properly. These weights 
+#' are also returned as a part of the \code{stanfit} (they are generated in the 
+#' generated quantities block of Stan model). See details.
+#' 
+#' This function is not fully tested yet, so please file and issue and/or pull request 
+#' on Github if you encounter problems.
+#' 
+#' The underlying idea of \code{walker_glm} is based on 
+#' Vihola M, Helske J and Franks J (2016), 
+#' "Importance sampling type correction of Markov chain Monte Carlo and exact
+#' approximations", which is available at ArXiv.
+#' 
+#' @inheritParams walker
+#' @param distribution Currently only Poisson models are supported.
+#' @param initial_mode The initial guess of the fitted values on log-scale. 
+#' Defines the Gaussian approximation used in the MCMC.
+#' Either \code{"obs"} (corresponds to log(y+0.1) in Poisson case), 
+#' \code{"glm"} (mode is obtained from time-invariant GLM), or numeric vector (custom guess).
+#' @param u For Poisson model, a vector of exposures i.e. E(y) = u*exp(x*beta). Defaults to 1.
+#' @param mc_sim Number of samples used in importance sampling. Default is 50.
+#' @return A \code{stanfit} object.
+#' @seealso Package \code{diagis} in CRAN, which provides functions for computing weighted 
+#' summary statistics.
+#' @export
+walker_glm <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata, 
+  distribution = "poisson", initial_mode = "obs", u, mc_sim = 50,
+  return_x_reg = FALSE,  return_y_rep = TRUE,...) {
+  
+  distribution <- match.arg(distribution, choices = "poisson")
+  
+  # build y and xreg
+  mf <- match.call(expand.dots = FALSE)
+  mf <- mf[c(1L, match(c("formula", "data"), names(mf), 0L))]
+  mf$drop.unused.levels <- TRUE
+  mf[[1L]] <- quote(stats::model.frame)
+  mf <- eval(mf, parent.frame())
+  y <- model.response(mf, "numeric")
+  n <- length(y)
+  xreg <- model.matrix(attr(mf, "terms"), mf)
+  if (return_x_reg) return(xreg)
+  k <- ncol(xreg)
+  
+  if (any(is.na(xreg))) stop("Missing values in covariates are not allowed.")
+  if (any(is.na(y))) stop("Missing values in response are not (yet) allowed.")
+  
+  if (!missing(newdata)) .NotYetUsed("newdata", error = TRUE)
+  if (!missing(return_y_rep)) .NotYetUsed("return_y_rep", error = TRUE)
+  # no predictions supported yet
+  # if (!missing(newdata)) {
+  #   xreg_new <- model.matrix(delete.response(terms(mf)), data = newdata)
+  #   n_new <- nrow(xreg_new)
+  # } else {
+  xreg_new <- matrix(0, 0, k)
+  n_new <- 0L
+  #}
+  
+  if(!identical(dim(beta_prior), c(k, 2L))) {
+    stop("beta_prior should be k x 2 matrix containing columns of prior means and sds for each k coefficients. ")
+  }
+  if(!identical(dim(sigma_prior), c(k, 2L))) {
+    stop("sigma_prior should be k x 2 matrix containing columns of prior means and sds for each k standard deviations. ")
+  }
+  if (missing(u)) {
+    u <- rep(1, n)
+  }
+  if (is.numeric(initial_mode)) {
+    pseudo_H <- 1 / (u * exp(initial_mode))
+    pseudo_y <- y * pseudo_H + initial_mode - 1
+  } else {
+    if(initial_mode == "obs"){
+      pseudo_H <- 1 / (y + 0.1)
+      pseudo_y <- y * pseudo_H + log(y + 0.1) - 1
+    } else {
+      if(initial_mode == "glm") {
+        fit <- glm(formula, offset = log(u), data = data, family = poisson)
+        pseudo_H <- 1 / fit$fitted.values
+        pseudo_y <- y * pseudo_H + fit$linear.predictors - log(u) - 1
+      } else stop("Argument 'initial_mode' should be either 'obs', 'glm', or numeric vector.")
+    }
+  }
+  
+  stan_data <- list(k = k, n = n, y = pseudo_y, Ht = pseudo_H, 
+    y_original = y, u = u, distribution = 1L, N = mc_sim, xreg = t(xreg), 
+    n_new = n_new, xreg_new = t(xreg_new),
+    beta_mean = structure(beta_prior[, 1], dim = k), 
+    beta_sd = structure(beta_prior[, 2], dim = k),
+    sigma_mean = sigma_prior[, 1], sigma_sd = sigma_prior[, 2])
+  
+  if (missing(chains)) chains <- 4
+  if (missing(init)) {
+    init <- replicate(chains, 
+      list(
+        sigma_b = abs(rnorm(k, sigma_prior[, 1], sigma_prior[, 2])), 
+        beta = rnorm(k, beta_prior[, 1], beta_prior[, 2])), simplify = FALSE)
+  }
+  
+  sampling(stanmodels$rw_glm_model,
+    data = stan_data, chains = chains, init = init,
+    pars = c("sigma_b", "beta", "weights"), ...)
 }
 
