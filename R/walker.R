@@ -8,7 +8,7 @@
 #' in order to marginalise over the coefficients for efficient sampling.
 #' 
 #' @import rstan Rcpp methods
-#' @importFrom stats ts.plot formula model.matrix model.response rnorm delete.response terms window ts end glm
+#' @importFrom stats ts.plot formula model.matrix model.response rnorm delete.response terms window ts end glm poisson
 #' @rdname walker
 #' @useDynLib walker, .registration = TRUE
 #' @param formula An object of class \code{\link[stats]{formula}}. See \code{\link[stats]{lm}} for details.
@@ -103,8 +103,8 @@
 #' x3 <- 1:n/10
 #' x4 <- runif(n, 1, 3)
 #' ts.plot(cbind(beta1 * x1, beta2 * x2, beta3 * x3, beta4 * x4), col = 1:4)
-#' u <- cumsum(rnorm(n))
-#' signal <- u + beta1 * x1 + beta2 * x2 + beta3 * x3 + beta4 * x4
+#' a <- cumsum(rnorm(n))
+#' signal <- a + beta1 * x1 + beta2 * x2 + beta3 * x3 + beta4 * x4
 #' y <- rnorm(n, signal)
 #' ts.plot(y)
 #' lines(signal, col = 2)
@@ -193,13 +193,19 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata
 #' are also returned as a part of the \code{stanfit} (they are generated in the 
 #' generated quantities block of Stan model). See details.
 #' 
-#' This function is not fully tested yet, so please file and issue and/or pull request 
-#' on Github if you encounter problems.
 #' 
 #' The underlying idea of \code{walker_glm} is based on 
 #' Vihola M, Helske J and Franks J (2016), 
 #' "Importance sampling type correction of Markov chain Monte Carlo and exact
 #' approximations", which is available at ArXiv.
+#' 
+#' This function is not fully tested yet, so please file and issue and/or pull request 
+#' on Github if you encounter problems. The reason there might be problems in some cases 
+#' is the use of global approximation (i.e. start of the MCMC) instead of more accurate 
+#' but much slower local approximation (where model is approximated at each iteratoin). 
+#' However for these restricted models global approximation should be sufficient, 
+#' assuming the the initial estimate of the conditional mode of p(xbeta | y) not too 
+#' far away from the truth.
 #' 
 #' @inheritParams walker
 #' @param distribution Currently only Poisson models are supported.
@@ -213,6 +219,8 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata
 #' @seealso Package \code{diagis} in CRAN, which provides functions for computing weighted 
 #' summary statistics.
 #' @export
+#' @examples 
+#' 
 walker_glm <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata, 
   distribution = "poisson", initial_mode = "obs", u, mc_sim = 50,
   return_x_reg = FALSE,  return_y_rep = TRUE,...) {
@@ -254,13 +262,16 @@ walker_glm <- function(formula, data, beta_prior, sigma_prior, init, chains, new
   if (missing(u)) {
     u <- rep(1, n)
   }
+  if(any(u) <= 0) stop("All values of 'u' must be positive. ")
+  
   if (is.numeric(initial_mode)) {
     pseudo_H <- 1 / (u * exp(initial_mode))
     pseudo_y <- y * pseudo_H + initial_mode - 1
   } else {
     if(initial_mode == "obs"){
-      pseudo_H <- 1 / (y + 0.1)
-      pseudo_y <- y * pseudo_H + log(y + 0.1) - 1
+      expmode <- pmax(y / u, 0.1)
+      pseudo_H <- 1 / (u * expmode)
+      pseudo_y <- y * pseudo_H + log(expmode) - 1
     } else {
       if(initial_mode == "glm") {
         fit <- glm(formula, offset = log(u), data = data, family = poisson)
