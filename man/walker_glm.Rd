@@ -5,7 +5,7 @@
 \title{Fully Bayesian generalized linear regression with time-varying coefficients}
 \usage{
 walker_glm(formula, data, beta_prior, sigma_prior, init, chains, newdata,
-  distribution = "poisson", initial_mode = "obs", u, mc_sim = 50,
+  distribution = "poisson", initial_mode = "kfas", u, mc_sim = 50,
   return_x_reg = FALSE, return_y_rep = TRUE, ...)
 }
 \arguments{
@@ -36,7 +36,9 @@ ignored if argument \code{naive} is \code{TRUE}.}
 \item{initial_mode}{The initial guess of the fitted values on log-scale. 
 Defines the Gaussian approximation used in the MCMC.
 Either \code{"obs"} (corresponds to log(y+0.1) in Poisson case), 
-\code{"glm"} (mode is obtained from time-invariant GLM), or numeric vector (custom guess).}
+\code{"glm"} (mode is obtained from time-invariant GLM), \code{"mle"} 
+(default; mode is obtained from maximum likelihood estimate of the model), 
+or numeric vector (custom guess).}
 
 \item{u}{For Poisson model, a vector of exposures i.e. E(y) = u*exp(x*beta). Defaults to 1.}
 
@@ -62,13 +64,40 @@ are also returned as a part of the \code{stanfit} (they are generated in the
 generated quantities block of Stan model). See details.
 }
 \details{
-This function is not fully tested yet, so please file and issue and/or pull request 
-on Github if you encounter problems.
-
 The underlying idea of \code{walker_glm} is based on 
 Vihola M, Helske J and Franks J (2016), 
 "Importance sampling type correction of Markov chain Monte Carlo and exact
 approximations", which is available at ArXiv.
+
+This function is not fully tested yet, so please file and issue and/or pull request 
+on Github if you encounter problems. The reason there might be problems in some cases 
+is the use of global approximation (i.e. start of the MCMC) instead of more accurate 
+but slower local approximation (where model is approximated at each iteration). 
+However for these restricted models global approximation should be sufficient, 
+assuming the the initial estimate of the conditional mode of p(xbeta | y) not too 
+far away from the truth. Thus by default \code{walker_glm} first finds the 
+maximum likelihood estimates of the standard deviation parameters 
+(using \code\link[KFAS]{KFAS}) package, and 
+constructs the approximation at that point, before running the Bayesian 
+analysis.
+}
+\examples{
+set.seed(123)
+n <- 100
+x <- rnorm(n, 1, 1)
+beta <- cumsum(c(1, rnorm(n - 1, sd = 0.1)))
+
+level <- -1
+u <- sample(1:10, size = n, replace = TRUE)
+y <- rpois(n, u * exp(level + beta * x))
+ts.plot(y)
+
+out <- walker_glm(y ~ x, u = u, beta_prior = cbind(0, c(10, 10)), 
+  sigma_prior = cbind(0, c(2, 2)))
+print(out, pars = "sigma_b") ## approximate results
+library(diagis)
+weighted_mean(extract(out, pars = "sigma_b")$sigma_b, 
+  extract(out, pars = "weights")$weights)
 }
 \seealso{
 Package \code{diagis} in CRAN, which provides functions for computing weighted 

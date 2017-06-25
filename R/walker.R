@@ -86,8 +86,6 @@
 #'   beta_prior = cbind(0, rep(2, 3)), sigma_prior = cbind(0, rep(2, 4)), 
 #'   naive = TRUE)
 #' print(naive_walker, pars = c("sigma_y", "sigma_b"))
-#' # check rstan:::throw_sampler_warnings(naive_walker) 
-#' # (does not work automatically for single chain)
 #' sum(get_elapsed_time(naive_walker))
 #' 
 #' ## Larger problem, this takes some time with naive approach
@@ -122,8 +120,6 @@
 #'   beta_prior = cbind(0, rep(2, 5)), sigma_prior = cbind(0, rep(2, 6)),
 #'   naive = TRUE, control = list(adapt_delta = 0.9, max_treedepth = 15)) 
 #' print(naive_walker, pars = c("sigma_y", "sigma_b"))
-#' # check rstan:::throw_sampler_warnings(naive_walker)
-#' # (does not work automatically for single chain)
 #' sum(get_elapsed_time(naive_walker))
 #' }
 #' 
@@ -202,17 +198,24 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata
 #' This function is not fully tested yet, so please file and issue and/or pull request 
 #' on Github if you encounter problems. The reason there might be problems in some cases 
 #' is the use of global approximation (i.e. start of the MCMC) instead of more accurate 
-#' but much slower local approximation (where model is approximated at each iteratoin). 
+#' but slower local approximation (where model is approximated at each iteration). 
 #' However for these restricted models global approximation should be sufficient, 
 #' assuming the the initial estimate of the conditional mode of p(xbeta | y) not too 
-#' far away from the truth.
+#' far away from the truth. Thus by default \code{walker_glm} first finds the 
+#' maximum likelihood estimates of the standard deviation parameters 
+#' (using \code\link[KFAS]{KFAS}) package, and 
+#' constructs the approximation at that point, before running the Bayesian 
+#' analysis.
 #' 
 #' @inheritParams walker
+#' @importFrom KFAS SSModel SSMregression fitSSM approxSSM
 #' @param distribution Currently only Poisson models are supported.
 #' @param initial_mode The initial guess of the fitted values on log-scale. 
 #' Defines the Gaussian approximation used in the MCMC.
 #' Either \code{"obs"} (corresponds to log(y+0.1) in Poisson case), 
-#' \code{"glm"} (mode is obtained from time-invariant GLM), or numeric vector (custom guess).
+#' \code{"glm"} (mode is obtained from time-invariant GLM), \code{"mle"} 
+#' (default; mode is obtained from maximum likelihood estimate of the model), 
+#' or numeric vector (custom guess).
 #' @param u For Poisson model, a vector of exposures i.e. E(y) = u*exp(x*beta). Defaults to 1.
 #' @param mc_sim Number of samples used in importance sampling. Default is 50.
 #' @return A \code{stanfit} object.
@@ -220,9 +223,24 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata
 #' summary statistics.
 #' @export
 #' @examples 
+#' set.seed(123)
+#' n <- 100
+#' x <- rnorm(n, 1, 1)
+#' beta <- cumsum(c(1, rnorm(n - 1, sd = 0.1)))
 #' 
+#' level <- -1
+#' u <- sample(1:10, size = n, replace = TRUE)
+#' y <- rpois(n, u * exp(level + beta * x))
+#' ts.plot(y)
+#' 
+#' out <- walker_glm(y ~ x, u = u, beta_prior = cbind(0, c(10, 10)), 
+#'   sigma_prior = cbind(0, c(2, 2)))
+#' print(out, pars = "sigma_b") ## approximate results
+#' library(diagis)
+#' weighted_mean(extract(out, pars = "sigma_b")$sigma_b, 
+#'   extract(out, pars = "weights")$weights)
 walker_glm <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata, 
-  distribution = "poisson", initial_mode = "obs", u, mc_sim = 50,
+  distribution = "poisson", initial_mode = "kfas", u, mc_sim = 50,
   return_x_reg = FALSE,  return_y_rep = TRUE,...) {
   
   distribution <- match.arg(distribution, choices = "poisson")
@@ -268,18 +286,42 @@ walker_glm <- function(formula, data, beta_prior, sigma_prior, init, chains, new
     pseudo_H <- 1 / (u * exp(initial_mode))
     pseudo_y <- y * pseudo_H + initial_mode - 1
   } else {
-    if(initial_mode == "obs"){
-      expmode <- pmax(y / u, 0.1)
-      pseudo_H <- 1 / (u * expmode)
-      pseudo_y <- y * pseudo_H + log(expmode) - 1
-    } else {
-      if(initial_mode == "glm") {
-        fit <- glm(formula, offset = log(u), data = data, family = poisson)
+    switch(initial_mode, 
+      obs = {
+        
+        expmode <- y / u + 0.1
+        pseudo_H <- 1 / (u * expmode)
+        pseudo_y <- y * pseudo_H + log(expmode) - 1
+        
+      },
+      glm = {
+        
+        if (missing(data)) {
+          fit <- glm(formula, offset = log(u), family = poisson)
+        } else {
+          fit <- glm(formula, offset = log(u), data = data, family = poisson)
+        }
         pseudo_H <- 1 / fit$fitted.values
         pseudo_y <- y * pseudo_H + fit$linear.predictors - log(u) - 1
-      } else stop("Argument 'initial_mode' should be either 'obs', 'glm', or numeric vector.")
-    }
+        
+      },
+      kfas = {
+        
+        model <- SSModel(y ~ -1 +
+            SSMregression(formula, Q = diag(NA, k), remove.intercept = FALSE, 
+              a1 = beta_prior[,1],
+              P1 = diag(beta_prior[,2]^2, k)),
+          distribution = "poisson", u = u)
+        fit <- fitSSM(model, inits = rep(-1, k), method = "BFGS")
+        app <- approxSSM(fit$model)
+        pseudo_H <- as.numeric(app$H)
+        pseudo_y <- as.numeric(app$y)
+        
+      },
+      stop("Argument 'initial_mode' should be either 'obs', 'glm', 'kfas', or a numeric vector.")
+    )
   }
+  
   
   stan_data <- list(k = k, n = n, y = pseudo_y, Ht = pseudo_H, 
     y_original = y, u = u, distribution = 1L, N = mc_sim, xreg = t(xreg), 

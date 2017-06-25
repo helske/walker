@@ -20,6 +20,7 @@ Depends:
     rstan (>= 2.14.1)
 Imports:
     Rcpp (>= 0.12.9),
+    KFAS,
     methods
 LinkingTo: StanHeaders (>= 2.14.0.1), rstan (>= 2.14.1), BH (>= 1.62.0.1),
     Rcpp (>= 0.12.9), RcppEigen (>= 0.3.2.9.0)

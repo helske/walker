@@ -103,8 +103,6 @@ naive_walker <- walker(y ~ x1 + x2, iter = 2000, chains = 1,
   beta_prior = cbind(0, rep(2, 3)), sigma_prior = cbind(0, rep(2, 4)), 
   naive = TRUE)
 print(naive_walker, pars = c("sigma_y", "sigma_b"))
-# check rstan:::throw_sampler_warnings(naive_walker) 
-# (does not work automatically for single chain)
 sum(get_elapsed_time(naive_walker))
 
 ## Larger problem, this takes some time with naive approach
@@ -120,8 +118,8 @@ x2 <- 0.25 * cos(1:n)
 x3 <- 1:n/10
 x4 <- runif(n, 1, 3)
 ts.plot(cbind(beta1 * x1, beta2 * x2, beta3 * x3, beta4 * x4), col = 1:4)
-u <- cumsum(rnorm(n))
-signal <- u + beta1 * x1 + beta2 * x2 + beta3 * x3 + beta4 * x4
+a <- cumsum(rnorm(n))
+signal <- a + beta1 * x1 + beta2 * x2 + beta3 * x3 + beta4 * x4
 y <- rnorm(n, signal)
 ts.plot(y)
 lines(signal, col = 2)
@@ -139,8 +137,6 @@ naive_walker <- walker(y ~ x1 + x2 + x3 + x4, iter = 2000, chains = 1,
   beta_prior = cbind(0, rep(2, 5)), sigma_prior = cbind(0, rep(2, 6)),
   naive = TRUE, control = list(adapt_delta = 0.9, max_treedepth = 15)) 
 print(naive_walker, pars = c("sigma_y", "sigma_b"))
-# check rstan:::throw_sampler_warnings(naive_walker)
-# (does not work automatically for single chain)
 sum(get_elapsed_time(naive_walker))
 }
 
