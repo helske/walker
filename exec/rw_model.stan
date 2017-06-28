@@ -104,7 +104,7 @@ generated quantities{
   vector[n] y_rep;
   matrix[k, n] beta;
   vector[n_new] y_new;
-  vector[k] beta_new;
+  vector[k, n_new] beta_new;
   
   // sample coefficients given sigma's (no conditioning on y)  
   for(i in 1:k) {
@@ -130,13 +130,14 @@ generated quantities{
   // prediction 
   if (n_new > 0) {
     for(i in 1:k) {
-      beta_new[i] = normal_rng(beta[i, n], sigma_b[i]);
+      beta_new[i, 1] = normal_rng(beta[i, n], sigma_b[i]);
     }
-    for(t in 1:n_new) {
-      y_new[t] = dot_product(xreg_new[,t], beta_new) + normal_rng(0, sigma_y);
+    for(t in 1:(n_new - 1)) {
+      y_new[t] = dot_product(xreg_new[, t], beta_new[, t]) + normal_rng(0, sigma_y);
       for(i in 1:k) {
-        beta_new[i] = normal_rng(beta_new[i], sigma_b[i]);
+        beta_new[i, t+1] = normal_rng(beta_new[i, t], sigma_b[i]);
       } 
     }
+    y_new[n_new] = dot_product(xreg_new[, n_new], beta_new[, n_new]) + normal_rng(0, sigma_y);
   }
 }
