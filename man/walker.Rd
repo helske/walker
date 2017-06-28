@@ -68,8 +68,8 @@ new_data <- data.frame(trend = future, cos_t = cos(2 * pi * future / 4),
   sin_t = sin(2 * pi * future / 4))
 fit <- walker(y ~ trend + cos_t + sin_t, data = dat, chains = 1, iter = 500, 
   newdata = new_data, beta = cbind(0, rep(10, 4)), sigma = cbind(0, rep(10, 5)))
-print(fit, pars = c("sigma_y", "sigma_b"))
-mean_fit <- matrix(summary(fit, "beta")$summary[, "mean"], ncol = 4)
+print(fit$stanfit, pars = c("sigma_y", "sigma_b"))
+mean_fit <- matrix(summary(fit$stanfit, "beta")$summary[, "mean"], ncol = 4)
 
 # still needs bit manual work..  
 ts.plot(cbind(y, rowSums(mean_fit * cbind(1, as.matrix(dat[, -1])))),
