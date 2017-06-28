@@ -104,7 +104,7 @@ generated quantities{
   vector[n] y_rep;
   matrix[k, n] beta;
   vector[n_new] y_new;
-  vector[k, n_new] beta_new;
+  matrix[k, n_new] beta_new;
   
   // sample coefficients given sigma's (no conditioning on y)  
   for(i in 1:k) {
