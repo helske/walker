@@ -77,7 +77,9 @@ ts.plot(cbind(y, rowSums(mean_fit * cbind(1, as.matrix(dat[, -1])))),
 intervals <- summary(fit, pars = "y_new")$summary[, c("mean", "2.5\%", "97.5\%")]
 ts.plot(log10(UKgas), ts(intervals, start = end(y) + c(0,1), frequency = 4),
   col = c(1, 2, 2, 2), lty = c(1, 1, 2, 2))
- 
+# posterior predictive check:
+pp_check(fit)
+
 \dontrun{
 ## Comparing the approaches, note that with such a small data 
 ## the differences aren't huge, but try same with n = 500 and/or more terms...

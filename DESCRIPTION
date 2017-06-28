@@ -1,13 +1,14 @@
 Package: walker
 Type: Package
-Title: Efficient Bayesian Linear Regression with Time-Varying Coefficients
+Title: Efficient Bayesian Regression with Time-Varying Coefficients
 Version: 0.1.1
 Date: 2017-06-22
 Author: Jouni Helske
 Maintainer: Jouni Helske <jouni.helske@iki.fi>
-Description: Fully Bayesian linear regression where the regression 
+Description: Fully Bayesian regression models where the regression 
     coefficients are allowed to vary over "time", either as independent random 
-    walks. All computations are done using Hamiltonian Monte Carlo provided by 
+    walks. Currently Gaussian and Poisson observations are supported. 
+    All computations are done using Hamiltonian Monte Carlo provided by 
     Stan, using a state space representation of the model in order to marginalise 
     over the coefficients for efficient sampling.
 License: GPL (>= 2)
@@ -19,6 +20,7 @@ Depends:
     R (>= 3.0.2),
     rstan (>= 2.14.1)
 Imports:
+    bayesplot,
     Rcpp (>= 0.12.9),
     KFAS,
     methods

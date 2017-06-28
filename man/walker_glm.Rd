@@ -77,7 +77,7 @@ However for these restricted models global approximation should be sufficient,
 assuming the the initial estimate of the conditional mode of p(xbeta | y) not too 
 far away from the truth. Thus by default \code{walker_glm} first finds the 
 maximum likelihood estimates of the standard deviation parameters 
-(using \code\link[KFAS]{KFAS}) package, and 
+(using \code{\link[KFAS]{KFAS}}) package, and 
 constructs the approximation at that point, before running the Bayesian 
 analysis.
 }
