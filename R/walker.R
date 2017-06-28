@@ -51,8 +51,8 @@
 #'   sin_t = sin(2 * pi * future / 4))
 #' fit <- walker(y ~ trend + cos_t + sin_t, data = dat, chains = 1, iter = 500, 
 #'   newdata = new_data, beta = cbind(0, rep(10, 4)), sigma = cbind(0, rep(10, 5)))
-#' print(fit, pars = c("sigma_y", "sigma_b"))
-#' mean_fit <- matrix(summary(fit, "beta")$summary[, "mean"], ncol = 4)
+#' print(fit$stanfit, pars = c("sigma_y", "sigma_b"))
+#' mean_fit <- matrix(summary(fit$stanfit, "beta")$summary[, "mean"], ncol = 4)
 #'
 #' # still needs bit manual work..  
 #' ts.plot(cbind(y, rowSums(mean_fit * cbind(1, as.matrix(dat[, -1])))),
@@ -60,7 +60,9 @@
 #' intervals <- summary(fit, pars = "y_new")$summary[, c("mean", "2.5%", "97.5%")]
 #' ts.plot(log10(UKgas), ts(intervals, start = end(y) + c(0,1), frequency = 4),
 #'   col = c(1, 2, 2, 2), lty = c(1, 1, 2, 2))
-#'  
+#' # posterior predictive check:
+#' pp_check(fit)
+#' 
 #' \dontrun{
 #' ## Comparing the approaches, note that with such a small data 
 #' ## the differences aren't huge, but try same with n = 500 and/or more terms...
@@ -169,7 +171,7 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata
         sigma_b = abs(rnorm(k, sigma_prior[-1, 1], sigma_prior[-1, 2])), 
         beta = rnorm(k, beta_prior[, 1], beta_prior[, 2])), simplify = FALSE)
   }
-  if (naive) {
+  stanfit <- if (naive) {
     sampling(stanmodels$rw_model_naive,
       data = stan_data, chains = chains, init = init,
       pars = c("sigma_y", "sigma_b", "beta"), ...)
@@ -179,6 +181,7 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata
       pars = c("sigma_y", "sigma_b", "beta", 
         if (return_y_rep) "y_rep", if (n_new > 0) "y_new"), ...)
   }
+  structure(list(stanfit = stanfit, y = y, xreg = xreg, xreg_new = xreg_new), class = "walker_fit")
 }
 
 #' Fully Bayesian generalized linear regression with time-varying coefficients
@@ -203,7 +206,7 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata
 #' assuming the the initial estimate of the conditional mode of p(xbeta | y) not too 
 #' far away from the truth. Thus by default \code{walker_glm} first finds the 
 #' maximum likelihood estimates of the standard deviation parameters 
-#' (using \code\link[KFAS]{KFAS}) package, and 
+#' (using \code{\link[KFAS]{KFAS}}) package, and 
 #' constructs the approximation at that point, before running the Bayesian 
 #' analysis.
 #' 
