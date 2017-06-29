@@ -202,7 +202,7 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata
 #' @inheritParams walker
 #' @seealso walker walker_glm
 #' @export
-#' @example 
+#' @examples 
 #' 
 #' rw1 <- walker(Nile ~ 1, beta_prior = cbind(0, 1000), 
 #'   sigma_prior = cbind(0, rep(1000, 2)), chains = 2)

@@ -52,6 +52,25 @@ argument \code{naive} is \code{TRUE}.}
 Function \code{walker_rw2} replaces the first order random walk coefficients 
 with smooth second order random walks.
 }
+\examples{
+
+rw1 <- walker(Nile ~ 1, beta_prior = cbind(0, 1000), 
+  sigma_prior = cbind(0, rep(1000, 2)), chains = 2)
+rw2 <- walker_rw2(Nile ~ 1, beta_prior = cbind(0, 1000), 
+  sigma_prior = cbind(0, rep(1000, 2)), chains = 2)
+  
+g_y <- geom_point(data = data.frame(y = Nile, x = 1:100), 
+  aes(x, y, alpha = 0.5), inherit.aes = FALSE) 
+g_rw1 <- plot_coefs(rw1) + g_y
+g_rw2 <- plot_coefs(rw2) + g_y
+if(require("gridExtra"))) {
+  grid.arrange(g_rw1, g_rw2, ncol=2, top = "RW1 (left) versus RW2 (right)")
+} else {
+  g_rw1
+  g_rw2
+}
+
+}
 \seealso{
 walker walker_glm
 }
