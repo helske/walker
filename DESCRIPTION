@@ -22,6 +22,8 @@ Depends:
     rstan (>= 2.14.1)
 Imports:
     bayesplot,
+    dplyr,
+    ggplot2,
     Rcpp (>= 0.12.9),
     KFAS,
     methods

@@ -13,7 +13,7 @@
 #' in posterior as these to components might not easily distinguishable.
 #' 
 #' @import rstan Rcpp methods
-#' @importFrom stats ts.plot formula model.matrix model.response rnorm delete.response terms window ts end glm poisson
+#' @importFrom stats model.matrix model.response rnorm delete.response terms window ts end glm poisson
 #' @rdname walker
 #' @useDynLib walker, .registration = TRUE
 #' @param formula An object of class \code{\link[stats]{formula}}. See \code{\link[stats]{lm}} for details.
@@ -142,6 +142,7 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata
   mf <- match.call(expand.dots = FALSE)
   mf <- mf[c(1L, match(c("formula", "data"), names(mf), 0L))]
   mf$drop.unused.levels <- TRUE
+  mf$na.action <- "na.pass"
   mf[[1L]] <- quote(stats::model.frame)
   mf <- eval(mf, parent.frame())
   y <- model.response(mf, "numeric")
@@ -226,6 +227,7 @@ walker_rw2 <- function(formula, data, beta_prior, sigma_prior, init, chains, new
   mf <- match.call(expand.dots = FALSE)
   mf <- mf[c(1L, match(c("formula", "data"), names(mf), 0L))]
   mf$drop.unused.levels <- TRUE
+  mf$na.action <- "na.pass"
   mf[[1L]] <- quote(stats::model.frame)
   mf <- eval(mf, parent.frame())
   y <- model.response(mf, "numeric")
@@ -345,6 +347,7 @@ walker_glm <- function(formula, data, beta_prior, sigma_prior, init, chains, new
   mf <- match.call(expand.dots = FALSE)
   mf <- mf[c(1L, match(c("formula", "data"), names(mf), 0L))]
   mf$drop.unused.levels <- TRUE
+  mf$na.action <- "na.pass"
   mf[[1L]] <- quote(stats::model.frame)
   mf <- eval(mf, parent.frame())
   y <- model.response(mf, "numeric")
