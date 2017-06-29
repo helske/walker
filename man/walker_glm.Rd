@@ -2,7 +2,7 @@
 % Please edit documentation in R/walker.R
 \name{walker_glm}
 \alias{walker_glm}
-\title{Fully Bayesian generalized linear regression with time-varying coefficients}
+\title{Bayesian generalized linear regression with time-varying coefficients}
 \usage{
 walker_glm(formula, data, beta_prior, sigma_prior, init, chains, newdata,
   distribution = "poisson", initial_mode = "kfas", u, mc_sim = 50,
@@ -21,7 +21,8 @@ and the second column defines the the standard deviations of those prior distrib
 \code{beta_prior}, with first row corresponding to the prior of the standard deviation of the 
 observation level noise, and rest of the rows define the priors for the standard deviations of 
 random walk noise terms. The prior distributions for all sigmas are 
-Gaussians truncated to positive real axis. For non-Gaussian models, this should contain only k rows.}
+Gaussians truncated to positive real axis. For non-Gaussian models, this should contain only k rows. 
+For second order random walk model, these priors correspond to the slope level standard deviations.}
 
 \item{init}{Initial value specification, see \code{\link[rstan]{sampling}}. 
 Note that compared to default in \code{rstan}, here the default is a to sample from the priors.}
