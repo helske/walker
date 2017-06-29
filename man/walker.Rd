@@ -47,7 +47,8 @@ argument \code{naive} is \code{TRUE}.}
 \item{...}{Further arguments to \code{\link[rstan]{sampling}}.}
 }
 \value{
-A \code{stanfit} object.
+A list containing the \code{stanfit} object, observations \code{y},
+  and covariates \code{xreg} and \code{xreg_new}.
 }
 \description{
 Function \code{walker} performs Bayesian inference of a linear 
@@ -74,7 +75,7 @@ mean_fit <- matrix(summary(fit$stanfit, "beta")$summary[, "mean"], ncol = 4)
 # still needs bit manual work..  
 ts.plot(cbind(y, rowSums(mean_fit * cbind(1, as.matrix(dat[, -1])))),
   col = 1:2, lwd = 2:1)
-intervals <- summary(fit, pars = "y_new")$summary[, c("mean", "2.5\%", "97.5\%")]
+intervals <- summary(fit$stanfit, pars = "y_new")$summary[, c("mean", "2.5\%", "97.5\%")]
 ts.plot(log10(UKgas), ts(intervals, start = end(y) + c(0,1), frequency = 4),
   col = c(1, 2, 2, 2), lty = c(1, 1, 2, 2))
 # posterior predictive check:
@@ -96,16 +97,16 @@ ts.plot(y)
 lines(u + beta1 * x1 + beta2 * x2, col = 2)
 kalman_walker <- walker(y ~ x1 + x2, iter = 2000, chains = 1,
   beta_prior = cbind(0, rep(2, 3)), sigma_prior = cbind(0, rep(2, 4)))
-print(kalman_walker, pars = c("sigma_y", "sigma_b"))
-betas <- extract(kalman_walker, "beta")[[1]]
+print(kalman_walker$stanfit, pars = c("sigma_y", "sigma_b"))
+betas <- extract(kalman_walker$stanfit, "beta")[[1]]
 ts.plot(cbind(u, beta1, beta2, apply(betas, 2, colMeans)), 
   col = 1:3, lty = rep(2:1, each = 3))
-sum(get_elapsed_time(kalman_walker))
+sum(get_elapsed_time(kalman_walker$stanfit))
 naive_walker <- walker(y ~ x1 + x2, iter = 2000, chains = 1, 
   beta_prior = cbind(0, rep(2, 3)), sigma_prior = cbind(0, rep(2, 4)), 
   naive = TRUE)
-print(naive_walker, pars = c("sigma_y", "sigma_b"))
-sum(get_elapsed_time(naive_walker))
+print(naive_walker$stanfit, pars = c("sigma_y", "sigma_b"))
+sum(get_elapsed_time(naive_walker$stanfit))
 
 ## Larger problem, this takes some time with naive approach
 
@@ -127,19 +128,19 @@ ts.plot(y)
 lines(signal, col = 2)
 kalman_walker <- walker(y ~ x1 + x2 + x3 + x4, iter = 2000, chains = 1,
   beta_prior = cbind(0, rep(2, 5)), sigma_prior = cbind(0, rep(2, 6)))
-print(kalman_walker, pars = c("sigma_y", "sigma_b"))
-betas <- extract(kalman_walker, "beta")[[1]]
+print(kalman_walker$stanfit, pars = c("sigma_y", "sigma_b"))
+betas <- extract(kalman_walker$stanfit, "beta")[[1]]
 ts.plot(cbind(u, beta1, beta2, apply(betas, 2, colMeans)), 
   col = 1:3, lty = rep(2:1, each = 3))
-sum(get_elapsed_time(kalman_walker))
+sum(get_elapsed_time(kalman_walker$stanfit))
 # need to increase adapt_delta in order to get rid of divergences
 # and max_treedepth to get rid of related warnings
 # and still we end up with low BFMI warning after hours of computation
 naive_walker <- walker(y ~ x1 + x2 + x3 + x4, iter = 2000, chains = 1, 
   beta_prior = cbind(0, rep(2, 5)), sigma_prior = cbind(0, rep(2, 6)),
   naive = TRUE, control = list(adapt_delta = 0.9, max_treedepth = 15)) 
-print(naive_walker, pars = c("sigma_y", "sigma_b"))
-sum(get_elapsed_time(naive_walker))
+print(naive_walker$stanfit, pars = c("sigma_y", "sigma_b"))
+sum(get_elapsed_time(naive_walker$stanfit))
 }
 
 }

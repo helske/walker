@@ -54,7 +54,8 @@ argument \code{naive} is \code{TRUE}.}
 \item{...}{Further arguments to \code{\link[rstan]{sampling}}.}
 }
 \value{
-A \code{stanfit} object.
+A list containing the \code{stanfit} object, observations \code{y},
+  and covariates \code{xreg} and \code{xreg_new}.
 }
 \description{
 Function \code{walker_glm} is a generalization of \code{walker} for non-Gaussian 
@@ -74,8 +75,8 @@ on Github if you encounter problems. The reason there might be problems in some 
 is the use of global approximation (i.e. start of the MCMC) instead of more accurate 
 but slower local approximation (where model is approximated at each iteration). 
 However for these restricted models global approximation should be sufficient, 
-assuming the the initial estimate of the conditional mode of p(xbeta | y) not too 
-far away from the truth. Thus by default \code{walker_glm} first finds the 
+assuming the the initial estimate of the conditional mode of p(xbeta | y, sigma) not too 
+far away from the true posterior. Therefore by default \code{walker_glm} first finds the 
 maximum likelihood estimates of the standard deviation parameters 
 (using \code{\link[KFAS]{KFAS}}) package, and 
 constructs the approximation at that point, before running the Bayesian 
@@ -94,10 +95,10 @@ ts.plot(y)
 
 out <- walker_glm(y ~ x, u = u, beta_prior = cbind(0, c(10, 10)), 
   sigma_prior = cbind(0, c(2, 2)))
-print(out, pars = "sigma_b") ## approximate results
-library(diagis)
-weighted_mean(extract(out, pars = "sigma_b")$sigma_b, 
-  extract(out, pars = "weights")$weights)
+print(out$stanfit, pars = "sigma_b") ## approximate results
+library("diagis")
+weighted_mean(extract(out$stanfit, pars = "sigma_b")$sigma_b, 
+  extract(out$stanfit, pars = "weights")$weights)
 }
 \seealso{
 Package \code{diagis} in CRAN, which provides functions for computing weighted 

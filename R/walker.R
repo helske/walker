@@ -38,7 +38,8 @@
 #' @param newdata Optional data.frame containing covariates used for prediction. This argument is 
 #' ignored if argument \code{naive} is \code{TRUE}.
 #' @param ... Further arguments to \code{\link[rstan]{sampling}}.
-#' @return A \code{stanfit} object.
+#' @return A list containing the \code{stanfit} object, observations \code{y},
+#'   and covariates \code{xreg} and \code{xreg_new}.
 #' @export
 #' @examples 
 #' y <- window(log10(UKgas), end = time(UKgas)[100])
@@ -57,7 +58,7 @@
 #' # still needs bit manual work..  
 #' ts.plot(cbind(y, rowSums(mean_fit * cbind(1, as.matrix(dat[, -1])))),
 #'   col = 1:2, lwd = 2:1)
-#' intervals <- summary(fit, pars = "y_new")$summary[, c("mean", "2.5%", "97.5%")]
+#' intervals <- summary(fit$stanfit, pars = "y_new")$summary[, c("mean", "2.5%", "97.5%")]
 #' ts.plot(log10(UKgas), ts(intervals, start = end(y) + c(0,1), frequency = 4),
 #'   col = c(1, 2, 2, 2), lty = c(1, 1, 2, 2))
 #' # posterior predictive check:
@@ -79,16 +80,16 @@
 #' lines(u + beta1 * x1 + beta2 * x2, col = 2)
 #' kalman_walker <- walker(y ~ x1 + x2, iter = 2000, chains = 1,
 #'   beta_prior = cbind(0, rep(2, 3)), sigma_prior = cbind(0, rep(2, 4)))
-#' print(kalman_walker, pars = c("sigma_y", "sigma_b"))
-#' betas <- extract(kalman_walker, "beta")[[1]]
+#' print(kalman_walker$stanfit, pars = c("sigma_y", "sigma_b"))
+#' betas <- extract(kalman_walker$stanfit, "beta")[[1]]
 #' ts.plot(cbind(u, beta1, beta2, apply(betas, 2, colMeans)), 
 #'   col = 1:3, lty = rep(2:1, each = 3))
-#' sum(get_elapsed_time(kalman_walker))
+#' sum(get_elapsed_time(kalman_walker$stanfit))
 #' naive_walker <- walker(y ~ x1 + x2, iter = 2000, chains = 1, 
 #'   beta_prior = cbind(0, rep(2, 3)), sigma_prior = cbind(0, rep(2, 4)), 
 #'   naive = TRUE)
-#' print(naive_walker, pars = c("sigma_y", "sigma_b"))
-#' sum(get_elapsed_time(naive_walker))
+#' print(naive_walker$stanfit, pars = c("sigma_y", "sigma_b"))
+#' sum(get_elapsed_time(naive_walker$stanfit))
 #' 
 #' ## Larger problem, this takes some time with naive approach
 #'
@@ -110,19 +111,19 @@
 #' lines(signal, col = 2)
 #' kalman_walker <- walker(y ~ x1 + x2 + x3 + x4, iter = 2000, chains = 1,
 #'   beta_prior = cbind(0, rep(2, 5)), sigma_prior = cbind(0, rep(2, 6)))
-#' print(kalman_walker, pars = c("sigma_y", "sigma_b"))
-#' betas <- extract(kalman_walker, "beta")[[1]]
+#' print(kalman_walker$stanfit, pars = c("sigma_y", "sigma_b"))
+#' betas <- extract(kalman_walker$stanfit, "beta")[[1]]
 #' ts.plot(cbind(u, beta1, beta2, apply(betas, 2, colMeans)), 
 #'   col = 1:3, lty = rep(2:1, each = 3))
-#' sum(get_elapsed_time(kalman_walker))
+#' sum(get_elapsed_time(kalman_walker$stanfit))
 #' # need to increase adapt_delta in order to get rid of divergences
 #' # and max_treedepth to get rid of related warnings
 #' # and still we end up with low BFMI warning after hours of computation
 #' naive_walker <- walker(y ~ x1 + x2 + x3 + x4, iter = 2000, chains = 1, 
 #'   beta_prior = cbind(0, rep(2, 5)), sigma_prior = cbind(0, rep(2, 6)),
 #'   naive = TRUE, control = list(adapt_delta = 0.9, max_treedepth = 15)) 
-#' print(naive_walker, pars = c("sigma_y", "sigma_b"))
-#' sum(get_elapsed_time(naive_walker))
+#' print(naive_walker$stanfit, pars = c("sigma_y", "sigma_b"))
+#' sum(get_elapsed_time(naive_walker$stanfit))
 #' }
 #' 
 walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata,
@@ -203,8 +204,8 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata
 #' is the use of global approximation (i.e. start of the MCMC) instead of more accurate 
 #' but slower local approximation (where model is approximated at each iteration). 
 #' However for these restricted models global approximation should be sufficient, 
-#' assuming the the initial estimate of the conditional mode of p(xbeta | y) not too 
-#' far away from the truth. Thus by default \code{walker_glm} first finds the 
+#' assuming the the initial estimate of the conditional mode of p(xbeta | y, sigma) not too 
+#' far away from the true posterior. Therefore by default \code{walker_glm} first finds the 
 #' maximum likelihood estimates of the standard deviation parameters 
 #' (using \code{\link[KFAS]{KFAS}}) package, and 
 #' constructs the approximation at that point, before running the Bayesian 
@@ -221,7 +222,8 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata
 #' or numeric vector (custom guess).
 #' @param u For Poisson model, a vector of exposures i.e. E(y) = u*exp(x*beta). Defaults to 1.
 #' @param mc_sim Number of samples used in importance sampling. Default is 50.
-#' @return A \code{stanfit} object.
+#' @return A list containing the \code{stanfit} object, observations \code{y},
+#'   and covariates \code{xreg} and \code{xreg_new}.
 #' @seealso Package \code{diagis} in CRAN, which provides functions for computing weighted 
 #' summary statistics.
 #' @export
@@ -238,10 +240,10 @@ walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata
 #' 
 #' out <- walker_glm(y ~ x, u = u, beta_prior = cbind(0, c(10, 10)), 
 #'   sigma_prior = cbind(0, c(2, 2)))
-#' print(out, pars = "sigma_b") ## approximate results
-#' library(diagis)
-#' weighted_mean(extract(out, pars = "sigma_b")$sigma_b, 
-#'   extract(out, pars = "weights")$weights)
+#' print(out$stanfit, pars = "sigma_b") ## approximate results
+#' library("diagis")
+#' weighted_mean(extract(out$stanfit, pars = "sigma_b")$sigma_b, 
+#'   extract(out$stanfit, pars = "weights")$weights)
 walker_glm <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata, 
   distribution = "poisson", initial_mode = "kfas", u, mc_sim = 50,
   return_x_reg = FALSE,  return_y_rep = TRUE,...) {
