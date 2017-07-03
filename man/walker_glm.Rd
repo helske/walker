@@ -29,9 +29,6 @@ Note that compared to default in \code{rstan}, here the default is a to sample f
 
 \item{chains}{Number of Markov chains. Default is 4.}
 
-\item{newdata}{Optional data.frame containing covariates used for prediction. This argument is 
-ignored if argument \code{naive} is \code{TRUE}.}
-
 \item{distribution}{Currently only Poisson models are supported.}
 
 \item{initial_mode}{The initial guess of the fitted values on log-scale. 
@@ -47,10 +44,6 @@ or numeric vector (custom guess).}
 
 \item{return_x_reg}{If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
 predictors after processing the \code{formula}.}
-
-\item{return_y_rep}{If \code{TRUE} (default), \code{walker} also returns the samples from the 
-posterior predictive distribution \eqn{p(y_rep | y)}. This argument is ignored if 
-argument \code{naive} is \code{TRUE}.}
 
 \item{...}{Further arguments to \code{\link[rstan]{sampling}}.}
 }

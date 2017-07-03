@@ -4,8 +4,8 @@
 \alias{walker}
 \title{Bayesian linear regression with random walk coefficients}
 \usage{
-walker(formula, data, beta_prior, sigma_prior, init, chains, newdata,
-  naive = FALSE, return_x_reg = FALSE, return_y_rep = TRUE, ...)
+walker(formula, data, sigma_y_prior, beta_prior, init, chains,
+  return_x_reg = FALSE, ...)
 }
 \arguments{
 \item{formula}{An object of class \code{\link[stats]{formula}}. See \code{\link[stats]{lm}} for details.}
@@ -16,37 +16,22 @@ walker(formula, data, beta_prior, sigma_prior, init, chains, newdata,
 prior means of the Gaussian priors of the corresponding \eqn{k} regression coefficients, 
 and the second column defines the the standard deviations of those prior distributions.}
 
+\item{init}{Initial value specification, see \code{\link[rstan]{sampling}}. 
+Note that compared to default in \code{rstan}, here the default is a to sample from the priors.}
+
+\item{chains}{Number of Markov chains. Default is 4.}
+
+\item{return_x_reg}{If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
+predictors after processing the \code{formula}.}
+
+\item{...}{Further arguments to \code{\link[rstan]{sampling}}.}
+
 \item{sigma_prior}{A matrix with \eqn{k + 1} rows and two colums with similar structure as 
 \code{beta_prior}, with first row corresponding to the prior of the standard deviation of the 
 observation level noise, and rest of the rows define the priors for the standard deviations of 
 random walk noise terms. The prior distributions for all sigmas are 
 Gaussians truncated to positive real axis. For non-Gaussian models, this should contain only k rows. 
 For second order random walk model, these priors correspond to the slope level standard deviations.}
-
-\item{init}{Initial value specification, see \code{\link[rstan]{sampling}}. 
-Note that compared to default in \code{rstan}, here the default is a to sample from the priors.}
-
-\item{chains}{Number of Markov chains. Default is 4.}
-
-\item{newdata}{Optional data.frame containing covariates used for prediction. This argument is 
-ignored if argument \code{naive} is \code{TRUE}.}
-
-\item{naive}{Only used for \code{walker} function. 
-If \code{TRUE}, use "standard" approach which samples the joint posterior 
-\eqn{p(beta, sigma | y)}. If \code{FALSE} (the default), use marginalisation approach 
-where we sample the marginal posterior \eqn{p(sigma | y)} and generate the samples of 
-\eqn{p(beta | sigma, y)} using state space modelling techniques 
-(namely simulation smoother by Durbin and Koopman (2002)). Both methods give asymptotically 
-identical results, but the latter approach is computationally much more efficient.}
-
-\item{return_x_reg}{If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
-predictors after processing the \code{formula}.}
-
-\item{return_y_rep}{If \code{TRUE} (default), \code{walker} also returns the samples from the 
-posterior predictive distribution \eqn{p(y_rep | y)}. This argument is ignored if 
-argument \code{naive} is \code{TRUE}.}
-
-\item{...}{Further arguments to \code{\link[rstan]{sampling}}.}
 }
 \value{
 A list containing the \code{stanfit} object, observations \code{y},
@@ -56,7 +41,8 @@ A list containing the \code{stanfit} object, observations \code{y},
 Function \code{walker} performs Bayesian inference of a linear 
 regression model with time-varying, random walk regression coefficients, 
 i.e. ordinary regression model where instead of constant coefficients the 
-coefficients follow random walks. All computations are done using Hamiltonian 
+coefficients follow first or second order random walks. 
+All Markov chain Monte Carlo computations are done using Hamiltonian 
 Monte Carlo provided by Stan, using a state space representation of the model 
 in order to marginalise over the coefficients for efficient sampling.
 }
@@ -67,90 +53,52 @@ both coefficients are allowed to vary over time, this can lead to large uncertai
 in posterior as these to components might not easily distinguishable.
 }
 \examples{
+
+rw1_fit <- walker(Nile ~ -1 + 
+  rw1(~ 1, 
+    beta_prior = c(0, 1000), 
+    sigma_prior = c(0, 1000)), 
+  sigma_y_prior = c(0, 1000), 
+  iter = 500, chains = 2)
+  
+rw2_fit <- walker(Nile ~ -1 + 
+  rw2(~ 1,
+    beta_prior = c(0, 1000), 
+    sigma_prior = c(0, 1000), 
+    slope_prior = c(0, 100)), 
+  sigma_y_prior = c(0, 1000), 
+  chains = 2)
+  
+g_y <- geom_point(data = data.frame(y = Nile, x = time(Nile)), 
+  aes(x, y, alpha = 0.5), inherit.aes = FALSE) 
+g_rw1 <- plot_coefs(rw1_fit) + g_y
+g_rw2 <- plot_coefs(rw2_fit) + g_y
+if(require("gridExtra")) {
+  grid.arrange(g_rw1, g_rw2, ncol=2, top = "RW1 (left) versus RW2 (right)")
+} else {
+  g_rw1
+  g_rw2
+}
+
 y <- window(log10(UKgas), end = time(UKgas)[100])
-cos_t <- cos(2 * pi * trend /4)
-sin_t <- sin(2 * pi * trend /4)
-dat <- data.frame(y, trend, cos_t, sin_t)
-future <- length(y) + 1:8
-new_data <- data.frame(cos_t = cos(2 * pi * future / 4), 
-  sin_t = sin(2 * pi * future / 4))
-fit <- walker(y ~ cos_t + sin_t, data = dat, chains = 1, iter = 500, 
-  newdata = new_data, beta = cbind(0, rep(10, 3)), sigma = cbind(0, rep(10, 4)))
-print(fit$stanfit, pars = c("sigma_y", "sigma_b"))
+n <- 100
+cos_t <- cos(2 * pi * 1:n / 4)
+sin_t <- sin(2 * pi * 1:n / 4)
+dat <- data.frame(y, cos_t, sin_t)
+fit <- walker(y ~ -1 + 
+  rw1(~ cos_t + sin_t, beta_prior = c(0, 10), sigma_prior = c(0, 2)), 
+  sigma_y_prior = c(0, 10), data = dat, chains = 2, iter = 500)
+print(fit$stanfit, pars = c("sigma_y", "sigma_rw1"))
 
 plot_coefs(fit)
 # posterior predictive check:
 pp_check(fit)
 
-mean_fit <- matrix(summary(fit$stanfit, "beta")$summary[, "mean"], ncol = 4)
-
-# still needs bit manual work..  
-ts.plot(cbind(y, rowSums(mean_fit * cbind(1, as.matrix(dat[, -1])))),
-  col = 1:2, lwd = 2:1)
-intervals <- summary(fit$stanfit, pars = "y_new")$summary[, c("mean", "2.5\%", "97.5\%")]
-ts.plot(log10(UKgas), ts(intervals, start = end(y) + c(0,1), frequency = 4),
-  col = c(1, 2, 2, 2), lty = c(1, 1, 2, 2))
-
-\dontrun{
-## Comparing the approaches, note that with such a small data 
-## the differences aren't huge, but try same with n = 500 and/or more terms...
-set.seed(123)
-n <- 100
-beta1 <- cumsum(c(0.5, rnorm(n - 1, 0, sd = 0.05)))
-beta2 <- cumsum(c(-1, rnorm(n - 1, 0, sd = 0.15)))
-x1 <- rnorm(n, 1)
-x2 <- 0.25 * cos(1:n)
-ts.plot(cbind(beta1 * x1, beta2 *x2), col = 1:2)
-u <- cumsum(rnorm(n))
-y <- rnorm(n, u + beta1 * x1 + beta2 * x2)
-ts.plot(y)
-lines(u + beta1 * x1 + beta2 * x2, col = 2)
-kalman_walker <- walker(y ~ x1 + x2, iter = 2000, chains = 1,
-  beta_prior = cbind(0, rep(2, 3)), sigma_prior = cbind(0, rep(2, 4)))
-print(kalman_walker$stanfit, pars = c("sigma_y", "sigma_b"))
-betas <- extract(kalman_walker$stanfit, "beta")[[1]]
-ts.plot(cbind(u, beta1, beta2, apply(betas, 2, colMeans)), 
-  col = 1:3, lty = rep(2:1, each = 3))
-sum(get_elapsed_time(kalman_walker$stanfit))
-naive_walker <- walker(y ~ x1 + x2, iter = 2000, chains = 1, 
-  beta_prior = cbind(0, rep(2, 3)), sigma_prior = cbind(0, rep(2, 4)), 
-  naive = TRUE)
-print(naive_walker$stanfit, pars = c("sigma_y", "sigma_b"))
-sum(get_elapsed_time(naive_walker$stanfit))
-
-## Larger problem, this takes some time with naive approach
-
-set.seed(123)
-n <- 500
-beta1 <- cumsum(c(1.5, rnorm(n - 1, 0, sd = 0.05)))
-beta2 <- cumsum(c(-1, rnorm(n - 1, 0, sd = 0.5)))
-beta3 <- cumsum(c(-1.5, rnorm(n - 1, 0, sd = 0.15)))
-beta4 <- 2
-x1 <- rnorm(n, 1)
-x2 <- 0.25 * cos(1:n)
-x3 <- runif(n, 1, 3)
-ts.plot(cbind(beta1 * x1, beta2 * x2, beta3 * x3), col = 1:3)
-a <- cumsum(rnorm(n))
-signal <- a + beta1 * x1 + beta2 * x2 + beta3 * x3
-y <- rnorm(n, signal)
-ts.plot(y)
-lines(signal, col = 2)
-kalman_walker <- walker(y ~ x1 + x2 + x3, iter = 2000, chains = 1,
-  beta_prior = cbind(0, rep(2, 4)), sigma_prior = cbind(0, rep(2, 5)))
-print(kalman_walker$stanfit, pars = c("sigma_y", "sigma_b"))
-betas <- extract(kalman_walker$stanfit, "beta")[[1]]
-ts.plot(cbind(u, beta1, beta2, beta3, apply(betas, 2, colMeans)), 
-  col = 1:4, lty = rep(2:1, each = 4))
-sum(get_elapsed_time(kalman_walker$stanfit))
-# need to increase adapt_delta in order to get rid of divergences
-# and max_treedepth to get rid of related warnings
-# and still we end up with low BFMI warning after hours of computation
-naive_walker <- walker(y ~ x1 + x2 + x3, iter = 2000, chains = 1, 
-  beta_prior = cbind(0, rep(2, 4)), sigma_prior = cbind(0, rep(2, 5)),
-  naive = TRUE, control = list(adapt_delta = 0.9, max_treedepth = 15)) 
-print(naive_walker$stanfit, pars = c("sigma_y", "sigma_b"))
-sum(get_elapsed_time(naive_walker$stanfit))
-}
+newdata <- data.frame(
+  cos_t = cos(2 * pi * 101:108 / 4), 
+  sin_t = sin(2 * pi * 101:108 / 4))
+pred <- predict(fit, newdata)
+plot_predict(pred)
 
 }
 \seealso{

@@ -19,16 +19,16 @@ Suggests:
     testthat
 Depends:
     R (>= 3.0.2),
+    Rcpp (>= 0.12.9),
+    bayesplot,
     rstan (>= 2.14.1)
 Imports:
-    bayesplot,
     dplyr,
     ggplot2,
-    Rcpp (>= 0.12.9),
     KFAS,
     methods
 LinkingTo: StanHeaders (>= 2.14.0.1), rstan (>= 2.14.1), BH (>= 1.62.0.1),
-    Rcpp (>= 0.12.9), RcppEigen (>= 0.3.2.9.0)
+    Rcpp (>= 0.12.9), RcppArmadillo, RcppEigen (>= 0.3.2.9.0)
 VignetteBuilder: knitr
 SystemRequirements: C++11
 RoxygenNote: 6.0.1

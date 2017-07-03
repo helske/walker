@@ -3,7 +3,8 @@
 #' Function \code{walker} performs Bayesian inference of a linear 
 #' regression model with time-varying, random walk regression coefficients, 
 #' i.e. ordinary regression model where instead of constant coefficients the 
-#' coefficients follow random walks. All computations are done using Hamiltonian 
+#' coefficients follow first or second order random walks. 
+#' All Markov chain Monte Carlo computations are done using Hamiltonian 
 #' Monte Carlo provided by Stan, using a state space representation of the model 
 #' in order to marginalise over the coefficients for efficient sampling.
 #' 
@@ -13,6 +14,7 @@
 #' in posterior as these to components might not easily distinguishable.
 #' 
 #' @import rstan Rcpp methods
+#' @importFrom Rcpp loadModule evalCpp
 #' @importFrom stats model.matrix model.response rnorm delete.response terms window ts end glm poisson
 #' @rdname walker
 #' @useDynLib walker, .registration = TRUE
@@ -27,256 +29,192 @@
 #' random walk noise terms. The prior distributions for all sigmas are 
 #' Gaussians truncated to positive real axis. For non-Gaussian models, this should contain only k rows. 
 #' For second order random walk model, these priors correspond to the slope level standard deviations.
-#' @param naive Only used for \code{walker} function. 
-#' If \code{TRUE}, use "standard" approach which samples the joint posterior 
-#' \eqn{p(beta, sigma | y)}. If \code{FALSE} (the default), use marginalisation approach 
-#' where we sample the marginal posterior \eqn{p(sigma | y)} and generate the samples of 
-#' \eqn{p(beta | sigma, y)} using state space modelling techniques 
-#' (namely simulation smoother by Durbin and Koopman (2002)). Both methods give asymptotically 
-#' identical results, but the latter approach is computationally much more efficient.
 #' @param chains Number of Markov chains. Default is 4.
 #' @param init Initial value specification, see \code{\link[rstan]{sampling}}. 
 #' Note that compared to default in \code{rstan}, here the default is a to sample from the priors.
 #' @param return_x_reg If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
 #' predictors after processing the \code{formula}.
-#' @param return_y_rep If \code{TRUE} (default), \code{walker} also returns the samples from the 
-#' posterior predictive distribution \eqn{p(y_rep | y)}. This argument is ignored if 
-#' argument \code{naive} is \code{TRUE}.
-#' @param newdata Optional data.frame containing covariates used for prediction. This argument is 
-#' ignored if argument \code{naive} is \code{TRUE}.
 #' @param ... Further arguments to \code{\link[rstan]{sampling}}.
 #' @return A list containing the \code{stanfit} object, observations \code{y},
 #'   and covariates \code{xreg} and \code{xreg_new}.
 #' @seealso walker_rw2 walker_glm
 #' @export
 #' @examples 
-#' y <- window(log10(UKgas), end = time(UKgas)[100])
-#' cos_t <- cos(2 * pi * trend /4)
-#' sin_t <- sin(2 * pi * trend /4)
-#' dat <- data.frame(y, trend, cos_t, sin_t)
-#' future <- length(y) + 1:8
-#' new_data <- data.frame(cos_t = cos(2 * pi * future / 4), 
-#'   sin_t = sin(2 * pi * future / 4))
-#' fit <- walker(y ~ cos_t + sin_t, data = dat, chains = 1, iter = 500, 
-#'   newdata = new_data, beta = cbind(0, rep(10, 3)), sigma = cbind(0, rep(10, 4)))
-#' print(fit$stanfit, pars = c("sigma_y", "sigma_b"))
 #' 
-#' plot_coefs(fit)
-#' # posterior predictive check:
-#' pp_check(fit)
-#' 
-#' mean_fit <- matrix(summary(fit$stanfit, "beta")$summary[, "mean"], ncol = 4)
-#' 
-#' # still needs bit manual work..  
-#' ts.plot(cbind(y, rowSums(mean_fit * cbind(1, as.matrix(dat[, -1])))),
-#'   col = 1:2, lwd = 2:1)
-#' intervals <- summary(fit$stanfit, pars = "y_new")$summary[, c("mean", "2.5%", "97.5%")]
-#' ts.plot(log10(UKgas), ts(intervals, start = end(y) + c(0,1), frequency = 4),
-#'   col = c(1, 2, 2, 2), lty = c(1, 1, 2, 2))
-#' 
-#' \dontrun{
-#' ## Comparing the approaches, note that with such a small data 
-#' ## the differences aren't huge, but try same with n = 500 and/or more terms...
-#' set.seed(123)
-#' n <- 100
-#' beta1 <- cumsum(c(0.5, rnorm(n - 1, 0, sd = 0.05)))
-#' beta2 <- cumsum(c(-1, rnorm(n - 1, 0, sd = 0.15)))
-#' x1 <- rnorm(n, 1)
-#' x2 <- 0.25 * cos(1:n)
-#' ts.plot(cbind(beta1 * x1, beta2 *x2), col = 1:2)
-#' u <- cumsum(rnorm(n))
-#' y <- rnorm(n, u + beta1 * x1 + beta2 * x2)
-#' ts.plot(y)
-#' lines(u + beta1 * x1 + beta2 * x2, col = 2)
-#' kalman_walker <- walker(y ~ x1 + x2, iter = 2000, chains = 1,
-#'   beta_prior = cbind(0, rep(2, 3)), sigma_prior = cbind(0, rep(2, 4)))
-#' print(kalman_walker$stanfit, pars = c("sigma_y", "sigma_b"))
-#' betas <- extract(kalman_walker$stanfit, "beta")[[1]]
-#' ts.plot(cbind(u, beta1, beta2, apply(betas, 2, colMeans)), 
-#'   col = 1:3, lty = rep(2:1, each = 3))
-#' sum(get_elapsed_time(kalman_walker$stanfit))
-#' naive_walker <- walker(y ~ x1 + x2, iter = 2000, chains = 1, 
-#'   beta_prior = cbind(0, rep(2, 3)), sigma_prior = cbind(0, rep(2, 4)), 
-#'   naive = TRUE)
-#' print(naive_walker$stanfit, pars = c("sigma_y", "sigma_b"))
-#' sum(get_elapsed_time(naive_walker$stanfit))
-#' 
-#' ## Larger problem, this takes some time with naive approach
-#'
-#' set.seed(123)
-#' n <- 500
-#' beta1 <- cumsum(c(1.5, rnorm(n - 1, 0, sd = 0.05)))
-#' beta2 <- cumsum(c(-1, rnorm(n - 1, 0, sd = 0.5)))
-#' beta3 <- cumsum(c(-1.5, rnorm(n - 1, 0, sd = 0.15)))
-#' beta4 <- 2
-#' x1 <- rnorm(n, 1)
-#' x2 <- 0.25 * cos(1:n)
-#' x3 <- runif(n, 1, 3)
-#' ts.plot(cbind(beta1 * x1, beta2 * x2, beta3 * x3), col = 1:3)
-#' a <- cumsum(rnorm(n))
-#' signal <- a + beta1 * x1 + beta2 * x2 + beta3 * x3
-#' y <- rnorm(n, signal)
-#' ts.plot(y)
-#' lines(signal, col = 2)
-#' kalman_walker <- walker(y ~ x1 + x2 + x3, iter = 2000, chains = 1,
-#'   beta_prior = cbind(0, rep(2, 4)), sigma_prior = cbind(0, rep(2, 5)))
-#' print(kalman_walker$stanfit, pars = c("sigma_y", "sigma_b"))
-#' betas <- extract(kalman_walker$stanfit, "beta")[[1]]
-#' ts.plot(cbind(u, beta1, beta2, beta3, apply(betas, 2, colMeans)), 
-#'   col = 1:4, lty = rep(2:1, each = 4))
-#' sum(get_elapsed_time(kalman_walker$stanfit))
-#' # need to increase adapt_delta in order to get rid of divergences
-#' # and max_treedepth to get rid of related warnings
-#' # and still we end up with low BFMI warning after hours of computation
-#' naive_walker <- walker(y ~ x1 + x2 + x3, iter = 2000, chains = 1, 
-#'   beta_prior = cbind(0, rep(2, 4)), sigma_prior = cbind(0, rep(2, 5)),
-#'   naive = TRUE, control = list(adapt_delta = 0.9, max_treedepth = 15)) 
-#' print(naive_walker$stanfit, pars = c("sigma_y", "sigma_b"))
-#' sum(get_elapsed_time(naive_walker$stanfit))
-#' }
-#' 
-walker <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata,
-  naive = FALSE, return_x_reg = FALSE, return_y_rep = TRUE, ...) {
-  
-  # build y and xreg
-  mf <- match.call(expand.dots = FALSE)
-  mf <- mf[c(1L, match(c("formula", "data"), names(mf), 0L))]
-  mf$drop.unused.levels <- TRUE
-  mf$na.action <- "na.pass"
-  mf[[1L]] <- quote(stats::model.frame)
-  mf <- eval(mf, parent.frame())
-  y <- model.response(mf, "numeric")
-  n <- length(y)
-  xreg <- model.matrix(attr(mf, "terms"), mf)
-  if (return_x_reg) return(xreg)
-  k <- ncol(xreg)
-  
-  
-  if (!missing(newdata)) {
-    xreg_new <- model.matrix(delete.response(terms(mf)), data = newdata)
-    n_new <- nrow(xreg_new)
-  } else {
-    xreg_new <- matrix(0, 0, k)
-    n_new <- 0L
-  }
-  if (any(is.na(xreg)) || any(is.na(xreg_new))) stop("Missing values in covariates are not allowed.")
-  if (any(is.na(y))) stop("Missing values in response are not (yet) allowed.")
-  
-  
-  if(!identical(dim(beta_prior), c(k, 2L))) {
-    stop("beta_prior should be k x 2 matrix containing columns of prior means and sds for each k coefficients. ")
-  }
-  if(!identical(dim(sigma_prior), c(k + 1L, 2L))) {
-    stop("sigma_prior should be (k + 1) x 2 matrix containing columns of prior means and sds for each k + 1 standard deviations. ")
-  }
-  stan_data <- list(k = k, n = n, y = y, xreg = t(xreg), 
-    n_new = n_new, xreg_new = t(xreg_new),
-    beta_mean = structure(beta_prior[, 1], dim = k), 
-    beta_sd = structure(beta_prior[, 2], dim = k),
-    sigma_mean = sigma_prior[, 1], sigma_sd = sigma_prior[, 2])
-  
-  if (missing(chains)) chains <- 4
-  if (missing(init)) {
-    init <- replicate(chains, 
-      list(sigma_y  = abs(rnorm(1, sigma_prior[1, 1], sigma_prior[1, 2])), 
-        sigma_b = structure(abs(rnorm(k, sigma_prior[-1, 1], sigma_prior[-1, 2])), dim = k), 
-        beta = structure(rnorm(k, beta_prior[, 1], beta_prior[, 2]), dim = k)), simplify = FALSE)
-  }
-  stanfit <- if (naive) {
-    sampling(stanmodels$rw_model_naive,
-      data = stan_data, chains = chains, init = init,
-      pars = c("sigma_y", "sigma_b", "beta"), ...)
-  } else {
-    sampling(stanmodels$rw_model,
-      data = stan_data, chains = chains, init = init,
-      pars = c("sigma_y", "sigma_b", "beta", 
-        if (return_y_rep) "y_rep", if (n_new > 0) c("y_new", "beta_new")), ...)
-  }
-  structure(list(stanfit = stanfit, y = y, xreg = xreg, xreg_new = xreg_new), class = "walker_fit")
-}
-#' Bayesian linear regression with second order random walk coefficients
-#' 
-#' Function \code{walker_rw2} replaces the first order random walk coefficients 
-#' with smooth second order random walks.
-#' 
-#' @inheritParams walker
-#' @seealso walker walker_glm
-#' @export
-#' @examples 
-#' 
-#' rw1 <- walker(Nile ~ 1, beta_prior = cbind(0, 1000), 
-#'   sigma_prior = cbind(0, rep(1000, 2)), chains = 2)
-#' rw2 <- walker_rw2(Nile ~ 1, beta_prior = cbind(0, 1000), 
-#'   sigma_prior = cbind(0, rep(1000, 2)), chains = 2)
+#' rw1_fit <- walker(Nile ~ -1 + 
+#'   rw1(~ 1, 
+#'     beta_prior = c(1000, 100), 
+#'     sigma_prior = c(0, 100)), 
+#'   sigma_y_prior = c(0, 100), 
+#'   iter = 500, chains = 2)
 #'   
-#' g_y <- geom_point(data = data.frame(y = Nile, x = 1:100), 
+#' rw2_fit <- walker(Nile ~ -1 + 
+#'   rw2(~ 1,
+#'     beta_prior = c(1000, 100), 
+#'     sigma_prior = c(0, 100), 
+#'     slope_prior = c(0, 100)), 
+#'   sigma_y_prior = c(0, 100), 
+#'   chains = 2)
+#'   
+#' g_y <- geom_point(data = data.frame(y = Nile, x = time(Nile)), 
 #'   aes(x, y, alpha = 0.5), inherit.aes = FALSE) 
-#' g_rw1 <- plot_coefs(rw1) + g_y
-#' g_rw2 <- plot_coefs(rw2) + g_y
-#' if(require("gridExtra"))) {
+#' g_rw1 <- plot_coefs(rw1_fit) + g_y
+#' g_rw2 <- plot_coefs(rw2_fit) + g_y
+#' if(require("gridExtra")) {
 #'   grid.arrange(g_rw1, g_rw2, ncol=2, top = "RW1 (left) versus RW2 (right)")
 #' } else {
 #'   g_rw1
 #'   g_rw2
 #' }
 #' 
-walker_rw2 <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata,
-  naive = FALSE, return_x_reg = FALSE, return_y_rep = TRUE, ...) {
+#' y <- window(log10(UKgas), end = time(UKgas)[100])
+#' n <- 100
+#' cos_t <- cos(2 * pi * 1:n / 4)
+#' sin_t <- sin(2 * pi * 1:n / 4)
+#' dat <- data.frame(y, cos_t, sin_t)
+#' fit <- walker(y ~ -1 + 
+#'   rw1(~ cos_t + sin_t, beta_prior = c(0, 10), sigma_prior = c(0, 2)), 
+#'   sigma_y_prior = c(0, 10), data = dat, chains = 2, iter = 500)
+#' print(fit$stanfit, pars = c("sigma_y", "sigma_rw1"))
+#' 
+#' plot_coefs(fit)
+#' # posterior predictive check:
+#' pp_check(fit)
+#' 
+#' newdata <- data.frame(
+#'   cos_t = cos(2 * pi * 101:108 / 4), 
+#'   sin_t = sin(2 * pi * 101:108 / 4))
+#' pred <- predict(fit, newdata)
+#' plot_predict(pred)
+#' 
+walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
+   return_x_reg = FALSE, ...) {
+  
+  if (missing(data)) data <- environment(formula)
+  # Modifying formula object, catching special functions
+  mf <- mc <- match.call(expand.dots = FALSE)
+  mf <- mf[c(1L, match(c("formula", "data"), names(mf), 0L))]
+  mf[[1L]] <- quote(stats::model.frame)
+  mf$na.action <- as.name("na.pass")
+  mf$drop.unused.levels <- TRUE
+  specials <- c("rw1", "rw2")
+  
+  all_terms <- terms(formula, specials = specials, data = data)
+  rws <- unlist(attr(all_terms, "specials"))
+  if (length(rws) > 0) {
+    if (length(attr(all_terms, "term.labels")) == length(rws)){
+      all_terms <- terms(update.formula(all_terms, . ~ . + .emptyx.),
+        specials = specials)
+    }
+    drops <- which(attr(all_terms, "term.labels") %in%
+        rownames(attr(all_terms, "factors"))[rws])
+    mf$formula <- formula(drop.terms(all_terms, drops, keep.response = TRUE))
+    mf$formula <- update.formula(mf$formula, . ~ . - .emptyx., simplify = TRUE)
+  }
   
   # build y and xreg
-  mf <- match.call(expand.dots = FALSE)
-  mf <- mf[c(1L, match(c("formula", "data"), names(mf), 0L))]
-  mf$drop.unused.levels <- TRUE
-  mf$na.action <- "na.pass"
-  mf[[1L]] <- quote(stats::model.frame)
   mf <- eval(mf, parent.frame())
   y <- model.response(mf, "numeric")
   n <- length(y)
-  xreg <- model.matrix(attr(mf, "terms"), mf)
-  if (return_x_reg) return(xreg)
-  k <- ncol(xreg)
+  xreg_fixed <- model.matrix(attr(mf, "terms"), mf)
   
+  ## RWs
   
-  if (!missing(newdata)) {
-    xreg_new <- model.matrix(delete.response(terms(mf)), data = newdata)
-    n_new <- nrow(xreg_new)
+  vars <- attr(all_terms, "variables")
+  if (!is.null(attr(all_terms, "specials")$rw1)) {
+    comp <- vars[[1 + attr(all_terms, "specials")$rw1[1]]]
+    rw1_out <- eval(comp, envir = data, enclos = parent.frame())
+    # only intercept
+    if (nrow(rw1_out$xreg) == 0) rw1_out$xreg <- matrix(1, n, 1)
   } else {
-    xreg_new <- matrix(0, 0, k)
-    n_new <- 0L
+    rw1_out <- list(xreg = matrix(0, n, 0), 
+      beta_prior = numeric(2), sigma_prior = numeric(2))
   }
-  if (any(is.na(xreg)) || any(is.na(xreg_new))) stop("Missing values in covariates are not allowed.")
+  if (!is.null(attr(all_terms, "specials")$rw2)) {
+    comp <- vars[[1 + attr(all_terms, "specials")$rw2[1]]]
+    rw2_out <- eval(comp, envir = data, enclos = parent.frame())
+    # only intercept
+    if (nrow(rw2_out$xreg) == 0) rw2_out$xreg <- matrix(1, n, 1)
+  } else {
+    rw2_out <- list(xreg = matrix(0, n, 0), 
+      beta_prior = numeric(2), sigma_prior = numeric(2), slope_prior = numeric(2))
+  }
+  
+  xreg_rw <- cbind(rw1_out$xreg, rw2_out$xreg)
+  
+  k_fixed <- max(0, ncol(xreg_fixed))
+  k_rw1 <- max(0, ncol(rw1_out$xreg))
+  k_rw2 <- max(0, ncol(rw2_out$xreg))
+  if (return_x_reg) return(list(xreg_fixed = xreg_fixed, xreg_rw = xreg_rw))
+ 
+  if (any(is.na(xreg_fixed)) || any(is.na(xreg_rw))) stop("Missing values in covariates are not allowed.")
   if (any(is.na(y))) stop("Missing values in response are not (yet) allowed.")
   
+  if(k_fixed > 0 && length(beta_prior) != 2) {
+    stop("beta_prior should be a vector of length two, defining the mean and standard deviation for the Gaussian prior of fixed coefficients. ")
+  }
+  if(length(sigma_y_prior) != 2) {
+    stop("sigma_prior should be should be a vector of length two, defining the mean and standard deviation for the Gaussian prior of the standard deviation of y. ")
+  }
   
-  if(!identical(dim(beta_prior), c(k, 2L))) {
-    stop("beta_prior should be k x 2 matrix containing columns of prior means and sds for each k coefficients. ")
-  }
-  if(!identical(dim(sigma_prior), c(k + 1L, 2L))) {
-    stop("sigma_prior should be (k + 1) x 2 matrix containing columns of prior means and sds for each k + 1 standard deviations. ")
-  }
-  stan_data <- list(k = k, n = n, y = y, xreg = t(xreg), 
-    n_new = n_new, xreg_new = t(xreg_new), 
-    slope_sd = structure(rep(100.0, k), dim = k),
-    beta_mean = structure(beta_prior[, 1], dim = k), 
-    beta_sd = structure(beta_prior[, 2], dim = k),
-    sigma_mean = sigma_prior[, 1], sigma_sd = sigma_prior[, 2])
+  stan_data <- list(
+    k_fixed = k_fixed, 
+    k_rw1 = k_rw1,
+    k_rw2 = k_rw2,
+    m = k_rw1 + 2 * k_rw2,
+    k = k_rw1 + k_rw2,
+    n = n, 
+    xreg_fixed = xreg_fixed, 
+    xreg_rw = t(xreg_rw), 
+    y = y, 
+    sigma_y_mean = sigma_y_prior[1],
+    sigma_y_sd = sigma_y_prior[2],
+    beta_fixed_mean = if (k_fixed > 0) beta_prior[1] else 0,
+    beta_fixed_sd = if (k_fixed > 0) beta_prior[2] else 0,
+    beta_rw1_mean = rw1_out$beta_prior[1],
+    beta_rw1_sd = rw1_out$beta_prior[2],
+    beta_rw2_mean = rw2_out$beta_prior[1],
+    beta_rw2_sd = rw2_out$beta_prior[2],
+    sigma_rw1_mean = rw1_out$sigma_prior[1],
+    sigma_rw1_sd = rw1_out$sigma_prior[2],
+    sigma_rw2_mean = rw2_out$sigma_prior[1],
+    sigma_rw2_sd = rw2_out$sigma_prior[2],
+    slope_mean = rw2_out$slope_prior[1],
+    slope_sd = rw2_out$slope_prior[2]
+  )
   
   if (missing(chains)) chains <- 4
   if (missing(init)) {
     init <- replicate(chains, 
-      list(sigma_y  = abs(rnorm(1, sigma_prior[1, 1], sigma_prior[1, 2])), 
-        sigma_b = structure(abs(rnorm(k, sigma_prior[-1, 1], sigma_prior[-1, 2])), dim = k)), 
+      list(beta_fixed = 
+          if (k_fixed > 0) {
+            rnorm(k_fixed, beta_prior[1], beta_prior[2] / 10) 
+          } else {
+            structure(numeric(0), dim = 0) 
+          },
+        sigma_y  = abs(rnorm(1, sigma_y_prior[1], sigma_y_prior[2] / 10)), 
+        sigma_rw1 = 
+          if (k_rw1 > 0) {
+            structure(abs(rnorm(k_rw1, rw1_out$sigma_prior[1], rw1_out$sigma_prior[2] / 10)), dim = k_rw1) 
+          } else {
+            structure(numeric(0), dim = 0)
+          }, 
+        sigma_rw2 = 
+          if (k_rw2 > 0) {
+            structure(abs(rnorm(k_rw2, rw2_out$sigma_prior[1], rw2_out$sigma_prior[2] / 10)), dim = k_rw2) 
+          } else {
+            structure(numeric(0), dim = 0)
+          }), 
       simplify = FALSE)
   }
-  stanfit <- 
-    sampling(stanmodels$rw2_model,
-      data = stan_data, chains = chains, init = init,
-      pars = c("sigma_y", "sigma_b", "beta", "slope",
-        if (return_y_rep) "y_rep", if (n_new > 0) c("y_new", "beta_new", "slope_new")), ...)
+  stanfit <- sampling(stanmodels$walker_lm,
+    data = stan_data, chains = chains, init = init,
+    pars = c("sigma_y", "sigma_rw1", "sigma_rw2", "beta_fixed", "beta_rw", 
+      "slope", "y_fit", "y_rep"), ...)
   
-  structure(list(stanfit = stanfit, y = y, xreg = xreg, xreg_new = xreg_new), class = "walker_fit")
+  structure(list(stanfit = stanfit, y = y, xreg_fixed = xreg_fixed, 
+    xreg_rw = xreg_rw, call = mc), class = "walker_fit")
 }
-
 
 #' Bayesian generalized linear regression with time-varying coefficients
 #' 

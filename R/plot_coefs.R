@@ -14,14 +14,14 @@
 plot_coefs <- function(object, level = 0.05, alpha = 0.33){
   
   # N x k x n array
-  coef_data <- extract(object$stanfit, pars = "beta", permuted = TRUE)$beta
+  coef_data <- extract(object$stanfit, pars = "beta_rw", permuted = TRUE)$beta
   dimnames(coef_data) <- 
     list(iter = 1:nrow(coef_data), 
       beta = 1:ncol(coef_data), 
       time = as.numeric(time(object$y)))
   coef_data <- as.data.frame(as.table(coef_data))  
   names(coef_data)[4] <- "value"
-  coef_data$time <- as.numeric(coef_data$time)
+  coef_data$time <- as.numeric(levels(coef_data$time))[coef_data$time]
   grouped <- group_by(coef_data, time, beta)
   quantiles <- summarise(grouped, lwr = quantile(value, prob = level), 
     median = quantile(value, prob = 0.5),
