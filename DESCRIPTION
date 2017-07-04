@@ -32,4 +32,5 @@ LinkingTo: StanHeaders (>= 2.14.0.1), rstan (>= 2.14.1), BH (>= 1.62.0.1),
 VignetteBuilder: knitr
 SystemRequirements: C++11
 RoxygenNote: 6.0.1
+ByteCompile: true
 
