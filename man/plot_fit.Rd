@@ -2,9 +2,9 @@
 % Please edit documentation in R/plot_fit.R
 \name{plot_fit}
 \alias{plot_fit}
-\title{Plot the fitted values for a walker object}
+\title{Plot the fitted values and sample quantiles for a walker object}
 \usage{
-plot_fit(object, level = 0.05, alpha = 0.33)
+plot_fit(object, level = 0.05, alpha = 0.33, ...)
 }
 \arguments{
 \item{object}{An output from \code{\link{predict.walker_fit}}.}
@@ -12,7 +12,9 @@ plot_fit(object, level = 0.05, alpha = 0.33)
 \item{level}{Level for intervals. Default is 0.05, leading to 90\% intervals.}
 
 \item{alpha}{Transparency level for \code{geom_ribbon}.}
+
+\item{...}{Further arguments to \code{\link[bayesplot]{ppc_ribbon}}.}
 }
 \description{
-Plot the fitted values for a walker object
+Plot the fitted values and sample quantiles for a walker object
 }

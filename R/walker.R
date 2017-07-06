@@ -88,7 +88,7 @@
 #' plot_predict(pred)
 #' 
 walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
-   return_x_reg = FALSE, ...) {
+  return_x_reg = FALSE, ...) {
   
   if (missing(data)) data <- environment(formula)
   # Modifying formula object, catching special functions
@@ -146,7 +146,7 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
   k_rw1 <- max(0, ncol(rw1_out$xreg))
   k_rw2 <- max(0, ncol(rw2_out$xreg))
   if (return_x_reg) return(list(xreg_fixed = xreg_fixed, xreg_rw = xreg_rw))
- 
+  
   if (any(is.na(xreg_fixed)) || any(is.na(xreg_rw))) stop("Missing values in covariates are not allowed.")
   if (any(is.na(y))) stop("Missing values in response are not (yet) allowed.")
   
@@ -269,55 +269,97 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
 #' y <- rpois(n, u * exp(level + beta * x))
 #' ts.plot(y)
 #' 
-#' out <- walker_glm(y ~ x, u = u, beta_prior = cbind(0, c(10, 10)), 
+#' set.seed(1)
+#' out <- walker_glm(y ~ x, u = u, beta_prior = cbind(0, c(10, 10)), iter = 1e4,
 #'   sigma_prior = cbind(0, c(2, 2)))
 #' print(out$stanfit, pars = "sigma_b") ## approximate results
 #' library("diagis")
 #' weighted_mean(extract(out$stanfit, pars = "sigma_b")$sigma_b, 
 #'   extract(out$stanfit, pars = "weights")$weights)
-walker_glm <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata, 
-  distribution = "poisson", initial_mode = "kfas", u, mc_sim = 50,
-  return_x_reg = FALSE,  return_y_rep = TRUE,...) {
+#'   
+walker_glm <- function(formula, data, beta_prior, init, chains,
+  return_x_reg = FALSE, distribution = "poisson", 
+  initial_mode = "kfas", u, mc_sim = 50, ...) {
   
   distribution <- match.arg(distribution, choices = "poisson")
   
-  # build y and xreg
-  mf <- match.call(expand.dots = FALSE)
+  if (missing(data)) data <- environment(formula)
+  # Modifying formula object, catching special functions
+  mf <- mc <- match.call(expand.dots = FALSE)
   mf <- mf[c(1L, match(c("formula", "data"), names(mf), 0L))]
-  mf$drop.unused.levels <- TRUE
-  mf$na.action <- "na.pass"
   mf[[1L]] <- quote(stats::model.frame)
+  mf$na.action <- as.name("na.pass")
+  mf$drop.unused.levels <- TRUE
+  specials <- c("rw1", "rw2")
+  
+  all_terms <- terms(formula, specials = specials, data = data)
+  rws <- unlist(attr(all_terms, "specials"))
+  if (length(rws) > 0) {
+    if (length(attr(all_terms, "term.labels")) == length(rws)){
+      all_terms <- terms(update.formula(all_terms, . ~ . + .emptyx.),
+        specials = specials)
+    }
+    drops <- which(attr(all_terms, "term.labels") %in%
+        rownames(attr(all_terms, "factors"))[rws])
+    mf$formula <- formula(drop.terms(all_terms, drops, keep.response = TRUE))
+    mf$formula <- update.formula(mf$formula, . ~ . - .emptyx., simplify = TRUE)
+  }
+  
+  # build y and xreg
   mf <- eval(mf, parent.frame())
   y <- model.response(mf, "numeric")
   n <- length(y)
-  xreg <- model.matrix(attr(mf, "terms"), mf)
-  if (return_x_reg) return(xreg)
-  k <- ncol(xreg)
+  xreg_fixed <- model.matrix(attr(mf, "terms"), mf)
   
-  if (any(is.na(xreg))) stop("Missing values in covariates are not allowed.")
+  ## RWs
+  
+  vars <- attr(all_terms, "variables")
+  if (!is.null(attr(all_terms, "specials")$rw1)) {
+    comp <- vars[[1 + attr(all_terms, "specials")$rw1[1]]]
+    rw1_out <- eval(comp, envir = data, enclos = parent.frame())
+    # only intercept
+    if (nrow(rw1_out$xreg) == 0) rw1_out$xreg <- matrix(1, n, 1)
+  } else {
+    rw1_out <- list(xreg = matrix(0, n, 0), 
+      beta_prior = numeric(2), sigma_prior = numeric(2))
+  }
+  if (!is.null(attr(all_terms, "specials")$rw2)) {
+    comp <- vars[[1 + attr(all_terms, "specials")$rw2[1]]]
+    rw2_out <- eval(comp, envir = data, enclos = parent.frame())
+    # only intercept
+    if (nrow(rw2_out$xreg) == 0) rw2_out$xreg <- matrix(1, n, 1)
+  } else {
+    rw2_out <- list(xreg = matrix(0, n, 0), 
+      beta_prior = numeric(2), sigma_prior = numeric(2), slope_prior = numeric(2))
+  }
+  
+  xreg_rw <- cbind(rw1_out$xreg, rw2_out$xreg)
+  
+  k_fixed <- max(0, ncol(xreg_fixed))
+  k_rw1 <- max(0, ncol(rw1_out$xreg))
+  k_rw2 <- max(0, ncol(rw2_out$xreg))
+  if (return_x_reg) return(list(xreg_fixed = xreg_fixed, xreg_rw = xreg_rw))
+  
+  if (any(is.na(xreg_fixed)) || any(is.na(xreg_rw))) stop("Missing values in covariates are not allowed.")
   if (any(is.na(y))) stop("Missing values in response are not (yet) allowed.")
   
-  if (!missing(newdata)) .NotYetUsed("newdata", error = TRUE)
-  if (!missing(return_y_rep)) .NotYetUsed("return_y_rep", error = TRUE)
-  # no predictions supported yet
-  # if (!missing(newdata)) {
-  #   xreg_new <- model.matrix(delete.response(terms(mf)), data = newdata)
-  #   n_new <- nrow(xreg_new)
-  # } else {
-  xreg_new <- matrix(0, 0, k)
-  n_new <- 0L
-  #}
-  
-  if(!identical(dim(beta_prior), c(k, 2L))) {
-    stop("beta_prior should be k x 2 matrix containing columns of prior means and sds for each k coefficients. ")
+  if(k_fixed > 0 && length(beta_prior) != 2) {
+    stop("beta_prior should be a vector of length two, defining the mean and standard deviation for the Gaussian prior of fixed coefficients. ")
   }
-  if(!identical(dim(sigma_prior), c(k, 2L))) {
-    stop("sigma_prior should be k x 2 matrix containing columns of prior means and sds for each k standard deviations. ")
-  }
+ 
   if (missing(u)) {
     u <- rep(1, n)
   }
-  if(any(u) <= 0) stop("All values of 'u' must be positive. ")
+  if(any(u <= 0)) stop("All values of 'u' must be positive. ")
+  
+  beta_fixed_mean = if (k_fixed > 0) beta_prior[1] else 0
+  beta_fixed_sd = if (k_fixed > 0) beta_prior[2] else 0
+  beta_rw1_mean = rw1_out$beta_prior[1]
+  beta_rw1_sd = rw1_out$beta_prior[2]
+  beta_rw2_mean = rw2_out$beta_prior[1]
+  beta_rw2_sd = rw2_out$beta_prior[2]
+  slope_mean = rw2_out$slope_prior[1]
+  slope_sd = rw2_out$slope_prior[2]
   
   if (is.numeric(initial_mode)) {
     pseudo_H <- 1 / (u * exp(initial_mode))
@@ -333,23 +375,31 @@ walker_glm <- function(formula, data, beta_prior, sigma_prior, init, chains, new
       },
       glm = {
         
-        if (missing(data)) {
-          fit <- glm(formula, offset = log(u), family = poisson)
-        } else {
-          fit <- glm(formula, offset = log(u), data = data, family = poisson)
-        }
+        fit <- glm(y ~ ., data = data.frame(cbind(xreg_fixed, xreg_rw)), offset = log(u), family = poisson)
         pseudo_H <- 1 / fit$fitted.values
         pseudo_y <- y * pseudo_H + fit$linear.predictors - log(u) - 1
         
       },
       kfas = {
-        
-        model <- SSModel(y ~ -1 +
-            SSMregression(formula, Q = diag(NA, k), remove.intercept = FALSE, 
-              a1 = beta_prior[,1],
-              P1 = diag(beta_prior[,2]^2, k)),
+        m <- k_fixed + k_rw1 + 2 * k_rw2
+        Zt <- array(0, dim = c(1, m, n))
+        if (k_fixed > 0) {
+          Zt[1, 1:k_fixed, ] <- t(xreg_fixed)
+        }
+        Zt[1, (k_fixed + 1):ncol(Zt),] <- t(xreg_rw)
+        Tt <- Rt <- diag(m)
+        if(k_rw2 > 0) {
+          Tt[(k_fixed + k_rw1 + k_rw2):(m)] <- diag(k_rw2)
+        }
+        Qt <- diag(rep(c(0, NA, 0, NA), times = c(k_fixed, k_rw1, k_rw2, k_rw2)), m)
+        a1 <- rep(c(beta_fixed_mean, beta_rw1_mean, beta_rw2_mean, slope_mean), 
+          times = c(k_fixed, k_rw1, k_rw2, k_rw2))
+        P1 <- diag(rep(c(beta_fixed_sd, beta_rw1_sd, beta_rw2_sd, slope_sd), 
+          times = c(k_fixed, k_rw1, k_rw2, k_rw2)), m)
+        P1inf <- diag(0, m)
+        model <- SSModel(y ~ -1 + SSMcustom(Zt, Tt, Rt, Qt, a1, P1, P1inf),
           distribution = "poisson", u = u)
-        fit <- fitSSM(model, inits = rep(-1, k), method = "BFGS")
+        fit <- fitSSM(model, inits = rep(-1, k_rw1 + k_rw2), method = "BFGS")
         app <- approxSSM(fit$model)
         pseudo_H <- as.numeric(app$H)
         pseudo_y <- as.numeric(app$y)
@@ -359,26 +409,64 @@ walker_glm <- function(formula, data, beta_prior, sigma_prior, init, chains, new
     )
   }
   
-  
-  stan_data <- list(k = k, n = n, y = pseudo_y, Ht = pseudo_H, 
-    y_original = y, u = u, distribution = 1L, N = mc_sim, xreg = t(xreg), 
-    n_new = n_new, xreg_new = t(xreg_new),
-    beta_mean = structure(beta_prior[, 1], dim = k), 
-    beta_sd = structure(beta_prior[, 2], dim = k),
-    sigma_mean = structure(sigma_prior[, 1], dim = k), 
-    sigma_sd = structure(sigma_prior[, 2], dim = k))
+  stan_data <- list(
+    k_fixed = k_fixed, 
+    k_rw1 = k_rw1,
+    k_rw2 = k_rw2,
+    m = k_rw1 + 2 * k_rw2,
+    k = k_rw1 + k_rw2,
+    n = n, 
+    xreg_fixed = xreg_fixed, 
+    xreg_rw = t(xreg_rw), 
+    beta_fixed_mean = beta_fixed_mean,
+    beta_fixed_sd = beta_fixed_sd,
+    beta_rw1_mean = beta_rw1_mean,
+    beta_rw1_sd = beta_rw1_sd,
+    beta_rw2_mean = beta_rw2_mean,
+    beta_rw2_sd = beta_rw2_sd,
+    sigma_rw1_mean = rw1_out$sigma_prior[1],
+    sigma_rw1_sd = rw1_out$sigma_prior[2],
+    sigma_rw2_mean = rw2_out$sigma_prior[1],
+    sigma_rw2_sd = rw2_out$sigma_prior[2],
+    slope_mean = slope_mean,
+    slope_sd = slope_sd,
+    y = pseudo_y, 
+    Ht = pseudo_H, 
+    y_original = y, 
+    u = u, 
+    distribution = 1L, 
+    N = mc_sim
+  )
   
   if (missing(chains)) chains <- 4
   if (missing(init)) {
     init <- replicate(chains, 
-      list(
-        sigma_b = structure(abs(rnorm(k, sigma_prior[, 1], sigma_prior[, 2])), dim = k), 
-        beta = structure(rnorm(k, beta_prior[, 1], beta_prior[, 2]), dim = k)), 
+      list(beta_fixed = 
+          if (k_fixed > 0) {
+            rnorm(k_fixed, beta_prior[1], beta_prior[2] / 10) 
+          } else {
+            structure(numeric(0), dim = 0) 
+          },
+        sigma_rw1 = 
+          if (k_rw1 > 0) {
+            structure(abs(rnorm(k_rw1, rw1_out$sigma_prior[1], rw1_out$sigma_prior[2] / 10)), dim = k_rw1) 
+          } else {
+            structure(numeric(0), dim = 0)
+          }, 
+        sigma_rw2 = 
+          if (k_rw2 > 0) {
+            structure(abs(rnorm(k_rw2, rw2_out$sigma_prior[1], rw2_out$sigma_prior[2] / 10)), dim = k_rw2) 
+          } else {
+            structure(numeric(0), dim = 0)
+          }), 
       simplify = FALSE)
   }
   
-  sampling(stanmodels$rw_glm_model,
+  stanfit <- sampling(stanmodels$walker_glm,
     data = stan_data, chains = chains, init = init,
-    pars = c("sigma_b", "beta", "weights"), ...)
+    pars = c("sigma_rw1", "sigma_rw2", "beta_fixed", "beta_rw", 
+      "slope", "y_fit", "y_rep", "weights"), ...)
+  
+  structure(list(stanfit = stanfit, y = y, xreg_fixed = xreg_fixed, 
+    xreg_rw = xreg_rw, call = mc), class = "walker_fit")
 }
-

@@ -56,17 +56,17 @@ in posterior as these to components might not easily distinguishable.
 
 rw1_fit <- walker(Nile ~ -1 + 
   rw1(~ 1, 
-    beta_prior = c(0, 1000), 
-    sigma_prior = c(0, 1000)), 
-  sigma_y_prior = c(0, 1000), 
+    beta_prior = c(1000, 100), 
+    sigma_prior = c(0, 100)), 
+  sigma_y_prior = c(0, 100), 
   iter = 500, chains = 2)
   
 rw2_fit <- walker(Nile ~ -1 + 
   rw2(~ 1,
-    beta_prior = c(0, 1000), 
-    sigma_prior = c(0, 1000), 
+    beta_prior = c(1000, 100), 
+    sigma_prior = c(0, 100), 
     slope_prior = c(0, 100)), 
-  sigma_y_prior = c(0, 1000), 
+  sigma_y_prior = c(0, 100), 
   chains = 2)
   
 g_y <- geom_point(data = data.frame(y = Nile, x = time(Nile)), 

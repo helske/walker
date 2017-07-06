@@ -36,8 +36,10 @@ where we sample the marginal posterior \eqn{p(sigma | y)} and generate the sampl
 identical results, but the latter approach is computationally much more efficient.}
 }
 \description{
-This is a non-exported function for performing time-varying model where all coefficients ~ rw1.
-Function is used in comparing "naive" and ss versions in vignette.
+This function is the first iteration of the function \code{walker},
+which supports only time-varying model where all coefficients ~ rw1.
+This is kept as part of the package in order to compare "naive" and 
+state space versions of the model in the vignette.
 }
 \examples{
 \dontrun{
@@ -54,7 +56,7 @@ u <- cumsum(rnorm(n))
 y <- rnorm(n, u + beta1 * x1 + beta2 * x2)
 ts.plot(y)
 lines(u + beta1 * x1 + beta2 * x2, col = 2)
-kalman_walker <- walker(y ~ -1 + 
+kalman_walker <- walker_rw1(y ~ -1 + 
   rw1(~ x1 + x2, beta_prior = c(0, 2), sigma_prior = c(0, 2)), 
   sigma_y_prior = c(0, 2), iter = 2000, chains = 1)
 print(kalman_walker$stanfit, pars = c("sigma_y", "sigma_rw1"))
@@ -62,7 +64,7 @@ betas <- extract(kalman_walker$stanfit, "beta")[[1]]
 ts.plot(cbind(u, beta1, beta2, apply(betas, 2, colMeans)), 
   col = 1:3, lty = rep(2:1, each = 3))
 sum(get_elapsed_time(kalman_walker$stanfit))
-naive_walker <- walker(y ~ x1 + x2, iter = 2000, chains = 1, 
+naive_walker <- walker_rw1(y ~ x1 + x2, iter = 2000, chains = 1, 
   beta_prior = cbind(0, rep(2, 3)), sigma_prior = cbind(0, rep(2, 4)), 
   naive = TRUE)
 print(naive_walker$stanfit, pars = c("sigma_y", "sigma_b"))
@@ -85,7 +87,7 @@ signal <- a + beta1 * x1 + beta2 * x2 + beta3 * x3
 y <- rnorm(n, signal)
 ts.plot(y)
 lines(signal, col = 2)
-kalman_walker <- walker(y ~ x1 + x2 + x3, iter = 2000, chains = 1,
+kalman_walker <- walker_rw1(y ~ x1 + x2 + x3, iter = 2000, chains = 1,
   beta_prior = cbind(0, rep(2, 4)), sigma_prior = cbind(0, rep(2, 5)))
 print(kalman_walker$stanfit, pars = c("sigma_y", "sigma_b"))
 betas <- extract(kalman_walker$stanfit, "beta")[[1]]
@@ -95,7 +97,7 @@ sum(get_elapsed_time(kalman_walker$stanfit))
 # need to increase adapt_delta in order to get rid of divergences
 # and max_treedepth to get rid of related warnings
 # and still we end up with low BFMI warning after hours of computation
-naive_walker <- walker(y ~ x1 + x2 + x3, iter = 2000, chains = 1, 
+naive_walker <- walker_rw1(y ~ x1 + x2 + x3, iter = 2000, chains = 1, 
   beta_prior = cbind(0, rep(2, 4)), sigma_prior = cbind(0, rep(2, 5)),
   naive = TRUE, control = list(adapt_delta = 0.9, max_treedepth = 15)) 
 print(naive_walker$stanfit, pars = c("sigma_y", "sigma_b"))

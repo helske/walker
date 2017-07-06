@@ -4,9 +4,8 @@
 \alias{walker_glm}
 \title{Bayesian generalized linear regression with time-varying coefficients}
 \usage{
-walker_glm(formula, data, beta_prior, sigma_prior, init, chains, newdata,
-  distribution = "poisson", initial_mode = "kfas", u, mc_sim = 50,
-  return_x_reg = FALSE, return_y_rep = TRUE, ...)
+walker_glm(formula, data, beta_prior, init, chains, return_x_reg = FALSE,
+  distribution = "poisson", initial_mode = "kfas", u, mc_sim = 50, ...)
 }
 \arguments{
 \item{formula}{An object of class \code{\link[stats]{formula}}. See \code{\link[stats]{lm}} for details.}
@@ -17,17 +16,13 @@ walker_glm(formula, data, beta_prior, sigma_prior, init, chains, newdata,
 prior means of the Gaussian priors of the corresponding \eqn{k} regression coefficients, 
 and the second column defines the the standard deviations of those prior distributions.}
 
-\item{sigma_prior}{A matrix with \eqn{k + 1} rows and two colums with similar structure as 
-\code{beta_prior}, with first row corresponding to the prior of the standard deviation of the 
-observation level noise, and rest of the rows define the priors for the standard deviations of 
-random walk noise terms. The prior distributions for all sigmas are 
-Gaussians truncated to positive real axis. For non-Gaussian models, this should contain only k rows. 
-For second order random walk model, these priors correspond to the slope level standard deviations.}
-
 \item{init}{Initial value specification, see \code{\link[rstan]{sampling}}. 
 Note that compared to default in \code{rstan}, here the default is a to sample from the priors.}
 
 \item{chains}{Number of Markov chains. Default is 4.}
+
+\item{return_x_reg}{If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
+predictors after processing the \code{formula}.}
 
 \item{distribution}{Currently only Poisson models are supported.}
 
@@ -41,9 +36,6 @@ or numeric vector (custom guess).}
 \item{u}{For Poisson model, a vector of exposures i.e. E(y) = u*exp(x*beta). Defaults to 1.}
 
 \item{mc_sim}{Number of samples used in importance sampling. Default is 50.}
-
-\item{return_x_reg}{If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
-predictors after processing the \code{formula}.}
 
 \item{...}{Further arguments to \code{\link[rstan]{sampling}}.}
 }
@@ -87,12 +79,14 @@ u <- sample(1:10, size = n, replace = TRUE)
 y <- rpois(n, u * exp(level + beta * x))
 ts.plot(y)
 
-out <- walker_glm(y ~ x, u = u, beta_prior = cbind(0, c(10, 10)), 
+set.seed(1)
+out <- walker_glm(y ~ x, u = u, beta_prior = cbind(0, c(10, 10)), iter = 1e4,
   sigma_prior = cbind(0, c(2, 2)))
 print(out$stanfit, pars = "sigma_b") ## approximate results
 library("diagis")
 weighted_mean(extract(out$stanfit, pars = "sigma_b")$sigma_b, 
   extract(out$stanfit, pars = "weights")$weights)
+  
 }
 \seealso{
 Package \code{diagis} in CRAN, which provides functions for computing weighted 

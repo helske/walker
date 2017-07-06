@@ -51,9 +51,11 @@ predict.walker_fit <- function(object, newdata, ...){
     extract(object$stanfit, pars = "sigma_y")$sigma_y,
     t(beta_fixed), t(beta_rw), t(slope), t(xregs$xreg_fixed), t(xregs$xreg_rw))
   pred$y <- object$y
-  
+ 
+  st <-  tsp(object$y)[2L]
+  if (is.null(st)) st <- length(object$y)
   dimnames(pred$y_new) <- 
-    list(time = seq(tsp(object$y)[2L]+deltat(object$y), by = deltat(object$y), 
+    list(time = seq(st + deltat(object$y), by = deltat(object$y), 
       length = nrow(pred$y_new)), iter = 1:ncol(pred$y_new))
   pred
 }
