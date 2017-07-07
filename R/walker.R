@@ -259,8 +259,8 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
 #' summary statistics.
 #' @export
 #' @examples 
-#' set.seed(123)
-#' n <- 100
+#' set.seed(1)
+#' n <- 25
 #' x <- rnorm(n, 1, 1)
 #' beta <- cumsum(c(1, rnorm(n - 1, sd = 0.1)))
 #' 
@@ -269,14 +269,25 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
 #' y <- rpois(n, u * exp(level + beta * x))
 #' ts.plot(y)
 #' 
-#' set.seed(1)
-#' out <- walker_glm(y ~ -1 + rw1(~ x, beta_prior = c(0, 10), sigma_prior = c(0, 10)), 
-#'   distribution = "poisson", iter = 500, chains = 1, refresh = 0)
+#' out <- walker_glm(y ~ -1 + rw1(~ x, beta_prior = c(0, 10), 
+#'   sigma_prior = c(0, 10)), distribution = "poisson", 
+#'   iter = 400, chains = 1, refresh = 0)
 #' print(out$stanfit, pars = "sigma_rw1") ## approximate results
 #' library("diagis")
 #' weighted_mean(extract(out$stanfit, pars = "sigma_rw1")$sigma_rw1, 
 #'   extract(out$stanfit, pars = "weights")$weights)
-#'   
+#'
+#' plot_coefs(out)
+#' pp_check(out)
+#' 
+#' \dontrun{
+#' data("discoveries", package = "datasets")
+#' out <- walker_glm(discoveries ~ -1 + 
+#'   rw2(~ 1, beta_prior = c(0, 10), sigma_prior = c(0, 2), slope_prior = c(0, 2)), 
+#'   distribution = "poisson", iter = 1000, chains = 1, refresh = 0)
+#' 
+#' }
+#'              
 walker_glm <- function(formula, data, beta_prior, init, chains,
   return_x_reg = FALSE, distribution ,
   initial_mode = "kfas", u, mc_sim = 50, ...) {
@@ -386,10 +397,11 @@ walker_glm <- function(formula, data, beta_prior, init, chains,
         if (k_fixed > 0) {
           Zt[1, 1:k_fixed, ] <- t(xreg_fixed)
         }
-        Zt[1, (k_fixed + 1):ncol(Zt),] <- t(xreg_rw)
+        Zt[1, (k_fixed + 1):(k_fixed + k_rw1 + k_rw2),] <- t(xreg_rw)
         Tt <- Rt <- diag(m)
         if(k_rw2 > 0) {
-          Tt[(k_fixed + k_rw1 + k_rw2):(m)] <- diag(k_rw2)
+          Tt[(k_fixed + k_rw1 + 1):(k_fixed + k_rw1 + k_rw2), 
+            (k_fixed + k_rw1 + k_rw2):m] <- diag(k_rw2)
         }
         Qt <- diag(rep(c(0, NA, 0, NA), times = c(k_fixed, k_rw1, k_rw2, k_rw2)), m)
         a1 <- rep(c(beta_fixed_mean, beta_rw1_mean, beta_rw2_mean, slope_mean), 
