@@ -188,7 +188,7 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
     init <- replicate(chains, 
       list(beta_fixed = 
           if (k_fixed > 0) {
-            rnorm(k_fixed, beta_prior[1], beta_prior[2] / 10) 
+            structure(rnorm(k_fixed, beta_prior[1], beta_prior[2] / 10), dim = k_fixed)
           } else {
             structure(numeric(0), dim = 0) 
           },
