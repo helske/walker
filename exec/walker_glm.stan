@@ -178,7 +178,7 @@ generated quantities{
    
       if (distribution == 1) {
         for(t in 1:n) {
-           y_fit[t] = exp(xbeta[t] + dot_product(xreg_rw[, t], beta_rw[, t]));
+           y_fit[t] = u[t] * exp(xbeta[t] + dot_product(xreg_rw[, t], beta_rw[, t]));
            y_rep[t] = poisson_rng(y_fit[t]);
         }
       } else {
