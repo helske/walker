@@ -30,7 +30,7 @@ data {
   
   vector[n] Ht;
   vector[n] y_original;
-  vector[n] u;
+  int<lower=0> u[n];
   int distribution;
   int<lower=0> N;
 }
@@ -107,70 +107,88 @@ generated quantities{
 
   {
 
-  vector[n] y_rep_j;
-  matrix[k, n] beta_j;
-  matrix[k_rw2, n] slope_j;
-  real beta_array[k, n, N];
-  real slope_array[k_rw2, n, N];
-  vector[N] w = rep_vector(0.0, N); //importance sampling weights
-  // This is the simplest but not most efficient way to sample multiple realizations
-  // We could save a lot by running only one full Kalman smoother and then doing some
-  // tricks (see for example DK2002, and implementations in KFAS and bssm)
-  for(j in 1:N) {
-  for(i in 1:k_rw1) {
-     beta_j[i, 1] = normal_rng(beta_rw1_mean, beta_rw1_sd);
-  }
-  for(i in 1:k_rw2) {
-     beta_j[k_rw1 + i, 1] = normal_rng(beta_rw2_mean, beta_rw2_sd);
-     slope_j[i, 1] = normal_rng(slope_mean, slope_sd);
-  }
+    vector[n] y_rep_j;
+    matrix[k, n] beta_j;
+    matrix[k_rw2, n] slope_j;
+    real beta_array[k, n, N];
+    real slope_array[k_rw2, n, N];
+    vector[N] w = rep_vector(0.0, N); //importance sampling weights
+    
+    // This is the simplest but not most efficient way to sample multiple realizations
+    // We could save a lot by running only one full Kalman smoother and then doing some
+    // tricks (see for example DK2002, and implementations in KFAS and bssm)
+    for(j in 1:N) {
+  
+      for(i in 1:k_rw1) {
+        beta_j[i, 1] = normal_rng(beta_rw1_mean, beta_rw1_sd);
+      }
+      for(i in 1:k_rw2) {
+        beta_j[k_rw1 + i, 1] = normal_rng(beta_rw2_mean, beta_rw2_sd);
+        slope_j[i, 1] = normal_rng(slope_mean, slope_sd);
+      }
 
-  for (t in 1:(n - 1)) {
-    for(i in 1:k_rw1) {
-      beta_j[i, t + 1] = normal_rng(beta_j[i, t], sigma_rw1[i]);
-    }
-    for(i in 1:k_rw2) {
-      beta_j[k_rw1 + i, t+1] = beta_j[k_rw1 + i, t] + slope_j[i, t];
-      slope_j[i, t + 1] = normal_rng(slope_j[i, t], sigma_rw2[i]);
-    }
-  }
-  // sample new observations given previously simulated beta
-  for(t in 1:n) {
-    y_rep_j[t] = normal_rng(dot_product(xreg_rw[, t], beta_j[, t]), sqrt(Ht[t]));
-  }
-  // perform mean correction to obtain sample from the posterior
-  {
-    matrix[m, n] states = glm_approx_smoother(y_ - y_rep_j, a1, P1,
-      Ht, Tt, Rt, xreg_rw);
-    beta_j = beta_j + states[1:k, 1:n];
-    slope_j = slope_j + states[(k + 1):m, 1:n];
-  }
-  beta_array[1:k,1:n,j] = to_array_2d(beta_j);
-  slope_array[1:k_rw2,1:n,j] = to_array_2d(slope_j);
+      for (t in 1:(n - 1)) {
+        for(i in 1:k_rw1) {
+          beta_j[i, t + 1] = normal_rng(beta_j[i, t], sigma_rw1[i]);
+        }
+        for(i in 1:k_rw2) {
+          beta_j[k_rw1 + i, t+1] = beta_j[k_rw1 + i, t] + slope_j[i, t];
+          slope_j[i, t + 1] = normal_rng(slope_j[i, t], sigma_rw2[i]);
+        }
+      }
+      // sample new observations given previously simulated beta
+      for(t in 1:n) {
+        y_rep_j[t] = normal_rng(dot_product(xreg_rw[, t], beta_j[, t]), sqrt(Ht[t]));
+      }
+      // perform mean correction to obtain sample from the posterior
+      {
+        matrix[m, n] states = glm_approx_smoother(y_ - y_rep_j, a1, P1,
+          Ht, Tt, Rt, xreg_rw);
+        beta_j = beta_j + states[1:k, 1:n];
+        slope_j = slope_j + states[(k + 1):m, 1:n];
+      }
+  
+      beta_array[1:k,1:n,j] = to_array_2d(beta_j);
+      slope_array[1:k_rw2,1:n,j] = to_array_2d(slope_j);
 
-  w[j] = -loglik[2];
-  //if (distribution == 1) {
-    for(t in 1:n) {
-      real xbeta_tmp = xbeta[t] + dot_product(xreg_rw[,t], beta_j[1:k,t]);
-      w[j] = w[j] + y_original[t] * xbeta_tmp - u[t] * exp(xbeta_tmp) +
-          0.5 * (y[t] - xbeta_tmp)^2 / Ht[t];
+      w[j] = -loglik[2];
+      if (distribution == 1) {
+        for(t in 1:n) {
+          real xbeta_tmp = xbeta[t] + dot_product(xreg_rw[,t], beta_j[1:k,t]);
+          w[j] = w[j] + y_original[t] * xbeta_tmp - u[t] * exp(xbeta_tmp) +
+            0.5 * (y[t] - xbeta_tmp)^2 / Ht[t];
+        }
+      } else {
+        for(t in 1:n) {
+          real xbeta_tmp = xbeta[t] + dot_product(xreg_rw[,t], beta_j[1:k,t]);
+          w[j] = w[j] + y_original[t] * xbeta_tmp - u[t] * log1p(exp(xbeta_tmp)) +
+            0.5 * (y[t] - xbeta_tmp)^2 / Ht[t];
+        }
+      }
     }
-  //}
-  }
-  {
-    int index;
-    w = exp(w);
-    weights = mean(w);
-    index = categorical_rng(w / sum(w));
-    beta_rw = to_matrix(beta_array[, , index]);
-    if (k_rw2 > 0) slope = to_matrix(slope_array[, , index]);
+    
+    {
+      int index;
+      w = exp(w);
+      weights = mean(w);
+      index = categorical_rng(w / sum(w));
+      beta_rw = to_matrix(beta_array[, , index]);
+      if (k_rw2 > 0) slope = to_matrix(slope_array[, , index]);
     //  // replicated data from posterior predictive distribution
-    for(t in 1:n) {
-    //    //if (distribution == 1) {
-       y_fit[t] = exp(xbeta[t] + dot_product(xreg_rw[, t], beta_rw[, t]));
-       y_rep[t] = poisson_rng(y_fit[t]);
-    // }
+   
+      if (distribution == 1) {
+        for(t in 1:n) {
+           y_fit[t] = exp(xbeta[t] + dot_product(xreg_rw[, t], beta_rw[, t]));
+           y_rep[t] = poisson_rng(y_fit[t]);
+        }
+      } else {
+        for(t in 1:n) {
+          real tmp = exp(xbeta[t] + dot_product(xreg_rw[, t], beta_rw[, t]));
+          y_fit[t] = tmp / (1.0 + tmp);
+          y_rep[t] = binomial_rng(u[t], y_fit[t]);
+        }
+      }
     }
+    
   }
-}
 }

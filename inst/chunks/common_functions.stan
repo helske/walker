@@ -92,7 +92,7 @@ matrix gaussian_smoother(vector y, vector a1, matrix P1, real Ht,
 // returns the log-likelihood of the corresponding approximating Gaussian model
 // and a extra correction term
 vector glm_approx_loglik(vector y, vector a1, matrix P1, vector Ht, 
-  matrix Tt, matrix Rt, matrix xreg, int distribution, vector u, 
+  matrix Tt, matrix Rt, matrix xreg, int distribution, int[] u, 
   vector y_original, vector xbeta_fixed) {
 
   int k = rows(xreg);
@@ -146,14 +146,21 @@ vector glm_approx_loglik(vector y, vector a1, matrix P1, vector Ht,
 
   // add a correction term
   // Poisson case, generalization to binomial etc straightforward, see for example Durbin and Koopman 2012
- // if (distribution == 1) {
+  if (distribution == 1) {
     for(t in 1:n) {
       real xbeta_rw = dot_product(xreg[,t], r[, t]);
       loglik[2] = loglik[2] + y_original[t] * (xbeta_rw + xbeta_fixed[t]) - 
       u[t] * exp(xbeta_rw + xbeta_fixed[t]) +
           0.5 * (y[t] - xbeta_rw)^2 / Ht[t];
     }
-  //}  
+  } else {
+    for(t in 1:n) {
+     real xbeta_rw = dot_product(xreg[,t], r[, t]);
+      loglik[2] = loglik[2] + y_original[t] * (xbeta_rw + xbeta_fixed[t]) - 
+      u[t] * log1p(exp(xbeta_rw + xbeta_fixed[t])) +
+          0.5 * (y[t] - xbeta_rw)^2 / Ht[t];
+    }
+  }
   return loglik;
 }
 
