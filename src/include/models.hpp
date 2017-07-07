@@ -3049,8 +3049,8 @@ struct gaussian_smoother_functor__ {
     }
 };
 
-template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T8__, typename T9__, typename T10__>
-Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T8__, typename boost::math::tools::promote_args<T9__, T10__>::type>::type>::type, Eigen::Dynamic,1>
+template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T9__, typename T10__>
+Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T9__, typename boost::math::tools::promote_args<T10__>::type>::type>::type, Eigen::Dynamic,1>
 glm_approx_loglik(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                       const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                       const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
@@ -3059,10 +3059,10 @@ glm_approx_loglik(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                       const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Rt,
                       const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& xreg,
                       const int& distribution,
-                      const Eigen::Matrix<T8__, Eigen::Dynamic,1>& u,
+                      const std::vector<int>& u,
                       const Eigen::Matrix<T9__, Eigen::Dynamic,1>& y_original,
                       const Eigen::Matrix<T10__, Eigen::Dynamic,1>& xbeta_fixed, std::ostream* pstream__) {
-    typedef typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T8__, typename boost::math::tools::promote_args<T9__, T10__>::type>::type>::type fun_scalar_t__;
+    typedef typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T9__, typename boost::math::tools::promote_args<T10__>::type>::type>::type fun_scalar_t__;
     typedef fun_scalar_t__ fun_return_scalar_t__;
     const static bool propto__ = true;
     (void) propto__;
@@ -3240,17 +3240,35 @@ glm_approx_loglik(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                                 "assigning variable r");
                 }
             }
-            for (int t = 1; t <= n; ++t) {
-                {
-                    fun_scalar_t__ xbeta_rw;
-                    (void) xbeta_rw;  // dummy to suppress unused var warning
+            if (as_bool(logical_eq(distribution,1))) {
 
-                    stan::math::initialize(xbeta_rw, std::numeric_limits<double>::quiet_NaN());
-                    stan::math::fill(xbeta_rw,DUMMY_VAR__);
-                    stan::math::assign(xbeta_rw,dot_product(stan::model::rvalue(xreg, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg"),stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "r")));
+                for (int t = 1; t <= n; ++t) {
+                    {
+                        fun_scalar_t__ xbeta_rw;
+                        (void) xbeta_rw;  // dummy to suppress unused var warning
+
+                        stan::math::initialize(xbeta_rw, std::numeric_limits<double>::quiet_NaN());
+                        stan::math::fill(xbeta_rw,DUMMY_VAR__);
+                        stan::math::assign(xbeta_rw,dot_product(stan::model::rvalue(xreg, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg"),stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "r")));
 
 
-                    stan::math::assign(get_base1_lhs(loglik,2,"loglik",1), (((get_base1(loglik,2,"loglik",1) + (get_base1(y_original,t,"y_original",1) * (xbeta_rw + get_base1(xbeta_fixed,t,"xbeta_fixed",1)))) - (get_base1(u,t,"u",1) * exp((xbeta_rw + get_base1(xbeta_fixed,t,"xbeta_fixed",1))))) + ((0.5 * pow((get_base1(y,t,"y",1) - xbeta_rw),2)) / get_base1(Ht,t,"Ht",1))));
+                        stan::math::assign(get_base1_lhs(loglik,2,"loglik",1), (((get_base1(loglik,2,"loglik",1) + (get_base1(y_original,t,"y_original",1) * (xbeta_rw + get_base1(xbeta_fixed,t,"xbeta_fixed",1)))) - (get_base1(u,t,"u",1) * exp((xbeta_rw + get_base1(xbeta_fixed,t,"xbeta_fixed",1))))) + ((0.5 * pow((get_base1(y,t,"y",1) - xbeta_rw),2)) / get_base1(Ht,t,"Ht",1))));
+                    }
+                }
+            } else {
+
+                for (int t = 1; t <= n; ++t) {
+                    {
+                        fun_scalar_t__ xbeta_rw;
+                        (void) xbeta_rw;  // dummy to suppress unused var warning
+
+                        stan::math::initialize(xbeta_rw, std::numeric_limits<double>::quiet_NaN());
+                        stan::math::fill(xbeta_rw,DUMMY_VAR__);
+                        stan::math::assign(xbeta_rw,dot_product(stan::model::rvalue(xreg, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg"),stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "r")));
+
+
+                        stan::math::assign(get_base1_lhs(loglik,2,"loglik",1), (((get_base1(loglik,2,"loglik",1) + (get_base1(y_original,t,"y_original",1) * (xbeta_rw + get_base1(xbeta_fixed,t,"xbeta_fixed",1)))) - (get_base1(u,t,"u",1) * stan::math::log1p(exp((xbeta_rw + get_base1(xbeta_fixed,t,"xbeta_fixed",1)))))) + ((0.5 * pow((get_base1(y,t,"y",1) - xbeta_rw),2)) / get_base1(Ht,t,"Ht",1))));
+                    }
                 }
             }
             return stan::math::promote_scalar<fun_return_scalar_t__>(loglik);
@@ -3264,8 +3282,8 @@ glm_approx_loglik(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
 
 struct glm_approx_loglik_functor__ {
-    template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T8__, typename T9__, typename T10__>
-        Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T8__, typename boost::math::tools::promote_args<T9__, T10__>::type>::type>::type, Eigen::Dynamic,1>
+    template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T9__, typename T10__>
+        Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T9__, typename boost::math::tools::promote_args<T10__>::type>::type>::type, Eigen::Dynamic,1>
     operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                       const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                       const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
@@ -3274,7 +3292,7 @@ struct glm_approx_loglik_functor__ {
                       const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Rt,
                       const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& xreg,
                       const int& distribution,
-                      const Eigen::Matrix<T8__, Eigen::Dynamic,1>& u,
+                      const std::vector<int>& u,
                       const Eigen::Matrix<T9__, Eigen::Dynamic,1>& y_original,
                       const Eigen::Matrix<T10__, Eigen::Dynamic,1>& xbeta_fixed, std::ostream* pstream__) const {
         return glm_approx_loglik(y, a1, P1, Ht, Tt, Rt, xreg, distribution, u, y_original, xbeta_fixed, pstream__);
@@ -3509,7 +3527,7 @@ private:
     double slope_sd;
     vector_d Ht;
     vector_d y_original;
-    vector_d u;
+    vector<int> u;
     int distribution;
     int N;
     vector_d a1;
@@ -3699,14 +3717,14 @@ public:
             y_original[i_vec__] = vals_r__[pos__++];
         }
         validate_non_negative_index("u", "n", n);
-        context__.validate_dims("data initialization", "u", "vector_d", context__.to_vec(n));
+        context__.validate_dims("data initialization", "u", "int", context__.to_vec(n));
         validate_non_negative_index("u", "n", n);
-        u = vector_d(static_cast<Eigen::VectorXd::Index>(n));
-        vals_r__ = context__.vals_r("u");
+        u = std::vector<int>(n,int(0));
+        vals_i__ = context__.vals_i("u");
         pos__ = 0;
-        size_t u_i_vec_lim__ = n;
-        for (size_t i_vec__ = 0; i_vec__ < u_i_vec_lim__; ++i_vec__) {
-            u[i_vec__] = vals_r__[pos__++];
+        size_t u_limit_0__ = n;
+        for (size_t i_0__ = 0; i_0__ < u_limit_0__; ++i_0__) {
+            u[i_0__] = vals_i__[pos__++];
         }
         context__.validate_dims("data initialization", "distribution", "int", context__.to_vec());
         distribution = int(0);
@@ -3733,6 +3751,9 @@ public:
         check_greater_or_equal(function__,"sigma_rw2_sd",sigma_rw2_sd,0);
         check_greater_or_equal(function__,"slope_mean",slope_mean,0);
         check_greater_or_equal(function__,"slope_sd",slope_sd,0);
+        for (int k0__ = 0; k0__ < n; ++k0__) {
+            check_greater_or_equal(function__,"u[k0__]",u[k0__],0);
+        }
         check_greater_or_equal(function__,"N",N,0);
         // initialize data variables
         validate_non_negative_index("a1", "m", m);
@@ -4328,17 +4349,35 @@ public:
                                 to_array_2d(slope_j), 
                                 "assigning variable slope_array");
                     stan::math::assign(get_base1_lhs(w,j,"w",1), -(get_base1(loglik,2,"loglik",1)));
-                    for (int t = 1; t <= n; ++t) {
-                        {
-                            double xbeta_tmp(0.0);
-                            (void) xbeta_tmp;  // dummy to suppress unused var warning
+                    if (as_bool(logical_eq(distribution,1))) {
 
-                            stan::math::initialize(xbeta_tmp, std::numeric_limits<double>::quiet_NaN());
-                            stan::math::fill(xbeta_tmp,DUMMY_VAR__);
-                            stan::math::assign(xbeta_tmp,(get_base1(xbeta,t,"xbeta",1) + dot_product(stan::model::rvalue(xreg_rw, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg_rw"),stan::model::rvalue(beta_j, stan::model::cons_list(stan::model::index_min_max(1, k), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "beta_j"))));
+                        for (int t = 1; t <= n; ++t) {
+                            {
+                                double xbeta_tmp(0.0);
+                                (void) xbeta_tmp;  // dummy to suppress unused var warning
+
+                                stan::math::initialize(xbeta_tmp, std::numeric_limits<double>::quiet_NaN());
+                                stan::math::fill(xbeta_tmp,DUMMY_VAR__);
+                                stan::math::assign(xbeta_tmp,(get_base1(xbeta,t,"xbeta",1) + dot_product(stan::model::rvalue(xreg_rw, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg_rw"),stan::model::rvalue(beta_j, stan::model::cons_list(stan::model::index_min_max(1, k), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "beta_j"))));
 
 
-                            stan::math::assign(get_base1_lhs(w,j,"w",1), (((get_base1(w,j,"w",1) + (get_base1(y_original,t,"y_original",1) * xbeta_tmp)) - (get_base1(u,t,"u",1) * exp(xbeta_tmp))) + ((0.5 * pow((get_base1(y,t,"y",1) - xbeta_tmp),2)) / get_base1(Ht,t,"Ht",1))));
+                                stan::math::assign(get_base1_lhs(w,j,"w",1), (((get_base1(w,j,"w",1) + (get_base1(y_original,t,"y_original",1) * xbeta_tmp)) - (get_base1(u,t,"u",1) * exp(xbeta_tmp))) + ((0.5 * pow((get_base1(y,t,"y",1) - xbeta_tmp),2)) / get_base1(Ht,t,"Ht",1))));
+                            }
+                        }
+                    } else {
+
+                        for (int t = 1; t <= n; ++t) {
+                            {
+                                double xbeta_tmp(0.0);
+                                (void) xbeta_tmp;  // dummy to suppress unused var warning
+
+                                stan::math::initialize(xbeta_tmp, std::numeric_limits<double>::quiet_NaN());
+                                stan::math::fill(xbeta_tmp,DUMMY_VAR__);
+                                stan::math::assign(xbeta_tmp,(get_base1(xbeta,t,"xbeta",1) + dot_product(stan::model::rvalue(xreg_rw, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg_rw"),stan::model::rvalue(beta_j, stan::model::cons_list(stan::model::index_min_max(1, k), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "beta_j"))));
+
+
+                                stan::math::assign(get_base1_lhs(w,j,"w",1), (((get_base1(w,j,"w",1) + (get_base1(y_original,t,"y_original",1) * xbeta_tmp)) - (get_base1(u,t,"u",1) * stan::math::log1p(exp(xbeta_tmp)))) + ((0.5 * pow((get_base1(y,t,"y",1) - xbeta_tmp),2)) / get_base1(Ht,t,"Ht",1))));
+                            }
                         }
                     }
                 }
@@ -4356,10 +4395,29 @@ public:
                     if (as_bool(logical_gt(k_rw2,0))) {
                         stan::math::assign(slope, to_matrix(stan::model::rvalue(slope_array, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(index), stan::model::nil_index_list()))), "slope_array")));
                     }
-                    for (int t = 1; t <= n; ++t) {
+                    if (as_bool(logical_eq(distribution,1))) {
 
-                        stan::math::assign(get_base1_lhs(y_fit,t,"y_fit",1), exp((get_base1(xbeta,t,"xbeta",1) + dot_product(stan::model::rvalue(xreg_rw, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg_rw"),stan::model::rvalue(beta_rw, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "beta_rw")))));
-                        stan::math::assign(get_base1_lhs(y_rep,t,"y_rep",1), poisson_rng(get_base1(y_fit,t,"y_fit",1), base_rng__));
+                        for (int t = 1; t <= n; ++t) {
+
+                            stan::math::assign(get_base1_lhs(y_fit,t,"y_fit",1), exp((get_base1(xbeta,t,"xbeta",1) + dot_product(stan::model::rvalue(xreg_rw, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg_rw"),stan::model::rvalue(beta_rw, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "beta_rw")))));
+                            stan::math::assign(get_base1_lhs(y_rep,t,"y_rep",1), poisson_rng(get_base1(y_fit,t,"y_fit",1), base_rng__));
+                        }
+                    } else {
+
+                        for (int t = 1; t <= n; ++t) {
+                            {
+                                double tmp(0.0);
+                                (void) tmp;  // dummy to suppress unused var warning
+
+                                stan::math::initialize(tmp, std::numeric_limits<double>::quiet_NaN());
+                                stan::math::fill(tmp,DUMMY_VAR__);
+                                stan::math::assign(tmp,exp((get_base1(xbeta,t,"xbeta",1) + dot_product(stan::model::rvalue(xreg_rw, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg_rw"),stan::model::rvalue(beta_rw, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "beta_rw")))));
+
+
+                                stan::math::assign(get_base1_lhs(y_fit,t,"y_fit",1), (tmp / (1.0 + tmp)));
+                                stan::math::assign(get_base1_lhs(y_rep,t,"y_rep",1), binomial_rng(get_base1(u,t,"u",1),get_base1(y_fit,t,"y_fit",1), base_rng__));
+                            }
+                        }
                     }
                 }
             }
@@ -4921,8 +4979,8 @@ struct gaussian_smoother_functor__ {
     }
 };
 
-template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T8__, typename T9__, typename T10__>
-Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T8__, typename boost::math::tools::promote_args<T9__, T10__>::type>::type>::type, Eigen::Dynamic,1>
+template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T9__, typename T10__>
+Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T9__, typename boost::math::tools::promote_args<T10__>::type>::type>::type, Eigen::Dynamic,1>
 glm_approx_loglik(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                       const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                       const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
@@ -4931,10 +4989,10 @@ glm_approx_loglik(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                       const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Rt,
                       const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& xreg,
                       const int& distribution,
-                      const Eigen::Matrix<T8__, Eigen::Dynamic,1>& u,
+                      const std::vector<int>& u,
                       const Eigen::Matrix<T9__, Eigen::Dynamic,1>& y_original,
                       const Eigen::Matrix<T10__, Eigen::Dynamic,1>& xbeta_fixed, std::ostream* pstream__) {
-    typedef typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T8__, typename boost::math::tools::promote_args<T9__, T10__>::type>::type>::type fun_scalar_t__;
+    typedef typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T9__, typename boost::math::tools::promote_args<T10__>::type>::type>::type fun_scalar_t__;
     typedef fun_scalar_t__ fun_return_scalar_t__;
     const static bool propto__ = true;
     (void) propto__;
@@ -5112,17 +5170,35 @@ glm_approx_loglik(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                                 "assigning variable r");
                 }
             }
-            for (int t = 1; t <= n; ++t) {
-                {
-                    fun_scalar_t__ xbeta_rw;
-                    (void) xbeta_rw;  // dummy to suppress unused var warning
+            if (as_bool(logical_eq(distribution,1))) {
 
-                    stan::math::initialize(xbeta_rw, std::numeric_limits<double>::quiet_NaN());
-                    stan::math::fill(xbeta_rw,DUMMY_VAR__);
-                    stan::math::assign(xbeta_rw,dot_product(stan::model::rvalue(xreg, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg"),stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "r")));
+                for (int t = 1; t <= n; ++t) {
+                    {
+                        fun_scalar_t__ xbeta_rw;
+                        (void) xbeta_rw;  // dummy to suppress unused var warning
+
+                        stan::math::initialize(xbeta_rw, std::numeric_limits<double>::quiet_NaN());
+                        stan::math::fill(xbeta_rw,DUMMY_VAR__);
+                        stan::math::assign(xbeta_rw,dot_product(stan::model::rvalue(xreg, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg"),stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "r")));
 
 
-                    stan::math::assign(get_base1_lhs(loglik,2,"loglik",1), (((get_base1(loglik,2,"loglik",1) + (get_base1(y_original,t,"y_original",1) * (xbeta_rw + get_base1(xbeta_fixed,t,"xbeta_fixed",1)))) - (get_base1(u,t,"u",1) * exp((xbeta_rw + get_base1(xbeta_fixed,t,"xbeta_fixed",1))))) + ((0.5 * pow((get_base1(y,t,"y",1) - xbeta_rw),2)) / get_base1(Ht,t,"Ht",1))));
+                        stan::math::assign(get_base1_lhs(loglik,2,"loglik",1), (((get_base1(loglik,2,"loglik",1) + (get_base1(y_original,t,"y_original",1) * (xbeta_rw + get_base1(xbeta_fixed,t,"xbeta_fixed",1)))) - (get_base1(u,t,"u",1) * exp((xbeta_rw + get_base1(xbeta_fixed,t,"xbeta_fixed",1))))) + ((0.5 * pow((get_base1(y,t,"y",1) - xbeta_rw),2)) / get_base1(Ht,t,"Ht",1))));
+                    }
+                }
+            } else {
+
+                for (int t = 1; t <= n; ++t) {
+                    {
+                        fun_scalar_t__ xbeta_rw;
+                        (void) xbeta_rw;  // dummy to suppress unused var warning
+
+                        stan::math::initialize(xbeta_rw, std::numeric_limits<double>::quiet_NaN());
+                        stan::math::fill(xbeta_rw,DUMMY_VAR__);
+                        stan::math::assign(xbeta_rw,dot_product(stan::model::rvalue(xreg, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg"),stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "r")));
+
+
+                        stan::math::assign(get_base1_lhs(loglik,2,"loglik",1), (((get_base1(loglik,2,"loglik",1) + (get_base1(y_original,t,"y_original",1) * (xbeta_rw + get_base1(xbeta_fixed,t,"xbeta_fixed",1)))) - (get_base1(u,t,"u",1) * stan::math::log1p(exp((xbeta_rw + get_base1(xbeta_fixed,t,"xbeta_fixed",1)))))) + ((0.5 * pow((get_base1(y,t,"y",1) - xbeta_rw),2)) / get_base1(Ht,t,"Ht",1))));
+                    }
                 }
             }
             return stan::math::promote_scalar<fun_return_scalar_t__>(loglik);
@@ -5136,8 +5212,8 @@ glm_approx_loglik(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
 
 struct glm_approx_loglik_functor__ {
-    template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T8__, typename T9__, typename T10__>
-        Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T8__, typename boost::math::tools::promote_args<T9__, T10__>::type>::type>::type, Eigen::Dynamic,1>
+    template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T9__, typename T10__>
+        Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T9__, typename boost::math::tools::promote_args<T10__>::type>::type>::type, Eigen::Dynamic,1>
     operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                       const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                       const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
@@ -5146,7 +5222,7 @@ struct glm_approx_loglik_functor__ {
                       const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Rt,
                       const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& xreg,
                       const int& distribution,
-                      const Eigen::Matrix<T8__, Eigen::Dynamic,1>& u,
+                      const std::vector<int>& u,
                       const Eigen::Matrix<T9__, Eigen::Dynamic,1>& y_original,
                       const Eigen::Matrix<T10__, Eigen::Dynamic,1>& xbeta_fixed, std::ostream* pstream__) const {
         return glm_approx_loglik(y, a1, P1, Ht, Tt, Rt, xreg, distribution, u, y_original, xbeta_fixed, pstream__);

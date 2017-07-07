@@ -5,7 +5,7 @@
 \title{Bayesian generalized linear regression with time-varying coefficients}
 \usage{
 walker_glm(formula, data, beta_prior, init, chains, return_x_reg = FALSE,
-  distribution = "poisson", initial_mode = "kfas", u, mc_sim = 50, ...)
+  distribution, initial_mode = "kfas", u, mc_sim = 50, ...)
 }
 \arguments{
 \item{formula}{An object of class \code{\link[stats]{formula}}. See \code{\link[stats]{lm}} for details.}
@@ -24,7 +24,7 @@ Note that compared to default in \code{rstan}, here the default is a to sample f
 \item{return_x_reg}{If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
 predictors after processing the \code{formula}.}
 
-\item{distribution}{Currently only Poisson models are supported.}
+\item{distribution}{Either \code{"poisson"} or \code{"binomial"}.}
 
 \item{initial_mode}{The initial guess of the fitted values on log-scale. 
 Defines the Gaussian approximation used in the MCMC.
@@ -33,7 +33,8 @@ Either \code{"obs"} (corresponds to log(y+0.1) in Poisson case),
 (default; mode is obtained from maximum likelihood estimate of the model), 
 or numeric vector (custom guess).}
 
-\item{u}{For Poisson model, a vector of exposures i.e. E(y) = u*exp(x*beta). Defaults to 1.}
+\item{u}{For Poisson model, a vector of exposures i.e. E(y) = u*exp(x*beta). 
+For binomial, a vector containing the number of trials. Defaults 1.}
 
 \item{mc_sim}{Number of samples used in importance sampling. Default is 50.}
 
@@ -41,7 +42,7 @@ or numeric vector (custom guess).}
 }
 \value{
 A list containing the \code{stanfit} object, observations \code{y},
-  and covariates \code{xreg} and \code{xreg_new}.
+  covariates \code{xreg_fixed}, and \code{xreg_rw}.
 }
 \description{
 Function \code{walker_glm} is a generalization of \code{walker} for non-Gaussian 
@@ -56,7 +57,7 @@ Vihola M, Helske J and Franks J (2016),
 "Importance sampling type correction of Markov chain Monte Carlo and exact
 approximations", which is available at ArXiv.
 
-This function is not fully tested yet, so please file and issue and/or pull request 
+This function is not fully tested yet, so please file an issue and/or pull request 
 on Github if you encounter problems. The reason there might be problems in some cases 
 is the use of global approximation (i.e. start of the MCMC) instead of more accurate 
 but slower local approximation (where model is approximated at each iteration). 
@@ -80,11 +81,11 @@ y <- rpois(n, u * exp(level + beta * x))
 ts.plot(y)
 
 set.seed(1)
-out <- walker_glm(y ~ x, u = u, beta_prior = cbind(0, c(10, 10)), iter = 1e4,
-  sigma_prior = cbind(0, c(2, 2)))
-print(out$stanfit, pars = "sigma_b") ## approximate results
+out <- walker_glm(y ~ -1 + rw1(~x, beta_prior = c(0, 10), sigma_prior = c(0, 10)), 
+  iter = 500, chains = 1, refresh = 0)
+print(out$stanfit, pars = "sigma_rw1") ## approximate results
 library("diagis")
-weighted_mean(extract(out$stanfit, pars = "sigma_b")$sigma_b, 
+weighted_mean(extract(out$stanfit, pars = "sigma_rw1")$sigma_rw1, 
   extract(out$stanfit, pars = "weights")$weights)
   
 }
