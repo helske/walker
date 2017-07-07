@@ -67,7 +67,7 @@ rw2_fit <- walker(Nile ~ -1 +
     sigma_prior = c(0, 100), 
     slope_prior = c(0, 100)), 
   sigma_y_prior = c(0, 100), 
-  chains = 2)
+  iter = 500, chains = 2)
   
 g_y <- geom_point(data = data.frame(y = Nile, x = time(Nile)), 
   aes(x, y, alpha = 0.5), inherit.aes = FALSE) 

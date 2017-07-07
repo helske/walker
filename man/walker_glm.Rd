@@ -81,8 +81,8 @@ y <- rpois(n, u * exp(level + beta * x))
 ts.plot(y)
 
 set.seed(1)
-out <- walker_glm(y ~ -1 + rw1(~x, beta_prior = c(0, 10), sigma_prior = c(0, 10)), 
-  iter = 500, chains = 1, refresh = 0)
+out <- walker_glm(y ~ -1 + rw1(~ x, beta_prior = c(0, 10), sigma_prior = c(0, 10)), 
+  distribution = "poisson", iter = 500, chains = 1, refresh = 0)
 print(out$stanfit, pars = "sigma_rw1") ## approximate results
 library("diagis")
 weighted_mean(extract(out$stanfit, pars = "sigma_rw1")$sigma_rw1, 

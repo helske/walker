@@ -242,7 +242,7 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
 #' analysis.
 #' 
 #' @inheritParams walker
-#' @importFrom KFAS SSModel SSMregression fitSSM approxSSM
+#' @importFrom KFAS SSModel SSMcustom fitSSM approxSSM
 #' @param distribution Either \code{"poisson"} or \code{"binomial"}.
 #' @param initial_mode The initial guess of the fitted values on log-scale. 
 #' Defines the Gaussian approximation used in the MCMC.
@@ -270,8 +270,8 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
 #' ts.plot(y)
 #' 
 #' set.seed(1)
-#' out <- walker_glm(y ~ -1 + rw1(~x, beta_prior = c(0, 10), sigma_prior = c(0, 10)), 
-#'   iter = 500, chains = 1, refresh = 0)
+#' out <- walker_glm(y ~ -1 + rw1(~ x, beta_prior = c(0, 10), sigma_prior = c(0, 10)), 
+#'   distribution = "poisson", iter = 500, chains = 1, refresh = 0)
 #' print(out$stanfit, pars = "sigma_rw1") ## approximate results
 #' library("diagis")
 #' weighted_mean(extract(out$stanfit, pars = "sigma_rw1")$sigma_rw1, 
