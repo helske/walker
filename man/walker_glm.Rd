@@ -8,13 +8,13 @@ walker_glm(formula, data, beta_prior, init, chains, return_x_reg = FALSE,
   distribution, initial_mode = "kfas", u, mc_sim = 50, ...)
 }
 \arguments{
-\item{formula}{An object of class \code{\link[stats]{formula}}. See \code{\link[stats]{lm}} for details.}
+\item{formula}{An object of class \code{\link[stats]{formula}} with additional terms 
+\code{rw1} and/or \code{rw2} e.g. \code{y ~ x1 + rw1(~ -1 + x2)}. See details.}
 
 \item{data}{An optional data.frame or object coercible to such, as in \code{\link[stats]{lm}}.}
 
-\item{beta_prior}{A matrix with \eqn{k} rows and 2 columns, where first columns defines the 
-prior means of the Gaussian priors of the corresponding \eqn{k} regression coefficients, 
-and the second column defines the the standard deviations of those prior distributions.}
+\item{beta_prior}{A length vector of length two which defines the 
+prior mean and standard deviation of the Gaussian prior for time-invariant coefficients}
 
 \item{init}{Initial value specification, see \code{\link[rstan]{sampling}}. 
 Note that compared to default in \code{rstan}, here the default is a to sample from the priors.}
@@ -98,7 +98,6 @@ out <- walker_glm(discoveries ~ -1 +
   distribution = "poisson", iter = 1000, chains = 1, refresh = 0)
 
 plot_fit(out)
-pred <- predict(out, newdata = data.frame(`Intercept` = rep(1, 10)))
 }
              
 }

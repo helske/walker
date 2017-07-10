@@ -8,27 +8,29 @@
 #' Monte Carlo provided by Stan, using a state space representation of the model 
 #' in order to marginalise over the coefficients for efficient sampling.
 #' 
-#' @note Beware of overfitting and identifiability issues. For example, one
-#' might be tempted to use an intercept and time (1:n) as covariates, but if 
-#' both coefficients are allowed to vary over time, this can lead to large uncertainty 
-#' in posterior as these to components might not easily distinguishable.
+#' 
+#' The \code{rw1} and \code{rw2} functions used in the formula define new formulas 
+#' for the first and second order random walks. In addition, these functions 
+#' need to be supplied with prior definitions for coefficients and the 
+#' standard devitions. For second order random walk model, these sigma priors 
+#' correspond to the standard deviation of slope distrurbances. For \code{rw2}, 
+#' also a prior for the initial slope needs to be defined. See examples.
+#' 
+#' @note Beware of overfitting and identifiability issues. In particular, 
+#' be careful in not defining multiple intercept terms (only one should be present).
 #' 
 #' @import rstan Rcpp methods
 #' @importFrom Rcpp loadModule evalCpp
 #' @importFrom stats model.matrix model.response rnorm delete.response terms window ts end glm poisson
 #' @rdname walker
 #' @useDynLib walker, .registration = TRUE
-#' @param formula An object of class \code{\link[stats]{formula}}. See \code{\link[stats]{lm}} for details.
+#' @param formula An object of class \code{\link[stats]{formula}} with additional terms 
+#' \code{rw1} and/or \code{rw2} e.g. \code{y ~ x1 + rw1(~ -1 + x2)}. See details.
 #' @param data An optional data.frame or object coercible to such, as in \code{\link[stats]{lm}}.
-#' @param beta_prior A matrix with \eqn{k} rows and 2 columns, where first columns defines the 
-#' prior means of the Gaussian priors of the corresponding \eqn{k} regression coefficients, 
-#' and the second column defines the the standard deviations of those prior distributions.
-#' @param sigma_prior A matrix with \eqn{k + 1} rows and two colums with similar structure as 
-#' \code{beta_prior}, with first row corresponding to the prior of the standard deviation of the 
-#' observation level noise, and rest of the rows define the priors for the standard deviations of 
-#' random walk noise terms. The prior distributions for all sigmas are 
-#' Gaussians truncated to positive real axis. For non-Gaussian models, this should contain only k rows. 
-#' For second order random walk model, these priors correspond to the slope level standard deviations.
+#' @param beta_prior A length vector of length two which defines the 
+#' prior mean and standard deviation of the Gaussian prior for time-invariant coefficients
+#' @param sigma_y_prior A vector of length two, defining the truncated Gaussian prior for 
+#' the observation level standard deviation. Not used in \code{walker_glm}. 
 #' @param chains Number of Markov chains. Default is 4.
 #' @param init Initial value specification, see \code{\link[rstan]{sampling}}. 
 #' Note that compared to default in \code{rstan}, here the default is a to sample from the priors.
@@ -273,10 +275,10 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
 #'   sigma_prior = c(0, 10)), distribution = "poisson", 
 #'   iter = 400, chains = 1, refresh = 0)
 #' print(out$stanfit, pars = "sigma_rw1") ## approximate results
-#' library("diagis")
-#' weighted_mean(extract(out$stanfit, pars = "sigma_rw1")$sigma_rw1, 
-#'   extract(out$stanfit, pars = "weights")$weights)
-#'
+#' if (require("diagis")) {
+#'   weighted_mean(extract(out$stanfit, pars = "sigma_rw1")$sigma_rw1, 
+#'     extract(out$stanfit, pars = "weights")$weights)
+#' }
 #' plot_coefs(out)
 #' pp_check(out)
 #' 

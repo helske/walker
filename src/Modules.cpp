@@ -7,7 +7,7 @@ RCPP_MODULE(stan_fit4rw1_model_mod) {
 
     class_<rstan::stan_fit<model_rw1_model_namespace::model_rw1_model, boost::random::ecuyer1988> >("model_rw1_model")
 
-    .constructor<SEXP,SEXP>()
+    .constructor<SEXP,SEXP,SEXP>()
 
 
     .method("call_sampler", &rstan::stan_fit<model_rw1_model_namespace::model_rw1_model, boost::random::ecuyer1988> ::call_sampler)
@@ -36,7 +36,7 @@ RCPP_MODULE(stan_fit4rw1_model_naive_mod) {
 
     class_<rstan::stan_fit<model_rw1_model_naive_namespace::model_rw1_model_naive, boost::random::ecuyer1988> >("model_rw1_model_naive")
 
-    .constructor<SEXP,SEXP>()
+    .constructor<SEXP,SEXP,SEXP>()
 
 
     .method("call_sampler", &rstan::stan_fit<model_rw1_model_naive_namespace::model_rw1_model_naive, boost::random::ecuyer1988> ::call_sampler)
@@ -65,7 +65,7 @@ RCPP_MODULE(stan_fit4rw_glm_model_mod) {
 
     class_<rstan::stan_fit<model_rw_glm_model_namespace::model_rw_glm_model, boost::random::ecuyer1988> >("model_rw_glm_model")
 
-    .constructor<SEXP,SEXP>()
+    .constructor<SEXP,SEXP,SEXP>()
 
 
     .method("call_sampler", &rstan::stan_fit<model_rw_glm_model_namespace::model_rw_glm_model, boost::random::ecuyer1988> ::call_sampler)
@@ -94,7 +94,7 @@ RCPP_MODULE(stan_fit4walker_glm_mod) {
 
     class_<rstan::stan_fit<model_walker_glm_namespace::model_walker_glm, boost::random::ecuyer1988> >("model_walker_glm")
 
-    .constructor<SEXP,SEXP>()
+    .constructor<SEXP,SEXP,SEXP>()
 
 
     .method("call_sampler", &rstan::stan_fit<model_walker_glm_namespace::model_walker_glm, boost::random::ecuyer1988> ::call_sampler)
@@ -123,7 +123,7 @@ RCPP_MODULE(stan_fit4walker_lm_mod) {
 
     class_<rstan::stan_fit<model_walker_lm_namespace::model_walker_lm, boost::random::ecuyer1988> >("model_walker_lm")
 
-    .constructor<SEXP,SEXP>()
+    .constructor<SEXP,SEXP,SEXP>()
 
 
     .method("call_sampler", &rstan::stan_fit<model_walker_lm_namespace::model_walker_lm, boost::random::ecuyer1988> ::call_sampler)

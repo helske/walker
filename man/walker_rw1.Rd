@@ -4,8 +4,8 @@
 \alias{walker_rw1}
 \title{Comparison of naive and state space implementation of RW1 regression model}
 \usage{
-walker_rw1(formula, data, beta_prior, sigma_prior, init, chains, newdata,
-  naive = FALSE, return_x_reg = FALSE, return_y_rep = TRUE, ...)
+walker_rw1(formula, data, beta_prior, sigma_prior, init, chains,
+  naive = FALSE, return_x_reg = FALSE, ...)
 }
 \arguments{
 \item{formula}{An object of class \code{\link[stats]{formula}}. See \code{\link[stats]{lm}} for details.}
@@ -34,6 +34,9 @@ where we sample the marginal posterior \eqn{p(sigma | y)} and generate the sampl
 \eqn{p(beta | sigma, y)} using state space modelling techniques 
 (namely simulation smoother by Durbin and Koopman (2002)). Both methods give asymptotically 
 identical results, but the latter approach is computationally much more efficient.}
+
+\item{return_x_reg}{If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
+predictors after processing the \code{formula}.}
 }
 \description{
 This function is the first iteration of the function \code{walker},

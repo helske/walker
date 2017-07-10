@@ -7,11 +7,11 @@
 plot_coefs(object, level = 0.05, alpha = 0.33)
 }
 \arguments{
+\item{object}{An output from \code{\link{walker}}.}
+
 \item{level}{Level for intervals. Default is 0.05, leading to 90\% intervals.}
 
 \item{alpha}{Transparency level for \code{geom_ribbon}.}
-
-\item{Object}{An output from \code{\link{walker}}.}
 }
 \description{
 Plots sample quantiles from posterior predictive sample. 

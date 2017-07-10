@@ -3,11 +3,11 @@
 #' Plots sample quantiles from posterior predictive sample. 
 #' See \code{\link[bayesplot]{ppc_ribbon}} for details.
 #' 
-#' @importFrom dplyr group_by summarise
-#' @importFrom stats quantile
-#' @importFrom ggplot2 ggplot facet_wrap geom_ribbon geom_line 
-#' @importFrom bayesplot color_scheme_get theme_default
-#' @param Object An output from \code{\link{walker}}.
+#' @importFrom dplyr group_by summarise_
+#' @importFrom stats quantile time update.formula drop.terms
+#' @import ggplot2
+#' @import bayesplot
+#' @param object An output from \code{\link{walker}}.
 #' @param level Level for intervals. Default is 0.05, leading to 90\% intervals.
 #' @param alpha Transparency level for \code{geom_ribbon}.
 #' @export
@@ -23,9 +23,11 @@ plot_coefs <- function(object, level = 0.05, alpha = 0.33){
   names(coef_data)[4] <- "value"
   coef_data$time <- as.numeric(levels(coef_data$time))[coef_data$time]
   grouped <- group_by(coef_data, time, beta)
-  quantiles <- summarise(grouped, lwr = quantile(value, prob = level), 
-    median = quantile(value, prob = 0.5),
-    upr = quantile(value, prob = 1 - level))
+  quantiles <- summarise_(grouped, 
+    .dots = list(
+      lwr = ~quantile(value, prob = level), 
+    median = ~quantile(value, prob = 0.5),
+    upr = ~quantile(value, prob = 1 - level)))
   
   ggplot(
     data = quantiles,
@@ -35,7 +37,7 @@ plot_coefs <- function(object, level = 0.05, alpha = 0.33){
       ymin = ~ lwr,
       ymax = ~ upr
     )
-  )  + facet_wrap(~beta, scales = "free", labeller = label_bquote(beta[.(beta)])) +
+  )  + facet_wrap(~beta, scales = "free", labeller = label_bquote(~beta[.(beta)])) +
     geom_ribbon(aes_(color = "beta", fill = "beta"),
       alpha = alpha, linetype = 0) +
    geom_line(aes_(color = "beta")) +

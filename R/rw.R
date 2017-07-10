@@ -1,4 +1,14 @@
+#' Construct a first-order random walk component 
+#' 
+#' Auxiliary function used inside of the formula of \code{walker}.
+#' 
 #' @export
+#' @param formula Formula for RW1 part of the model. Only right-hand-side is used. 
+#' @param data Optional data.frame.
+#' @param beta_prior A length vector of length two which defines the 
+#' prior mean and standard deviation of the Gaussian prior for coefficients at time 1.
+#' @param sigma_prior A vector of length two, defining the truncated Gaussian prior for 
+#' the coefficient level standard deviation. 
 rw1 <- function(formula, data, beta_prior, sigma_prior) {
  
   mf <- match.call(expand.dots = FALSE)
@@ -19,6 +29,19 @@ rw1 <- function(formula, data, beta_prior, sigma_prior) {
     sigma_prior = sigma_prior)
   
 }
+#' Construct a first-order random walk component 
+#' 
+#' Auxiliary function used inside of the formula of \code{walker}.
+#' 
+#' @export
+#' @param formula Formula for RW1 part of the model. Only right-hand-side is used. 
+#' @param data Optional data.frame.
+#' @param beta_prior A vector of length two which defines the 
+#' prior mean and standard deviation of the Gaussian prior for coefficients at time 1.
+#' @param sigma_prior A vector of length two, defining the truncated Gaussian prior for 
+#' the slope level standard deviation. 
+#' @param slope_prior A vector of length two which defines the 
+#' prior mean and standard deviation of the Gaussian prior for the slopes at time 1.
 #' @export
 rw2 <- function(formula, data, beta_prior, sigma_prior, slope_prior) {
   

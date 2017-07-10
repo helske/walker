@@ -13,6 +13,7 @@ Description: Fully Bayesian regression models where the regression
     over the coefficients for efficient sampling.
 License: GPL (>= 2)
 Suggests: 
+    diagis,
     gridExtra,
     knitr (>= 1.11),
     rmarkdown (>= 0.8.1),

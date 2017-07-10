@@ -24,8 +24,11 @@
 #' \eqn{p(beta | sigma, y)} using state space modelling techniques 
 #' (namely simulation smoother by Durbin and Koopman (2002)). Both methods give asymptotically 
 #' identical results, but the latter approach is computationally much more efficient.
+#' @param return_x_reg If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
+#' predictors after processing the \code{formula}.
 #' @param chains Number of Markov chains. Default is 4.
 #' @param init Initial value specification, see \code{\link[rstan]{sampling}}. 
+#' @param ... Additional arguments to \code{\link[rstan]{sampling}}. 
 #' @examples
 #' \dontrun{
 #' ## Comparing the approaches, note that with such a small data 
@@ -89,8 +92,8 @@
 #' sum(get_elapsed_time(naive_walker$stanfit))
 #' }
 #' 
-walker_rw1 <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata,
-  naive = FALSE, return_x_reg = FALSE, return_y_rep = TRUE, ...) {
+walker_rw1 <- function(formula, data, beta_prior, sigma_prior, init, chains,
+  naive = FALSE, return_x_reg = FALSE,  ...) {
   
   # build y and xreg
   mf <- match.call(expand.dots = FALSE)
@@ -105,15 +108,10 @@ walker_rw1 <- function(formula, data, beta_prior, sigma_prior, init, chains, new
   if (return_x_reg) return(xreg)
   k <- ncol(xreg)
   
-  
-  if (!missing(newdata)) {
-    xreg_new <- model.matrix(delete.response(terms(mf)), data = newdata)
-    n_new <- nrow(xreg_new)
-  } else {
     xreg_new <- matrix(0, 0, k)
     n_new <- 0L
-  }
-  if (any(is.na(xreg)) || any(is.na(xreg_new))) stop("Missing values in covariates are not allowed.")
+  
+  if (any(is.na(xreg))) stop("Missing values in covariates are not allowed.")
   if (any(is.na(y))) stop("Missing values in response are not (yet) allowed.")
   
   
@@ -144,14 +142,14 @@ walker_rw1 <- function(formula, data, beta_prior, sigma_prior, init, chains, new
     sampling(stanmodels$rw1_model,
       data = stan_data, chains = chains, init = init,
       pars = c("sigma_y", "sigma_b", "beta", 
-        if (return_y_rep) "y_rep", if (n_new > 0) c("y_new", "beta_new")), ...)
+        "y_rep", if (n_new > 0) c("y_new", "beta_new")), ...)
   }
   structure(list(stanfit = stanfit, y = y, xreg = xreg, xreg_new = xreg_new), class = "walker_fit")
 }
 
-walker_rw1_glm <- function(formula, data, beta_prior, sigma_prior, init, chains, newdata, 
+walker_rw1_glm <- function(formula, data, beta_prior, sigma_prior, init, chains,
   distribution = "poisson", initial_mode = "kfas", u, mc_sim = 50,
-  return_x_reg = FALSE,  return_y_rep = TRUE,...) {
+  return_x_reg = FALSE, ...) {
   
   distribution <- match.arg(distribution, choices = "poisson")
   
@@ -171,16 +169,8 @@ walker_rw1_glm <- function(formula, data, beta_prior, sigma_prior, init, chains,
   if (any(is.na(xreg))) stop("Missing values in covariates are not allowed.")
   if (any(is.na(y))) stop("Missing values in response are not (yet) allowed.")
   
-  if (!missing(newdata)) .NotYetUsed("newdata", error = TRUE)
-  if (!missing(return_y_rep)) .NotYetUsed("return_y_rep", error = TRUE)
-  # no predictions supported yet
-  # if (!missing(newdata)) {
-  #   xreg_new <- model.matrix(delete.response(terms(mf)), data = newdata)
-  #   n_new <- nrow(xreg_new)
-  # } else {
   xreg_new <- matrix(0, 0, k)
   n_new <- 0L
-  #}
   
   if(!identical(dim(beta_prior), c(k, 2L))) {
     stop("beta_prior should be k x 2 matrix containing columns of prior means and sds for each k coefficients. ")
