@@ -148,14 +148,14 @@ vector glm_approx_loglik(vector y, vector a1, matrix P1, vector Ht,
   // Poisson case, generalization to binomial etc straightforward, see for example Durbin and Koopman 2012
   if (distribution == 1) {
     for(t in 1:n) {
-      real xbeta_rw = dot_product(xreg[,t], r[, t]);
+      real xbeta_rw = dot_product(xreg[,t], r[1:k, t]);
       loglik[2] = loglik[2] + y_original[t] * (xbeta_rw + xbeta_fixed[t]) - 
       u[t] * exp(xbeta_rw + xbeta_fixed[t]) +
           0.5 * (y[t] - xbeta_rw)^2 / Ht[t];
     }
   } else {
     for(t in 1:n) {
-     real xbeta_rw = dot_product(xreg[,t], r[, t]);
+     real xbeta_rw = dot_product(xreg[,t], r[1:k, t]);
       loglik[2] = loglik[2] + y_original[t] * (xbeta_rw + xbeta_fixed[t]) - 
       u[t] * log1p(exp(xbeta_rw + xbeta_fixed[t])) +
           0.5 * (y[t] - xbeta_rw)^2 / Ht[t];
