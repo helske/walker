@@ -92,7 +92,6 @@ model {
   beta_fixed ~ normal(beta_fixed_mean, beta_fixed_sd);
   sigma_rw1 ~ normal(sigma_rw1_mean, sigma_rw1_sd);
   sigma_rw2 ~ normal(sigma_rw2_mean, sigma_rw2_sd);
-
   target += sum(loglik);
 }
 

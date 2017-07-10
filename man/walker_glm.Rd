@@ -70,8 +70,8 @@ constructs the approximation at that point, before running the Bayesian
 analysis.
 }
 \examples{
-set.seed(123)
-n <- 100
+set.seed(1)
+n <- 25
 x <- rnorm(n, 1, 1)
 beta <- cumsum(c(1, rnorm(n - 1, sd = 0.1)))
 
@@ -80,14 +80,27 @@ u <- sample(1:10, size = n, replace = TRUE)
 y <- rpois(n, u * exp(level + beta * x))
 ts.plot(y)
 
-set.seed(1)
-out <- walker_glm(y ~ -1 + rw1(~ x, beta_prior = c(0, 10), sigma_prior = c(0, 10)), 
-  distribution = "poisson", iter = 500, chains = 1, refresh = 0)
+out <- walker_glm(y ~ -1 + rw1(~ x, beta_prior = c(0, 10), 
+  sigma_prior = c(0, 10)), distribution = "poisson", 
+  iter = 400, chains = 1, refresh = 0)
 print(out$stanfit, pars = "sigma_rw1") ## approximate results
 library("diagis")
 weighted_mean(extract(out$stanfit, pars = "sigma_rw1")$sigma_rw1, 
   extract(out$stanfit, pars = "weights")$weights)
-  
+
+plot_coefs(out)
+pp_check(out)
+
+\dontrun{
+data("discoveries", package = "datasets")
+out <- walker_glm(discoveries ~ -1 + 
+  rw2(~ 1, beta_prior = c(0, 10), sigma_prior = c(0, 2), slope_prior = c(0, 2)), 
+  distribution = "poisson", iter = 1000, chains = 1, refresh = 0)
+
+plot_fit(out)
+pred <- predict(out, newdata = data.frame(`Intercept` = rep(1, 10)))
+}
+             
 }
 \seealso{
 Package \code{diagis} in CRAN, which provides functions for computing weighted 

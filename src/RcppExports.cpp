@@ -25,3 +25,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// predict_walker_glm
+Rcpp::List predict_walker_glm(const arma::mat& sigma_rw1, const arma::mat& sigma_rw2, const arma::mat beta_fixed, const arma::mat& beta_rw, const arma::mat& slope, const arma::mat& xreg_fixed, const arma::mat& xreg_rw, const arma::vec& u, const int distribution, arma::vec weights);
+RcppExport SEXP walker_predict_walker_glm(SEXP sigma_rw1SEXP, SEXP sigma_rw2SEXP, SEXP beta_fixedSEXP, SEXP beta_rwSEXP, SEXP slopeSEXP, SEXP xreg_fixedSEXP, SEXP xreg_rwSEXP, SEXP uSEXP, SEXP distributionSEXP, SEXP weightsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type sigma_rw1(sigma_rw1SEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type sigma_rw2(sigma_rw2SEXP);
+    Rcpp::traits::input_parameter< const arma::mat >::type beta_fixed(beta_fixedSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type beta_rw(beta_rwSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type slope(slopeSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type xreg_fixed(xreg_fixedSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type xreg_rw(xreg_rwSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type u(uSEXP);
+    Rcpp::traits::input_parameter< const int >::type distribution(distributionSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type weights(weightsSEXP);
+    rcpp_result_gen = Rcpp::wrap(predict_walker_glm(sigma_rw1, sigma_rw2, beta_fixed, beta_rw, slope, xreg_fixed, xreg_rw, u, distribution, weights));
+    return rcpp_result_gen;
+END_RCPP
+}

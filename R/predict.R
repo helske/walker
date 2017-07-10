@@ -47,9 +47,18 @@ predict.walker_fit <- function(object, newdata, ...){
   sigma_rw2 <- extract(object$stanfit, pars = "sigma_rw2")$sigma_rw2
   if (is.null(sigma_rw2)) sigma_rw2 <- matrix(0, n_iter, 0)
   
-  pred <- predict_walker(t(sigma_rw1), t(sigma_rw2),
-    extract(object$stanfit, pars = "sigma_y")$sigma_y,
-    t(beta_fixed), t(beta_rw), t(slope), t(xregs$xreg_fixed), t(xregs$xreg_rw))
+  if (object$distribution != "gaussian") {
+  pred <- predict_walker_glm(t(sigma_rw1), t(sigma_rw2),
+    t(beta_fixed), t(beta_rw), t(slope), t(xregs$xreg_fixed), 
+    t(xregs$xreg_rw), object$u, 
+    pmatch(object$distribution, c("poisson", "binomial")), 
+    extract(object$stanfit, pars = "weights")$weights)
+  } else {
+    pred <- predict_walker(t(sigma_rw1), t(sigma_rw2),
+      extract(object$stanfit, pars = "sigma_y")$sigma_y,
+      t(beta_fixed), t(beta_rw), t(slope), t(xregs$xreg_fixed), 
+      t(xregs$xreg_rw))
+  }
   pred$y <- object$y
  
   st <-  tsp(object$y)[2L]

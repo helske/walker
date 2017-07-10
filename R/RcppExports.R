@@ -5,3 +5,7 @@ predict_walker <- function(sigma_rw1, sigma_rw2, sigma_y, beta_fixed, beta_rw, s
     .Call(walker_predict_walker, sigma_rw1, sigma_rw2, sigma_y, beta_fixed, beta_rw, slope, xreg_fixed, xreg_rw)
 }
 
+predict_walker_glm <- function(sigma_rw1, sigma_rw2, beta_fixed, beta_rw, slope, xreg_fixed, xreg_rw, u, distribution, weights) {
+    .Call(walker_predict_walker_glm, sigma_rw1, sigma_rw2, beta_fixed, beta_rw, slope, xreg_fixed, xreg_rw, u, distribution, weights)
+}
+

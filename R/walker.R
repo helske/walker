@@ -213,7 +213,7 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
       "slope", "y_fit", "y_rep"), ...)
   
   structure(list(stanfit = stanfit, y = y, xreg_fixed = xreg_fixed, 
-    xreg_rw = xreg_rw, call = mc), class = "walker_fit")
+    xreg_rw = xreg_rw, call = mc, distribution = "gaussian"), class = "walker_fit")
 }
 
 #' Bayesian generalized linear regression with time-varying coefficients
@@ -286,6 +286,7 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
 #'   rw2(~ 1, beta_prior = c(0, 10), sigma_prior = c(0, 2), slope_prior = c(0, 2)), 
 #'   distribution = "poisson", iter = 1000, chains = 1, refresh = 0)
 #' 
+#' plot_fit(out)
 #' }
 #'              
 walker_glm <- function(formula, data, beta_prior, init, chains,
@@ -401,7 +402,7 @@ walker_glm <- function(formula, data, beta_prior, init, chains,
         Tt <- Rt <- diag(m)
         if(k_rw2 > 0) {
           Tt[(k_fixed + k_rw1 + 1):(k_fixed + k_rw1 + k_rw2), 
-            (k_fixed + k_rw1 + k_rw2):m] <- diag(k_rw2)
+            (k_fixed + k_rw1 + k_rw2 + 1):m] <- diag(k_rw2)
         }
         Qt <- diag(rep(c(0, NA, 0, NA), times = c(k_fixed, k_rw1, k_rw2, k_rw2)), m)
         a1 <- rep(c(beta_fixed_mean, beta_rw1_mean, beta_rw2_mean, slope_mean), 
@@ -480,5 +481,6 @@ walker_glm <- function(formula, data, beta_prior, init, chains,
       "slope", "y_fit", "y_rep", "weights"), ...)
   
   structure(list(stanfit = stanfit, y = y, xreg_fixed = xreg_fixed, 
-    xreg_rw = xreg_rw, call = mc), class = "walker_fit")
+    xreg_rw = xreg_rw, u = u, distribution = distribution, call = mc), 
+    class = "walker_fit")
 }

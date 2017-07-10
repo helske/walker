@@ -6,9 +6,12 @@
 
 
 extern SEXP walker_predict_walker(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP walker_predict_walker_glm(SEXP, SEXP, SEXP, 
+  SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
   {"walker_predict_walker", (DL_FUNC) &walker_predict_walker, 8},
+  {"walker_predict_walker_glm", (DL_FUNC) &walker_predict_walker_glm, 10},
   {NULL, NULL, 0}
 };
 
