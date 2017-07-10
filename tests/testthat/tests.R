@@ -10,14 +10,16 @@ test_that("arguments work as intended", {
 
 test_that("we get proper output", {
   y <- 1:10
-  expect_error(fit <- walker(y ~ rw(~ 1, beta_prior = c(0, 1), sigma_prior = c(0, 1))), 
-    sigma_y_prior = c(0, 1), NA)
-  expect_s4_class(fit$stanfit, stanfit)
+  expect_error(fit <- walker(y ~ -1 + 
+      rw1(~ 1, beta_prior = c(0, 1), sigma_prior = c(0, 1)), 
+    sigma_y_prior = c(0, 1), iter = 10, refresh=0), NA)
+  expect_s4_class(fit$stanfit, "stanfit")
 })
 
 test_that("we get proper output from glm", {
   y <- 1:10
-  expect_error(fit <- walker_glm(y ~ rw(~ 1, beta_prior = c(0, 1), sigma_prior = c(0, 1))), 
-    distribution = "poisson", NA)
-  expect_s4_class(fit$stanfit, stanfit)
+  expect_error(fit <- walker_glm(y ~ -1 + 
+      rw1(~ 1, beta_prior = c(0, 1), sigma_prior = c(0, 1)), 
+    distribution = "poisson", iter = 10, refresh=0), NA)
+  expect_s4_class(fit$stanfit, "stanfit")
 })
