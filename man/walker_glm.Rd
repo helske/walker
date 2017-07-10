@@ -84,10 +84,10 @@ out <- walker_glm(y ~ -1 + rw1(~ x, beta_prior = c(0, 10),
   sigma_prior = c(0, 10)), distribution = "poisson", 
   iter = 400, chains = 1, refresh = 0)
 print(out$stanfit, pars = "sigma_rw1") ## approximate results
-library("diagis")
-weighted_mean(extract(out$stanfit, pars = "sigma_rw1")$sigma_rw1, 
-  extract(out$stanfit, pars = "weights")$weights)
-
+if (require("diagis")) {
+  weighted_mean(extract(out$stanfit, pars = "sigma_rw1")$sigma_rw1, 
+    extract(out$stanfit, pars = "weights")$weights)
+}
 plot_coefs(out)
 pp_check(out)
 

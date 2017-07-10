@@ -7,9 +7,9 @@
 \method{pp_check}{walker_fit}(object, ...)
 }
 \arguments{
-\item{...}{Further parameters to \code{\link[bayesplot]{ppc_ribbon}}.}
+\item{object}{An output from \code{\link{walker}}.}
 
-\item{Object}{An output from \code{\link{walker}}.}
+\item{...}{Further parameters to \code{\link[bayesplot]{ppc_ribbon}}.}
 }
 \description{
 Plots sample quantiles from posterior predictive sample. 

@@ -37,6 +37,8 @@ identical results, but the latter approach is computationally much more efficien
 
 \item{return_x_reg}{If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
 predictors after processing the \code{formula}.}
+
+\item{...}{Additional arguments to \code{\link[rstan]{sampling}}.}
 }
 \description{
 This function is the first iteration of the function \code{walker},
