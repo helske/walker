@@ -1,4 +1,4 @@
-#' Bayesian linear regression with random walk coefficients
+#' Bayesian regression with random walk coefficients
 #' 
 #' Function \code{walker} performs Bayesian inference of a linear 
 #' regression model with time-varying, random walk regression coefficients, 
@@ -8,10 +8,9 @@
 #' Monte Carlo provided by Stan, using a state space representation of the model 
 #' in order to marginalise over the coefficients for efficient sampling.
 #' 
-#' 
 #' The \code{rw1} and \code{rw2} functions used in the formula define new formulas 
 #' for the first and second order random walks. In addition, these functions 
-#' need to be supplied with prior definitions for coefficients and the 
+#' need to be supplied with priors for initial coefficients and the 
 #' standard devitions. For second order random walk model, these sigma priors 
 #' correspond to the standard deviation of slope distrurbances. For \code{rw2}, 
 #' also a prior for the initial slope needs to be defined. See examples.
@@ -39,7 +38,7 @@
 #' @param ... Further arguments to \code{\link[rstan]{sampling}}.
 #' @return A list containing the \code{stanfit} object, observations \code{y},
 #'   and covariates \code{xreg} and \code{xreg_new}.
-#' @seealso walker_rw2 walker_glm
+#' @seealso \code{\link{walker_glm}} for non-Gaussian models.
 #' @export
 #' @examples 
 #' 
@@ -222,7 +221,7 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
 #' 
 #' Function \code{walker_glm} is a generalization of \code{walker} for non-Gaussian 
 #' models. Compared to \code{walker}, the returned samples are based on Gaussian approximation, 
-#' which can be used for exact analysis by weighting the sample properly. These weights 
+#' which can then be used for exact analysis by weighting the sample properly. These weights 
 #' are also returned as a part of the \code{stanfit} (they are generated in the 
 #' generated quantities block of Stan model). See details.
 #' 

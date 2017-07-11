@@ -47,7 +47,7 @@ A list containing the \code{stanfit} object, observations \code{y},
 \description{
 Function \code{walker_glm} is a generalization of \code{walker} for non-Gaussian 
 models. Compared to \code{walker}, the returned samples are based on Gaussian approximation, 
-which can be used for exact analysis by weighting the sample properly. These weights 
+which can then be used for exact analysis by weighting the sample properly. These weights 
 are also returned as a part of the \code{stanfit} (they are generated in the 
 generated quantities block of Stan model). See details.
 }

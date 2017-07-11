@@ -15,6 +15,10 @@ plot_coefs <- function(object, level = 0.05, alpha = 0.33){
   
   # N x k x n array
   coef_data <- extract(object$stanfit, pars = "beta_rw", permuted = TRUE)$beta
+  if (object$distribution != "gaussian") {
+    coef_data <- coef_data[sample(1:nrow(coef_data), size = nrow(coef_data), replace = TRUE, 
+      prob = extract(object$stanfit, pars = "weights", permuted = TRUE)$weights), , , drop = FALSE]
+  }
   dimnames(coef_data) <- 
     list(iter = 1:nrow(coef_data), 
       beta = 1:ncol(coef_data), 

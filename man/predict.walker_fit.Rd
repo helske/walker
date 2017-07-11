@@ -7,7 +7,7 @@
 \method{predict}{walker_fit}(object, newdata, ...)
 }
 \arguments{
-\item{object}{An output from \code{\link{walker}}.}
+\item{object}{An output from \code{\link{walker}} or \code{\link{walker_glm}}.}
 
 \item{newdata}{A data.frame containing covariates used for prediction.}
 

@@ -7,7 +7,7 @@
 plot_fit(object, level = 0.05, alpha = 0.33, ...)
 }
 \arguments{
-\item{object}{An output from \code{\link{predict.walker_fit}}.}
+\item{object}{An output from \code{\link{walker}} or \code{\link{walker_glm}}.}
 
 \item{level}{Level for intervals. Default is 0.05, leading to 90\% intervals.}
 

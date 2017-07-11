@@ -4,7 +4,7 @@
 #' obtain samples from posterior predictive distribution.
 #' 
 #' @importFrom stats deltat tsp
-#' @param object An output from \code{\link{walker}}.
+#' @param object An output from \code{\link{walker}} or \code{\link{walker_glm}}.
 #' @param newdata A data.frame containing covariates used for prediction.
 #' @param ... Ignored.
 #' @return A list containing samples from posterior predictive distribution.

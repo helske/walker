@@ -2,7 +2,7 @@
 % Please edit documentation in R/walker.R
 \name{walker}
 \alias{walker}
-\title{Bayesian linear regression with random walk coefficients}
+\title{Bayesian regression with random walk coefficients}
 \usage{
 walker(formula, data, sigma_y_prior, beta_prior, init, chains,
   return_x_reg = FALSE, ...)
@@ -45,7 +45,7 @@ in order to marginalise over the coefficients for efficient sampling.
 \details{
 The \code{rw1} and \code{rw2} functions used in the formula define new formulas 
 for the first and second order random walks. In addition, these functions 
-need to be supplied with prior definitions for coefficients and the 
+need to be supplied with priors for initial coefficients and the 
 standard devitions. For second order random walk model, these sigma priors 
 correspond to the standard deviation of slope distrurbances. For \code{rw2}, 
 also a prior for the initial slope needs to be defined. See examples.
@@ -104,5 +104,5 @@ plot_predict(pred)
 
 }
 \seealso{
-walker_rw2 walker_glm
+\code{\link{walker_glm}} for non-Gaussian models.
 }
