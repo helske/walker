@@ -3,6 +3,10 @@ sudo: false
 cache: packages
 dist: trusty
 
+warnings_are_errors: true
+
+r_check_args: "--as-cran"
+
 r:
  - devel
 
@@ -30,10 +34,3 @@ matrix:
         
 before_install:
     - eval "${MATRIX_EVAL}"
-    
-warnings_are_errors: true
-
-after_failure:
-- ./travis-tool.sh dump_logs
-
-r_check_args: "--as-cran"
