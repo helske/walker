@@ -221,9 +221,11 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
 #' 
 #' Function \code{walker_glm} is a generalization of \code{walker} for non-Gaussian 
 #' models. Compared to \code{walker}, the returned samples are based on Gaussian approximation, 
-#' which can then be used for exact analysis by weighting the sample properly. These weights 
+#' which can then be used for exact-approximate analysis by weighting the sample properly. These weights 
 #' are also returned as a part of the \code{stanfit} (they are generated in the 
-#' generated quantities block of Stan model). See details.
+#' generated quantities block of Stan model). Note that plotting functions \code{pp_check}, 
+#' \code{plot_coefs}, and \code{plot_predict} resample the posterior based on weights 
+#' before plotting, leading to "exact" analysis.
 #' 
 #' The underlying idea of \code{walker_glm} is based on 
 #' Vihola M, Helske J and Franks J (2016), 
