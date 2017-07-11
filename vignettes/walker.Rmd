@@ -74,7 +74,7 @@ The output of `walker` is `walker_fit` object, which is essentially a list with 
 
 ```{r pars}
 print(fit$stanfit, pars = c("sigma_y", "sigma_rw1"))
-plot(fit$stanfit, pars = c("sigma_y", "sigma_rw1"))
+mcmc_areas(as.matrix(fit$stanfit), regex_pars = c("sigma_y", "sigma_rw1"))
 ```
 
 Let's check how well our estimates of $\beta$ coincide with the true values (the solid lines correspond to true values):
@@ -160,6 +160,6 @@ With naive implementation we get smaller effective sample sizes and much higher 
 
 ## Discussion
 
-In this vignette we illustrated the benefits of marginalisation in the context of dynamic regression models. The underlying idea is not new; this approach is typical especially in classic Metropolis-type algorithms for linear-Gaussian state space models where the marginal likelihood $p(y | \theta)$ (where $\theta$ denotes the hyperparameters i.e. not the latents states such as $\beta$'s in current context) is used in the computation of the acceptance probability. Here instead of building specific MCMC machinery, we rely on readily available Hamiltonian Monte Carlo based `Stan` software, thus allowing us to enjoy the benefits of diverse tools of the `Stan` community. Due to the restricted class of models considered, we can also simplify the underlying Kalman filter considerably, thus enabling efficient likelihood evaluation.
+In this vignette we illustrated the benefits of marginalisation in the context of dynamic regression models. The underlying idea is not new; this approach is typical especially in classic Metropolis-type algorithms for linear-Gaussian state space models where the marginal likelihood $p(y | \theta)$ (where $\theta$ denotes the hyperparameters i.e. not the latents states such as $\beta$'s in current context) is used in the computation of the acceptance probability. Here instead of building specific MCMC machinery, we rely on readily available Hamiltonian Monte Carlo based `Stan` software, thus allowing us to enjoy the benefits of diverse tools of the `Stan` community.
 
 ## References
