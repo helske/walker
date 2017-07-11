@@ -12,8 +12,7 @@ os:
   
 env:
   matrix: 
-    - CXX=clang++
-    - USE_CXX11=1
+    - CXX=clang++ USE_CXX11=1
     
 warnings_are_errors: true
 
