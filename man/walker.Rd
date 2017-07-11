@@ -61,7 +61,7 @@ rw1_fit <- walker(Nile ~ -1 +
     beta_prior = c(1000, 100), 
     sigma_prior = c(0, 100)), 
   sigma_y_prior = c(0, 100), 
-  iter = 500, chains = 2)
+  iter = 250, chains = 1)
   
 rw2_fit <- walker(Nile ~ -1 + 
   rw2(~ 1,
@@ -69,7 +69,7 @@ rw2_fit <- walker(Nile ~ -1 +
     sigma_prior = c(0, 100), 
     slope_prior = c(0, 100)), 
   sigma_y_prior = c(0, 100), 
-  iter = 500, chains = 2)
+  iter = 250, chains = 1)
   
 g_y <- geom_point(data = data.frame(y = Nile, x = time(Nile)), 
   aes(x, y, alpha = 0.5), inherit.aes = FALSE) 
@@ -89,7 +89,7 @@ sin_t <- sin(2 * pi * 1:n / 4)
 dat <- data.frame(y, cos_t, sin_t)
 fit <- walker(y ~ -1 + 
   rw1(~ cos_t + sin_t, beta_prior = c(0, 10), sigma_prior = c(0, 2)), 
-  sigma_y_prior = c(0, 10), data = dat, chains = 2, iter = 500)
+  sigma_y_prior = c(0, 10), data = dat, chains = 1, iter = 250)
 print(fit$stanfit, pars = c("sigma_y", "sigma_rw1"))
 
 plot_coefs(fit)
