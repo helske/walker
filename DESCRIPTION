@@ -5,12 +5,12 @@ Version: 0.2.0
 Date: 2017-07-11
 Author: Jouni Helske
 Maintainer: Jouni Helske <jouni.helske@iki.fi>
-Description: Fully Bayesian regression models where the regression 
-    coefficients are allowed to vary over "time", either as independent random 
-    walks. Currently Gaussian and Poisson observations are supported. 
-    All computations are done using Hamiltonian Monte Carlo provided by 
-    Stan, using a state space representation of the model in order to marginalise 
-    over the coefficients for efficient sampling.
+Description: Bayesian dynamic regression models where the regression 
+    coefficients can vary over time as random 
+    walks. Gaussian, Poisson, and binomial observations are supported. 
+    The Markov chain Monte Carlo computations are done using 
+    Hamiltonian Monte Carlo provided by Stan, using a state space representation 
+    of the model in order to marginalise over the coefficients for efficient sampling.
 License: GPL (>= 2)
 Suggests: 
     diagis,
