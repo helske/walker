@@ -7,7 +7,7 @@
 // beta_rw: k x N matrix of posterior samples of beta_rws at time n
 // xreg: k x n_new matrix of new covariates
 // [[Rcpp::depends(RcppArmadillo)]]
-// [[Rcpp::plugins(cpp11)]]
+// [[Rcpp::plugins(cpp14)]]
 // [[Rcpp::export]]
 Rcpp::List predict_walker(const arma::mat& sigma_rw1, 
   const arma::mat& sigma_rw2, const arma::vec sigma_y,
