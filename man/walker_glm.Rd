@@ -47,9 +47,11 @@ A list containing the \code{stanfit} object, observations \code{y},
 \description{
 Function \code{walker_glm} is a generalization of \code{walker} for non-Gaussian 
 models. Compared to \code{walker}, the returned samples are based on Gaussian approximation, 
-which can then be used for exact analysis by weighting the sample properly. These weights 
+which can then be used for exact-approximate analysis by weighting the sample properly. These weights 
 are also returned as a part of the \code{stanfit} (they are generated in the 
-generated quantities block of Stan model). See details.
+generated quantities block of Stan model). Note that plotting functions \code{pp_check}, 
+\code{plot_coefs}, and \code{plot_predict} resample the posterior based on weights 
+before plotting, leading to "exact" analysis.
 }
 \details{
 The underlying idea of \code{walker_glm} is based on 
@@ -70,6 +72,18 @@ constructs the approximation at that point, before running the Bayesian
 analysis.
 }
 \examples{
+
+## note very low number of iterations for the CRAN checks
+
+data("discoveries", package = "datasets")
+out <- walker_glm(discoveries ~ -1 + 
+  rw2(~ 1, beta_prior = c(0, 10), sigma_prior = c(0, 2), slope_prior = c(0, 2)), 
+  distribution = "poisson", iter = 50, chains = 1, refresh = 0)
+
+plot_fit(out)
+
+\dontrun{
+
 set.seed(1)
 n <- 25
 x <- rnorm(n, 1, 1)
@@ -91,13 +105,6 @@ if (require("diagis")) {
 plot_coefs(out)
 pp_check(out)
 
-\dontrun{
-data("discoveries", package = "datasets")
-out <- walker_glm(discoveries ~ -1 + 
-  rw2(~ 1, beta_prior = c(0, 10), sigma_prior = c(0, 2), slope_prior = c(0, 2)), 
-  distribution = "poisson", iter = 250, chains = 1, refresh = 0)
-
-plot_fit(out)
 }
              
 }

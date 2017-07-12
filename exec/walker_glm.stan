@@ -1,3 +1,10 @@
+// Dynamic regression for non-Gaussian models
+//
+// The importance sampling type correction is introduced in:
+// Vihola M, Helske J and Franks J (2016). “Importance sampling type
+// correction of Markov chain Monte Carlo and exact approximations.”
+// On ArXiv: https://arxiv.org/abs/1609.02541
+
 functions {
   #include "common_functions.stan"
 }

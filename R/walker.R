@@ -42,12 +42,14 @@
 #' @export
 #' @examples 
 #' 
+#' ## note very low number of iterations for the CRAN checks
+#' 
 #' rw1_fit <- walker(Nile ~ -1 + 
 #'   rw1(~ 1, 
 #'     beta_prior = c(1000, 100), 
 #'     sigma_prior = c(0, 100)), 
 #'   sigma_y_prior = c(0, 100), 
-#'   iter = 250, chains = 1)
+#'   iter = 50, chains = 1)
 #'   
 #' rw2_fit <- walker(Nile ~ -1 + 
 #'   rw2(~ 1,
@@ -55,7 +57,7 @@
 #'     sigma_prior = c(0, 100), 
 #'     slope_prior = c(0, 100)), 
 #'   sigma_y_prior = c(0, 100), 
-#'   iter = 250, chains = 1)
+#'   iter = 50, chains = 1)
 #'   
 #' g_y <- geom_point(data = data.frame(y = Nile, x = time(Nile)), 
 #'   aes(x, y, alpha = 0.5), inherit.aes = FALSE) 
@@ -67,7 +69,7 @@
 #'   g_rw1
 #'   g_rw2
 #' }
-#' 
+#' \dontrun{
 #' y <- window(log10(UKgas), end = time(UKgas)[100])
 #' n <- 100
 #' cos_t <- cos(2 * pi * 1:n / 4)
@@ -87,6 +89,7 @@
 #'   sin_t = sin(2 * pi * 101:108 / 4))
 #' pred <- predict(fit, newdata)
 #' plot_predict(pred)
+#' }
 #' 
 walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
   return_x_reg = FALSE, ...) {
@@ -262,6 +265,18 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
 #' summary statistics.
 #' @export
 #' @examples 
+#' 
+#' ## note very low number of iterations for the CRAN checks
+#' 
+#' data("discoveries", package = "datasets")
+#' out <- walker_glm(discoveries ~ -1 + 
+#'   rw2(~ 1, beta_prior = c(0, 10), sigma_prior = c(0, 2), slope_prior = c(0, 2)), 
+#'   distribution = "poisson", iter = 50, chains = 1, refresh = 0)
+#' 
+#' plot_fit(out)
+#' 
+#' \dontrun{
+#' 
 #' set.seed(1)
 #' n <- 25
 #' x <- rnorm(n, 1, 1)
@@ -283,13 +298,6 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
 #' plot_coefs(out)
 #' pp_check(out)
 #' 
-#' \dontrun{
-#' data("discoveries", package = "datasets")
-#' out <- walker_glm(discoveries ~ -1 + 
-#'   rw2(~ 1, beta_prior = c(0, 10), sigma_prior = c(0, 2), slope_prior = c(0, 2)), 
-#'   distribution = "poisson", iter = 250, chains = 1, refresh = 0)
-#' 
-#' plot_fit(out)
 #' }
 #'              
 walker_glm <- function(formula, data, beta_prior, init, chains,

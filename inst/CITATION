@@ -1,0 +1,22 @@
+c(
+  bibentry(
+    bibtype = "Manual",
+    title = "{walker}: Bayesian Regression with Time-Varying Coefficients",
+    author = "Jouni Helske",
+    year = sub("-.*", "", meta$Date),
+    note = sprintf("R package version %s", meta$Version),
+    url = "http://github.com/helske/walker",
+    key = "walker"
+  ),
+  bibentry(
+    bibtype = "Article",
+    author = "Matti Vihola, Jouni Helske, and Jordan Franks",
+    title = "Importance sampling type correction of {M}arkov chain {M}onte {C}arlo and exact approximations",
+    journal = "Ar{X}iv e-prints",
+    eprint = "1609.02541",
+    primaryClass = "stat.CO",
+    year = 2016,
+    month = "sep",
+    key = "ISMCMC"
+  )
+)
