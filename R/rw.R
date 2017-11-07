@@ -29,12 +29,12 @@ rw1 <- function(formula, data, beta_prior, sigma_prior) {
     sigma_prior = sigma_prior)
   
 }
-#' Construct a first-order random walk component 
+#' Construct a second-order random walk component 
 #' 
 #' Auxiliary function used inside of the formula of \code{walker}.
 #' 
 #' @export
-#' @param formula Formula for RW1 part of the model. Only right-hand-side is used. 
+#' @param formula Formula for RW2 part of the model. Only right-hand-side is used. 
 #' @param data Optional data.frame.
 #' @param beta_prior A vector of length two which defines the 
 #' prior mean and standard deviation of the Gaussian prior for coefficients at time 1.
