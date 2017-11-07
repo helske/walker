@@ -2,10 +2,10 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 predict_walker <- function(sigma_rw1, sigma_rw2, sigma_y, beta_fixed, beta_rw, slope, xreg_fixed, xreg_rw) {
-    .Call(walker_predict_walker, sigma_rw1, sigma_rw2, sigma_y, beta_fixed, beta_rw, slope, xreg_fixed, xreg_rw)
+    .Call(`_walker_predict_walker`, sigma_rw1, sigma_rw2, sigma_y, beta_fixed, beta_rw, slope, xreg_fixed, xreg_rw)
 }
 
 predict_walker_glm <- function(sigma_rw1, sigma_rw2, beta_fixed, beta_rw, slope, xreg_fixed, xreg_rw, u, distribution, weights) {
-    .Call(walker_predict_walker_glm, sigma_rw1, sigma_rw2, beta_fixed, beta_rw, slope, xreg_fixed, xreg_rw, u, distribution, weights)
+    .Call(`_walker_predict_walker_glm`, sigma_rw1, sigma_rw2, beta_fixed, beta_rw, slope, xreg_fixed, xreg_rw, u, distribution, weights)
 }
 

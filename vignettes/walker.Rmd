@@ -127,7 +127,7 @@ fit_rw2 <-walker(y ~ -1 +
 plot_coefs(fit_rw2)
 ```
 
-So far we have focused on simple Gaussian linear regression. The above treatment cannot be directly extended to non-Gaussian models such as Poisson regression, as the marginal log-likelihood is intractable. However, it is possible to use relatively accurate Gaussian approximations, and the resulting approximate posterior can then be weighted using importance sampling type correction [@vihola-helske-franks], leading to exact inference. Currently function `walker_glm` can be used for Poisson observations, but straightforward extensions to binomial and negative binomial distributions are added in future. 
+So far we have focused on simple Gaussian linear regression. The above treatment cannot be directly extended to non-Gaussian models such as Poisson regression, as the marginal log-likelihood is intractable. However, it is possible to use relatively accurate Gaussian approximations, and the resulting approximate posterior can then be weighted using importance sampling type correction [@vihola-helske-franks], leading to exact inference. Function `walker_glm` extends the the package to handle Poisson and binomial observations using the aforementioned methodology.
 
 
 ## Comparison with naive approach

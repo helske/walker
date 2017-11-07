@@ -9,7 +9,7 @@ using namespace Rcpp;
 
 // predict_walker
 Rcpp::List predict_walker(const arma::mat& sigma_rw1, const arma::mat& sigma_rw2, const arma::vec sigma_y, const arma::mat beta_fixed, const arma::mat& beta_rw, const arma::mat& slope, const arma::mat& xreg_fixed, const arma::mat& xreg_rw);
-RcppExport SEXP walker_predict_walker(SEXP sigma_rw1SEXP, SEXP sigma_rw2SEXP, SEXP sigma_ySEXP, SEXP beta_fixedSEXP, SEXP beta_rwSEXP, SEXP slopeSEXP, SEXP xreg_fixedSEXP, SEXP xreg_rwSEXP) {
+RcppExport SEXP _walker_predict_walker(SEXP sigma_rw1SEXP, SEXP sigma_rw2SEXP, SEXP sigma_ySEXP, SEXP beta_fixedSEXP, SEXP beta_rwSEXP, SEXP slopeSEXP, SEXP xreg_fixedSEXP, SEXP xreg_rwSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -27,7 +27,7 @@ END_RCPP
 }
 // predict_walker_glm
 Rcpp::List predict_walker_glm(const arma::mat& sigma_rw1, const arma::mat& sigma_rw2, const arma::mat beta_fixed, const arma::mat& beta_rw, const arma::mat& slope, const arma::mat& xreg_fixed, const arma::mat& xreg_rw, const arma::vec& u, const int distribution, arma::vec weights);
-RcppExport SEXP walker_predict_walker_glm(SEXP sigma_rw1SEXP, SEXP sigma_rw2SEXP, SEXP beta_fixedSEXP, SEXP beta_rwSEXP, SEXP slopeSEXP, SEXP xreg_fixedSEXP, SEXP xreg_rwSEXP, SEXP uSEXP, SEXP distributionSEXP, SEXP weightsSEXP) {
+RcppExport SEXP _walker_predict_walker_glm(SEXP sigma_rw1SEXP, SEXP sigma_rw2SEXP, SEXP beta_fixedSEXP, SEXP beta_rwSEXP, SEXP slopeSEXP, SEXP xreg_fixedSEXP, SEXP xreg_rwSEXP, SEXP uSEXP, SEXP distributionSEXP, SEXP weightsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -44,4 +44,26 @@ BEGIN_RCPP
     rcpp_result_gen = Rcpp::wrap(predict_walker_glm(sigma_rw1, sigma_rw2, beta_fixed, beta_rw, slope, xreg_fixed, xreg_rw, u, distribution, weights));
     return rcpp_result_gen;
 END_RCPP
+}
+
+RcppExport SEXP _rcpp_module_boot_stan_fit4rw1_model_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4rw1_model_naive_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4rw_glm_model_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4walker_glm_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4walker_lm_mod();
+
+static const R_CallMethodDef CallEntries[] = {
+    {"_walker_predict_walker", (DL_FUNC) &_walker_predict_walker, 8},
+    {"_walker_predict_walker_glm", (DL_FUNC) &_walker_predict_walker_glm, 10},
+    {"_rcpp_module_boot_stan_fit4rw1_model_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4rw1_model_mod, 0},
+    {"_rcpp_module_boot_stan_fit4rw1_model_naive_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4rw1_model_naive_mod, 0},
+    {"_rcpp_module_boot_stan_fit4rw_glm_model_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4rw_glm_model_mod, 0},
+    {"_rcpp_module_boot_stan_fit4walker_glm_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4walker_glm_mod, 0},
+    {"_rcpp_module_boot_stan_fit4walker_lm_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4walker_lm_mod, 0},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_walker(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }

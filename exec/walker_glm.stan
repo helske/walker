@@ -40,6 +40,7 @@ data {
   int<lower=0> u[n];
   int distribution;
   int<lower=0> N;
+  real<lower=0> gamma[n];
 }
 
 transformed data {
@@ -91,7 +92,7 @@ transformed parameters {
   }
    
   loglik = glm_approx_loglik(y_, a1, P1, Ht, 
-    Tt, Rt, xreg_rw, distribution, u, y_original, xbeta);
+    Tt, Rt, xreg_rw, distribution, u, y_original, xbeta, gamma);
 
 }
 
@@ -135,11 +136,11 @@ generated quantities{
 
       for (t in 1:(n - 1)) {
         for(i in 1:k_rw1) {
-          beta_j[i, t + 1] = normal_rng(beta_j[i, t], sigma_rw1[i]);
+          beta_j[i, t + 1] = normal_rng(beta_j[i, t], gamma[t] * sigma_rw1[i]);
         }
         for(i in 1:k_rw2) {
           beta_j[k_rw1 + i, t+1] = beta_j[k_rw1 + i, t] + slope_j[i, t];
-          slope_j[i, t + 1] = normal_rng(slope_j[i, t], sigma_rw2[i]);
+          slope_j[i, t + 1] = normal_rng(slope_j[i, t], gamma[t] * sigma_rw2[i]);
         }
       }
       // sample new observations given previously simulated beta
@@ -149,7 +150,7 @@ generated quantities{
       // perform mean correction to obtain sample from the posterior
       {
         matrix[m, n] states = glm_approx_smoother(y_ - y_rep_j, a1, P1,
-          Ht, Tt, Rt, xreg_rw);
+          Ht, Tt, Rt, xreg_rw, gamma);
         beta_j = beta_j + states[1:k, 1:n];
         slope_j = slope_j + states[(k + 1):m, 1:n];
       }

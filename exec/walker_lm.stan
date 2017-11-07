@@ -29,6 +29,7 @@ data {
   
   real<lower=0> slope_mean;
   real<lower=0> slope_sd;
+  real<lower=0> gamma[n];
 }
 
 transformed data {
@@ -85,7 +86,7 @@ model {
   sigma_rw1 ~ normal(sigma_rw1_mean, sigma_rw1_sd);
   sigma_rw2 ~ normal(sigma_rw2_mean, sigma_rw2_sd);
 
-  target += gaussian_filter(y_, a1, P1, sigma_y^2, Tt, Rt, xreg_rw);
+  target += gaussian_filter(y_, a1, P1, sigma_y^2, Tt, Rt, xreg_rw, gamma);
 }
 
 generated quantities{
@@ -121,7 +122,7 @@ generated quantities{
   // perform mean correction to obtain sample from the posterior
   {
     matrix[m, n] states = gaussian_smoother(y_ - y_rep, a1, P1,
-      sigma_y^2, Tt, Rt, xreg_rw);
+      sigma_y^2, Tt, Rt, xreg_rw, gamma);
     beta_rw = beta_rw + states[1:k, 1:n];
     slope = slope + states[(k + 1):m, 1:n];
   }
