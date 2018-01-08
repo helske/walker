@@ -1,5 +1,5 @@
 ---
-title: "Efficient Bayesian linear regression with time-varying coefficients"
+title: "Efficient Bayesian generalized linear models with time-varying coefficients"
 author: "Jouni Helske"
 date: "8 January 2018"
 output:
