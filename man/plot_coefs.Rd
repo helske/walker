@@ -16,7 +16,9 @@ plot_coefs(object, level = 0.05, alpha = 0.33, transform = identity,
 
 \item{transform}{Optional vectorized function for transforming the coefficients (for example \code{exp}).}
 
-\item{scales}{should y-axis of the panels be \code{"fixed"} (default) or \code{"free"}?}
+\item{scales}{Should y-axis of the panels be \code{"fixed"} (default) or \code{"free"}?}
+
+\item{add_zero}{Logical, should a dashed line indicating a zero be included?}
 }
 \description{
 Plots sample quantiles from posterior predictive sample. 
