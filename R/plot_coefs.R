@@ -11,7 +11,8 @@
 #' @param level Level for intervals. Default is 0.05, leading to 90\% intervals.
 #' @param alpha Transparency level for \code{geom_ribbon}.
 #' @param transform Optional vectorized function for transforming the coefficients (for example \code{exp}).
-#' @param scales should y-axis of the panels be \code{"fixed"} (default) or \code{"free"}?
+#' @param scales Should y-axis of the panels be \code{"fixed"} (default) or \code{"free"}?
+#' @param add_zero Logical, should a dashed line indicating a zero be included?
 #' @export
 plot_coefs <- function(object, level = 0.05, alpha = 0.33, transform = identity, scales = "fixed", add_zero = TRUE){
   
@@ -43,7 +44,7 @@ plot_coefs <- function(object, level = 0.05, alpha = 0.33, transform = identity,
       ymin = ~ lwr,
       ymax = ~ upr
     )
-  )  + facet_wrap(~beta, scales = scales) + #, labeller = label_bquote(~beta[.(beta)])
+  )  + facet_wrap(~beta, scales = scales) + 
     geom_ribbon(aes_(color = "beta", fill = "beta"),
       alpha = alpha, linetype = 0) +
     geom_line(aes_(color = "beta")) +

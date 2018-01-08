@@ -1,7 +1,7 @@
 ---
 title: "Efficient Bayesian linear regression with time-varying coefficients"
 author: "Jouni Helske"
-date: "4 July 2017"
+date: "8 January 2018"
 output:
 html_document: default
 bibliography: walker.bib
