@@ -1,16 +1,18 @@
 Package: walker
 Type: Package
 Title: Bayesian Regression with Time-Varying Coefficients
-Version: 0.2.0
-Date: 2017-07-11
+Version: 0.2.1
+Date: 2018-01-08
 Author: Jouni Helske
 Maintainer: Jouni Helske <jouni.helske@iki.fi>
 Description: Bayesian dynamic regression models where the regression 
-    coefficients can vary over time as random 
-    walks. Gaussian, Poisson, and binomial observations are supported. 
+    coefficients can vary over time as random walks. 
+    Gaussian, Poisson, and binomial observations are supported. 
     The Markov chain Monte Carlo computations are done using 
     Hamiltonian Monte Carlo provided by Stan, using a state space representation 
-    of the model in order to marginalise over the coefficients for efficient sampling.
+    of the model in order to marginalise over the coefficients for efficient sampling. 
+    For non-Gaussian models, walker uses the importance sampling type estimators based on 
+    approximate marginal MCMC as in Vihola, Helske, Franks (2017, arXiv:1609.02541)
 License: GPL (>= 2)
 Suggests: 
     diagis,

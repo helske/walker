@@ -5,7 +5,7 @@
 \title{Bayesian generalized linear regression with time-varying coefficients}
 \usage{
 walker_glm(formula, data, beta_prior, init, chains, return_x_reg = FALSE,
-  distribution, initial_mode = "kfas", u, mc_sim = 50, ...)
+  distribution, initial_mode = "kfas", u, mc_sim = 50, gamma = NULL, ...)
 }
 \arguments{
 \item{formula}{An object of class \code{\link[stats]{formula}} with additional terms 
@@ -37,6 +37,9 @@ or numeric vector (custom guess).}
 For binomial, a vector containing the number of trials. Defaults 1.}
 
 \item{mc_sim}{Number of samples used in importance sampling. Default is 50.}
+
+\item{gamma}{An optional vector defining a damping of the random walk noises. More specifically, 
+the variance of the conditional distribution of state_t+1 given state is of form gamma_t^2 * sigma^s2.}
 
 \item{...}{Further arguments to \code{\link[rstan]{sampling}}.}
 }

@@ -5,7 +5,7 @@
 \title{Bayesian regression with random walk coefficients}
 \usage{
 walker(formula, data, sigma_y_prior, beta_prior, init, chains,
-  return_x_reg = FALSE, ...)
+  return_x_reg = FALSE, gamma = NULL, ...)
 }
 \arguments{
 \item{formula}{An object of class \code{\link[stats]{formula}} with additional terms 
@@ -26,6 +26,9 @@ Note that compared to default in \code{rstan}, here the default is a to sample f
 
 \item{return_x_reg}{If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
 predictors after processing the \code{formula}.}
+
+\item{gamma}{An optional vector defining a damping of the random walk noises. More specifically, 
+the variance of the conditional distribution of state_t+1 given state is of form gamma_t^2 * sigma^s2.}
 
 \item{...}{Further arguments to \code{\link[rstan]{sampling}}.}
 }

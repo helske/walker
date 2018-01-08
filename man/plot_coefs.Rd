@@ -4,7 +4,8 @@
 \alias{plot_coefs}
 \title{Posterior predictive check for walker object}
 \usage{
-plot_coefs(object, level = 0.05, alpha = 0.33)
+plot_coefs(object, level = 0.05, alpha = 0.33, transform = identity,
+  scales = "fixed", add_zero = TRUE)
 }
 \arguments{
 \item{object}{An output from \code{\link{walker}}.}
@@ -12,6 +13,10 @@ plot_coefs(object, level = 0.05, alpha = 0.33)
 \item{level}{Level for intervals. Default is 0.05, leading to 90\% intervals.}
 
 \item{alpha}{Transparency level for \code{geom_ribbon}.}
+
+\item{transform}{Optional vectorized function for transforming the coefficients (for example \code{exp}).}
+
+\item{scales}{should y-axis of the panels be \code{"fixed"} (default) or \code{"free"}?}
 }
 \description{
 Plots sample quantiles from posterior predictive sample. 
