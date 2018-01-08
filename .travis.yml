@@ -1,36 +1,29 @@
 language: r
 sudo: false
 cache: packages
-dist: trusty
+
 
 warnings_are_errors: true
-
-r_check_args: "--as-cran"
-
-r:
- - devel
 
 matrix:
   include:
     - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-6
-      env:
-        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
-        
+      language: r
+      compiler: gcc
+      r_binary_packages:
+        covr
+      after_success:
+        - Rscript -e 'library(covr);codecov()'
+      env: TRAVIS_LANG=R     
+    
     - os: linux
-      addons:
-        apt:
-          sources:
-            - llvm-toolchain-trusty
-          packages:
-            - clang-5.0
-      env:
-        - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
-        
-before_install:
-    - eval "${MATRIX_EVAL}"
+      language: r
+      compiler: clang
+      r_binary_packages:
+        covr
+      after_success:
+        - Rscript -e 'library(covr);codecov()'
+      env: TRAVIS_LANG=R     
+ 
+ 
+r_check_args: "--as-cran"
