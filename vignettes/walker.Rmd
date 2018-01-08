@@ -137,7 +137,7 @@ We now compare the efficiency of the "naive" implementation and the state space 
 ```{r naive}
 naive_walker <- walker_rw1(y ~ x1 + x2, seed = 1, refresh = 0, chains = 2,
   beta_prior = cbind(0, rep(5, 3)), sigma_prior = cbind(0, rep(2, 4)),
-  naive = TRUE, control = list(adapt_delta = 0.9, max_treedepth = 15))
+  naive = TRUE, control = list(adapt_delta = 0.95, max_treedepth = 15))
 print(naive_walker$stanfit, pars = c("sigma_y", "sigma_b"))
 ```
 
