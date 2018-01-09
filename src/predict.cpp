@@ -34,8 +34,7 @@ Rcpp::List predict_walker(const arma::mat& sigma_rw1,
       slope_new(j, 0, i) = R::rnorm(slope(j, i), sigma_rw2(j, i));
     }
     
-    for(arma::uword t = 0; t < n - 1; t++) {
-      
+    for(arma::uword t = 0; t < (n - 1); t++) {
       // sample observations
       y(t, i) = arma::dot(xreg_rw.col(t), beta_new.slice(i).col(t)) + R::rnorm(0, sigma_y(i));
       // and states
@@ -49,8 +48,7 @@ Rcpp::List predict_walker(const arma::mat& sigma_rw1,
       }
     }
     // and the observations at last time point
-    y(n - 1, i) = arma::dot(xreg_rw.col(n - 1), beta_new.slice(i).col(xreg_fixed.n_cols - 1));
-    
+    y(n - 1, i) = arma::dot(xreg_rw.col(n - 1), beta_new.slice(i).col(n - 1));
   }
   
   if (k > 0) {
@@ -112,7 +110,7 @@ Rcpp::List predict_walker_glm(const arma::mat& sigma_rw1,
       }
     }
     // linear predictor at last time point
-    y(n - 1, i) =  arma::dot(xreg_rw.col(n - 1), beta_new.slice(i).col(xreg_fixed.n_cols - 1));
+    y(n - 1, i) =  arma::dot(xreg_rw.col(n - 1), beta_new.slice(i).col(n - 1));
   }
   
   if (k > 0) {
