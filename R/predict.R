@@ -5,12 +5,14 @@
 #' 
 #' @importFrom stats deltat tsp
 #' @param object An output from \code{\link{walker}} or \code{\link{walker_glm}}.
-#' @param newdata A data.frame containing covariates used for prediction.
+#' @param newdata A \code{data.frame} containing covariates used for prediction.
+#' @param u For Poisson model, a vector of future exposures i.e. E(y) = u*exp(x*beta). 
+#' For binomial, a vector containing the number of trials for future time points. Defaults 1.
 #' @param ... Ignored.
 #' @return A list containing samples from posterior predictive distribution.
 #' @method predict walker_fit
 #' @export
-predict.walker_fit <- function(object, newdata, ...){
+predict.walker_fit <- function(object, newdata, u, ...){
   
   y_name <- as.character(object$call$formula[[2]])
   
@@ -48,19 +50,23 @@ predict.walker_fit <- function(object, newdata, ...){
   if (is.null(sigma_rw2)) sigma_rw2 <- matrix(0, n_iter, 0)
   
   if (object$distribution != "gaussian") {
-  pred <- predict_walker_glm(t(sigma_rw1), t(sigma_rw2),
-    t(beta_fixed), t(beta_rw), t(slope), t(xregs$xreg_fixed), 
-    t(xregs$xreg_rw), object$u, 
-    pmatch(object$distribution, c("poisson", "binomial")), 
-    extract(object$stanfit, pars = "weights")$weights)
+    if (missing(u)) u <- rep(1, nrow(newdata))
+    
+    pred <- predict_walker_glm(t(sigma_rw1), t(sigma_rw2),
+      t(beta_fixed), t(beta_rw), t(slope), xregs$xreg_fixed, 
+      t(xregs$xreg_rw), u, 
+      pmatch(object$distribution, c("poisson", "binomial")), 
+      extract(object$stanfit, pars = "weights")$weights, 
+      nrow(newdata), nrow(beta_fixed), nrow(sigma_rw1), nrow(sigma_rw2))
   } else {
     pred <- predict_walker(t(sigma_rw1), t(sigma_rw2),
       extract(object$stanfit, pars = "sigma_y")$sigma_y,
-      t(beta_fixed), t(beta_rw), t(slope), t(xregs$xreg_fixed), 
-      t(xregs$xreg_rw))
+      t(beta_fixed), t(beta_rw), t(slope), xregs$xreg_fixed, 
+      t(xregs$xreg_rw), nrow(newdata), nrow(beta_fixed), nrow(sigma_rw1), 
+      nrow(sigma_rw2))
   }
   pred$y <- object$y
- 
+  
   st <-  tsp(object$y)[2L]
   if (is.null(st)) st <- length(object$y)
   dimnames(pred$y_new) <- 
