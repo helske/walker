@@ -2,7 +2,7 @@ Package: walker
 Type: Package
 Title: Bayesian Regression with Time-Varying Coefficients
 Version: 0.2.1
-Date: 2018-01-08
+Date: 2018-01-09
 Author: Jouni Helske
 Maintainer: Jouni Helske <jouni.helske@iki.fi>
 Description: Bayesian dynamic regression models where the regression 
@@ -12,7 +12,7 @@ Description: Bayesian dynamic regression models where the regression
     Hamiltonian Monte Carlo provided by Stan, using a state space representation 
     of the model in order to marginalise over the coefficients for efficient sampling. 
     For non-Gaussian models, walker uses the importance sampling type estimators based on 
-    approximate marginal MCMC as in Vihola, Helske, Franks (2017, arXiv:1609.02541).
+    approximate marginal MCMC as in Vihola, Helske, Franks (2017, <arXiv:1609.02541>).
 License: GPL (>= 2)
 Suggests: 
     diagis,
