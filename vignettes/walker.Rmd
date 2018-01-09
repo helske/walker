@@ -51,12 +51,12 @@ beta1 <- cumsum(c(0.5, rnorm(n - 1, 0, sd = 0.05)))
 beta2 <- cumsum(c(-1, rnorm(n - 1, 0, sd = 0.15)))
 x1 <- rnorm(n, mean = 2)
 x2 <- cos(1:n)
-u <- cumsum(rnorm(n, 0, 0.5))
-ts.plot(cbind(u, beta1 * x1, beta2 * x2), col = 1:3)
+rw <- cumsum(rnorm(n, 0, 0.5))
+ts.plot(cbind(rw, beta1 * x1, beta2 * x2), col = 1:3)
 ```
 
 ```{r observations}
-signal <- u + beta1 * x1 + beta2 * x2
+signal <- rw + beta1 * x1 + beta2 * x2
 y <- rnorm(n, signal, 0.5)
 ts.plot(cbind(signal, y), col = 1:2)
 ```
@@ -82,7 +82,7 @@ Let's check how well our estimates of $\beta$ coincide with the true values (the
 ```{r plot_with_true_betas}
 betas <- summary(fit$stanfit, "beta_rw")$summary[, "mean"]
 
-ts.plot(cbind(u, beta1, beta2, matrix(betas, ncol = 3)),
+ts.plot(cbind(rw, beta1, beta2, matrix(betas, ncol = 3)),
   col = rep(1:3, 2), lty = rep(1:2, each = 3))
 ```
 

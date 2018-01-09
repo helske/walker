@@ -57,13 +57,13 @@ predict.walker_fit <- function(object, newdata, u, ...){
       t(xregs$xreg_rw), u, 
       pmatch(object$distribution, c("poisson", "binomial")), 
       extract(object$stanfit, pars = "weights")$weights, 
-      nrow(newdata), nrow(beta_fixed), nrow(sigma_rw1), nrow(sigma_rw2))
+      nrow(newdata), ncol(beta_fixed), ncol(sigma_rw1), ncol(sigma_rw2))
   } else {
     pred <- predict_walker(t(sigma_rw1), t(sigma_rw2),
       extract(object$stanfit, pars = "sigma_y")$sigma_y,
       t(beta_fixed), t(beta_rw), t(slope), xregs$xreg_fixed, 
-      t(xregs$xreg_rw), nrow(newdata), nrow(beta_fixed), nrow(sigma_rw1), 
-      nrow(sigma_rw2))
+      t(xregs$xreg_rw), nrow(newdata), ncol(beta_fixed), ncol(sigma_rw1), 
+      ncol(sigma_rw2))
   }
   pred$y <- object$y
   

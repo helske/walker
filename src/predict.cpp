@@ -49,8 +49,7 @@ Rcpp::List predict_walker(const arma::mat& sigma_rw1,
       }
     }
     // and the observations at last time point
-    y(n - 1, i) =  arma::dot(xreg_fixed.col(n - 1), beta_fixed.col(i)) + 
-      arma::dot(xreg_rw.col(n - 1), beta_new.slice(i).col(xreg_fixed.n_cols - 1));
+    y(n - 1, i) = arma::dot(xreg_rw.col(n - 1), beta_new.slice(i).col(xreg_fixed.n_cols - 1));
     
   }
   
