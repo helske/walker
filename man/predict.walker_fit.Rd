@@ -4,12 +4,15 @@
 \alias{predict.walker_fit}
 \title{Predictions for walker object}
 \usage{
-\method{predict}{walker_fit}(object, newdata, ...)
+\method{predict}{walker_fit}(object, newdata, u, ...)
 }
 \arguments{
 \item{object}{An output from \code{\link{walker}} or \code{\link{walker_glm}}.}
 
-\item{newdata}{A data.frame containing covariates used for prediction.}
+\item{newdata}{A \code{data.frame} containing covariates used for prediction.}
+
+\item{u}{For Poisson model, a vector of future exposures i.e. E(y) = u*exp(x*beta). 
+For binomial, a vector containing the number of trials for future time points. Defaults 1.}
 
 \item{...}{Ignored.}
 }
