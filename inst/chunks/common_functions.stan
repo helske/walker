@@ -14,7 +14,6 @@ real gaussian_filter(vector y, vector a1, matrix P1, real Ht,
   matrix[m, m] P = P1;
 
   for (t in 1:n) {
-
     real F = quad_form(P[1:k, 1:k], xreg[, t]) + Ht;
     
     if (F > 1.0e-12) { // protect against numerical issues

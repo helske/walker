@@ -108,11 +108,11 @@ generated quantities{
 
   for (t in 1:(n - 1)) {
     for(i in 1:k_rw1) {
-      beta_rw[i, t + 1] = normal_rng(beta_rw[i, t], sigma_rw1[i]);
+      beta_rw[i, t + 1] = normal_rng(beta_rw[i, t], gamma[t] * sigma_rw1[i]);
     }
     for(i in 1:k_rw2) {
       beta_rw[k_rw1 + i, t+1] = beta_rw[k_rw1 + i, t] + slope[i, t];
-      slope[i, t + 1] = normal_rng(slope[i, t], sigma_rw2[i]);
+      slope[i, t + 1] = normal_rng(slope[i, t], gamma[t] * sigma_rw2[i]);
     }
   }
   // sample new observations given previously simulated beta
