@@ -195,7 +195,8 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
     sigma_rw2_mean = rw2_out$sigma_prior[1],
     sigma_rw2_sd = rw2_out$sigma_prior[2],
     slope_mean = rw2_out$slope_prior[1],
-    slope_sd = rw2_out$slope_prior[2]
+    slope_sd = rw2_out$slope_prior[2],
+    gamma = gamma
   )
   
   if (missing(chains)) chains <- 4
