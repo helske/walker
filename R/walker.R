@@ -59,7 +59,7 @@
 #'     sigma_prior = c(0, 100), 
 #'     slope_prior = c(0, 100)), 
 #'   sigma_y_prior = c(0, 100), 
-#'   iter = 50, chains = 1)
+#'   iter = 200, chains = 1)
 #'   
 #' g_y <- geom_point(data = data.frame(y = Nile, x = time(Nile)), 
 #'   aes(x, y, alpha = 0.5), inherit.aes = FALSE) 
@@ -94,7 +94,7 @@
 #' }
 #' 
 walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
-  return_x_reg = FALSE, gamma = NULL, ...) {
+  return_x_reg = FALSE, gamma_y = NULL, ...) {
   
   if (missing(data)) data <- environment(formula)
   # Modifying formula object, catching special functions
@@ -131,23 +131,32 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
     comp <- vars[[1 + attr(all_terms, "specials")$rw1[1]]]
     rw1_out <- eval(comp, envir = data, enclos = parent.frame())
     # only intercept
-    if (nrow(rw1_out$xreg) == 0) rw1_out$xreg <- matrix(1, n, 1)
+    if (nrow(rw1_out$xreg) == 0) {
+      rw1_out$xreg <- matrix(1, n, 1)
+      rw1_out$gamma <- matrix(1, 1, n)
+    }
+    if (nrow(rw1_out$xreg) != n) stop("length of the series and covariates do not match.")
   } else {
     rw1_out <- list(xreg = matrix(0, n, 0), 
-      beta_prior = numeric(2), sigma_prior = numeric(2))
+      beta_prior = numeric(2), sigma_prior = numeric(2), 
+      gamma = matrix(0, 0, n))
   }
   if (!is.null(attr(all_terms, "specials")$rw2)) {
     comp <- vars[[1 + attr(all_terms, "specials")$rw2[1]]]
     rw2_out <- eval(comp, envir = data, enclos = parent.frame())
     # only intercept
-    if (nrow(rw2_out$xreg) == 0) rw2_out$xreg <- matrix(1, n, 1)
+    if (nrow(rw2_out$xreg) == 0) {
+      rw2_out$xreg <- matrix(1, n, 1)
+      rw2_out$gamma <- matrix(1, 1, n)
+    }
+    if (nrow(rw2_out$xreg) != n) stop("length of the series and covariates do not match.")
   } else {
     rw2_out <- list(xreg = matrix(0, n, 0), 
-      beta_prior = numeric(2), sigma_prior = numeric(2), slope_prior = numeric(2))
+      beta_prior = numeric(2), sigma_prior = numeric(2), 
+      slope_prior = numeric(2), gamma = matrix(0, 0, n))
   }
   
   xreg_rw <- cbind(rw1_out$xreg, rw2_out$xreg)
-  
   k_fixed <- max(0, ncol(xreg_fixed))
   k_rw1 <- max(0, ncol(rw1_out$xreg))
   k_rw2 <- max(0, ncol(rw2_out$xreg))
@@ -163,13 +172,13 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
     stop("sigma_prior should be should be a vector of length two, defining the mean and standard deviation for the Gaussian prior of the standard deviation of y. ")
   }
   
-  if (is.null(gamma)) {
-    gamma <- rep(1, n) 
+  if (is.null(gamma_y)) {
+    gamma_y <- rep(1, n) 
   } else {
-    if (length(gamma) != n) 
+    if (length(gamma_y) != n) 
       stop("The length of gamma vector should equal to the number of observations. ")
-    if (!is.numeric(gamma) | any(gamma < 0 | is.na(gamma))) 
-      stop("Argument 'gamma' should be numeric vector of nonnegative values. ")
+    if (!is.numeric(gamma_y) | any(gamma_y < 0 | is.na(gamma_y))) 
+      stop("Argument 'gamma_y' should be numeric vector of nonnegative values. ")
   } 
   
   stan_data <- list(
@@ -196,7 +205,9 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
     sigma_rw2_sd = rw2_out$sigma_prior[2],
     slope_mean = rw2_out$slope_prior[1],
     slope_sd = rw2_out$slope_prior[2],
-    gamma = gamma
+    gamma_y = gamma_y,
+    gamma_rw1 = rw1_out$gamma,
+    gamma_rw2 = rw2_out$gamma
   )
   
   if (missing(chains)) chains <- 4
@@ -278,16 +289,16 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
 #' @export
 #' @examples 
 #' 
-#' ## note very low number of iterations for the CRAN checks
+#' \dontrun{
 #' 
 #' data("discoveries", package = "datasets")
 #' out <- walker_glm(discoveries ~ -1 + 
 #'   rw2(~ 1, beta_prior = c(0, 10), sigma_prior = c(0, 2), slope_prior = c(0, 2)), 
-#'   distribution = "poisson", iter = 50, chains = 1, refresh = 0)
+#'   distribution = "poisson", iter = 500, chains = 1, refresh = 0)
 #' 
 #' plot_fit(out)
 #' 
-#' \dontrun{
+#' 
 #' 
 #' set.seed(1)
 #' n <- 25
@@ -314,7 +325,7 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
 #'              
 walker_glm <- function(formula, data, beta_prior, init, chains,
   return_x_reg = FALSE, distribution ,
-  initial_mode = "kfas", u, mc_sim = 50, gamma = NULL, ...) {
+  initial_mode = "kfas", u, mc_sim = 50, ...) {
   
   distribution <- match.arg(distribution, choices = c("poisson", "binomial"))
   
@@ -353,19 +364,29 @@ walker_glm <- function(formula, data, beta_prior, init, chains,
     comp <- vars[[1 + attr(all_terms, "specials")$rw1[1]]]
     rw1_out <- eval(comp, envir = data, enclos = parent.frame())
     # only intercept
-    if (nrow(rw1_out$xreg) == 0) rw1_out$xreg <- matrix(1, n, 1)
+    if (nrow(rw1_out$xreg) == 0) {
+      rw1_out$xreg <- matrix(1, n, 1)
+      rw1_out$gamma <- matrix(1, 1, n)
+    }
+    if (nrow(rw1_out$xreg) != n) stop("length of the series and covariates do not match.")
   } else {
     rw1_out <- list(xreg = matrix(0, n, 0), 
-      beta_prior = numeric(2), sigma_prior = numeric(2))
+      beta_prior = numeric(2), sigma_prior = numeric(2), 
+      gamma = matrix(0, 0, n))
   }
   if (!is.null(attr(all_terms, "specials")$rw2)) {
     comp <- vars[[1 + attr(all_terms, "specials")$rw2[1]]]
     rw2_out <- eval(comp, envir = data, enclos = parent.frame())
     # only intercept
-    if (nrow(rw2_out$xreg) == 0) rw2_out$xreg <- matrix(1, n, 1)
+    if (nrow(rw2_out$xreg) == 0) {
+      rw2_out$xreg <- matrix(1, n, 1)
+      rw2_out$gamma <- matrix(1, 1, n)
+    }
+    if (nrow(rw2_out$xreg) != n) stop("length of the series and covariates do not match.")
   } else {
     rw2_out <- list(xreg = matrix(0, n, 0), 
-      beta_prior = numeric(2), sigma_prior = numeric(2), slope_prior = numeric(2))
+      beta_prior = numeric(2), sigma_prior = numeric(2), 
+      slope_prior = numeric(2), gamma = matrix(0, 0, n))
   }
   
   xreg_rw <- cbind(rw1_out$xreg, rw2_out$xreg)
@@ -444,14 +465,7 @@ walker_glm <- function(formula, data, beta_prior, init, chains,
       stop("Argument 'initial_mode' should be either 'obs', 'glm', 'kfas', or a numeric vector.")
     )
   }
-  if (is.null(gamma)) {
-    gamma <- rep(1, n) 
-  } else {
-    if (length(gamma) != n) 
-      stop("The length of gamma vector should equal to the number of observations. ")
-    if (!is.numeric(gamma) | any(gamma < 0 | is.na(gamma))) 
-      stop("Argument 'gamma' should be numeric vector of nonnegative values. ")
-  } 
+
   stan_data <- list(
     k_fixed = k_fixed, 
     k_rw1 = k_rw1,
@@ -479,7 +493,8 @@ walker_glm <- function(formula, data, beta_prior, init, chains,
     u = as.integer(u), 
     distribution = pmatch(distribution, c("poisson", "binomial")), 
     N = mc_sim,
-    gamma = gamma
+    gamma_rw1 = rw1_out$gamma,
+    gamma_rw2 = rw2_out$gamma
   )
   
   if (missing(chains)) chains <- 4

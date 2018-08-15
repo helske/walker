@@ -3,7 +3,7 @@
 
 // univariate Kalman filter for RW1+RW2 model, returns the log-likelihood
 real gaussian_filter(vector y, vector a1, matrix P1, real Ht, 
-  matrix Tt, matrix Rt, matrix xreg, real[] gamma) {
+  matrix Tt, matrix Rt, matrix xreg, vector gamma2_y) {
   
   int k = rows(xreg);
   int n = rows(y);
@@ -14,17 +14,23 @@ real gaussian_filter(vector y, vector a1, matrix P1, real Ht,
   matrix[m, m] P = P1;
 
   for (t in 1:n) {
-    real F = quad_form(P[1:k, 1:k], xreg[, t]) + Ht;
+    real F = quad_form(P[1:k, 1:k], xreg[, t]) + gamma2_y[t] * Ht;
     
     if (F > 1.0e-12) { // protect against numerical issues
       real v = y[t] - dot_product(xreg[, t], head(x, k));
       vector[m] K = P[1:m, 1:k] * xreg[, t] / F;
       x = Tt * (x + K * v);
-      P = quad_form_sym(P - K * K' * F, Tt') + gamma[t]^2 * Rt;
+      P = quad_form_sym(P - K * K' * F, Tt');
+      for (i in 1:m) {
+         P[i, i] = P[i, i] + Rt[t, i];
+      }
       loglik = loglik - 0.5 * (log(F) + v * v / F);
     } else {
       x = Tt * x;
-      P = quad_form_sym(P, Tt') + gamma[t]^2 * Rt;
+      P = quad_form_sym(P, Tt');
+      for (i in 1:m) {
+         P[i, i] = P[i, i] + Rt[t, i];
+      }
     }
   }
   return loglik;
@@ -32,7 +38,7 @@ real gaussian_filter(vector y, vector a1, matrix P1, real Ht,
 }
 
 matrix gaussian_smoother(vector y, vector a1, matrix P1, real Ht, 
-  matrix Tt, matrix Rt, matrix xreg, real[] gamma) {
+  matrix Tt, matrix Rt, matrix xreg,vector gamma2_y) {
 
   int k = rows(xreg);
   int n = rows(y);
@@ -43,22 +49,28 @@ matrix gaussian_smoother(vector y, vector a1, matrix P1, real Ht,
   vector[n] v;
   vector[n] F;
   matrix[m, n] K;
-  matrix[m, n+1] r;
+  matrix[m, n + 1] r;
   vector[m] tmpr;
   
   for (t in 1:n) {
     
-    F[t] = quad_form(P[1:k, 1:k], xreg[, t]) + Ht;
+    F[t] = quad_form(P[1:k, 1:k], xreg[, t]) + gamma2_y[t] * Ht;
     
     if (F[t] > 1.0e-12) {
       v[t] = y[t] - dot_product(xreg[, t], head(x, k));
       K[, t] = P[1:m, 1:k] * xreg[, t] / F[t];
       x = Tt * (x + K[,t] * v[t]);
-      P = quad_form_sym(P - K[,t] * K[,t]' * F[t], Tt') + gamma[t]^2 * Rt;
+      P = quad_form_sym(P - K[,t] * K[,t]' * F[t], Tt');
+      for (i in 1:m) {
+         P[i, i] = P[i, i] + Rt[t, i];
+      }
       loglik = loglik - 0.5 * (log(F[t]) + v[t] * v[t] / F[t]);
     } else {
       x = Tt * x;
-      P = quad_form_sym(P, Tt') + gamma[t]^2 * Rt;
+      P = quad_form_sym(P, Tt');
+      for (i in 1:m) {
+         P[i, i] = P[i, i] + Rt[t, i];
+      }
     }
   }
 
@@ -80,7 +92,7 @@ matrix gaussian_smoother(vector y, vector a1, matrix P1, real Ht,
   for (t in 2:n) {
     vector[m] tmp = r[,t-1];
     vector[m] tmp2 = r[,t];
-    r[,t] = Tt * tmp + gamma[t]^2 * Rt * tmp2;
+    r[,t] = Tt * tmp + Rt[t, ]' .* tmp2;
   }
   return r[1:m, 1:n];
 }
@@ -92,7 +104,7 @@ matrix gaussian_smoother(vector y, vector a1, matrix P1, real Ht,
 // and a extra correction term
 vector glm_approx_loglik(vector y, vector a1, matrix P1, vector Ht, 
   matrix Tt, matrix Rt, matrix xreg, int distribution, int[] u, 
-  vector y_original, vector xbeta_fixed, real[] gamma) {
+  vector y_original, vector xbeta_fixed) {
 
   int k = rows(xreg);
   int n = rows(y);
@@ -114,11 +126,17 @@ vector glm_approx_loglik(vector y, vector a1, matrix P1, vector Ht,
       v[t] = y[t] - dot_product(xreg[, t], head(x, k));
       K[, t] = P[1:m, 1:k] * xreg[, t] / F[t];
       x = Tt * (x + K[,t] * v[t]);
-      P = quad_form_sym(P - K[,t] * K[,t]' * F[t], Tt') + gamma[t]^2 * Rt;
+      P = quad_form_sym(P - K[,t] * K[,t]' * F[t], Tt');
+      for (i in 1:m) {
+         P[i, i] = P[i, i] + Rt[t, i];
+      }
       loglik[1] = loglik[1] - 0.5 * (log(F[t]) + v[t] * v[t] / F[t]);
     } else {
       x = Tt * x;
-      P = quad_form_sym(P, Tt') + gamma[t]^2 * Rt;
+      P = quad_form_sym(P, Tt');
+      for (i in 1:m) {
+         P[i, i] = P[i, i] + Rt[t, i];
+      }
     }
   }
 
@@ -140,7 +158,7 @@ vector glm_approx_loglik(vector y, vector a1, matrix P1, vector Ht,
   for (t in 2:n) {
     vector[m] tmp = r[,t-1];
     vector[m] tmp2 = r[,t];
-    r[,t] = Tt * tmp + gamma[t]^2 * Rt * tmp2;
+    r[,t] = Tt * tmp + Rt[t, ]' .* tmp2;
   }
 
   // add a correction term
@@ -168,7 +186,7 @@ vector glm_approx_loglik(vector y, vector a1, matrix P1, vector Ht,
 // returns the log-likelihood of the corresponding approximating Gaussian model
 // and a extra correction term
 matrix glm_approx_smoother(vector y, vector a1, matrix P1, vector Ht, 
-  matrix Tt, matrix Rt, matrix xreg, real[] gamma) {
+  matrix Tt, matrix Rt, matrix xreg) {
 
 int k = rows(xreg);
   int n = rows(y);
@@ -189,23 +207,29 @@ int k = rows(xreg);
       v[t] = y[t] - dot_product(xreg[, t], head(x, k));
       K[, t] = P[1:m, 1:k] * xreg[, t] / F[t];
       x = Tt * (x + K[,t] * v[t]);
-      P = quad_form_sym(P - K[,t] * K[,t]' * F[t], Tt') + gamma[t]^2 * Rt;
+      P = quad_form_sym(P - K[,t] * K[,t]' * F[t], Tt');
+      for (i in 1:m) {
+         P[i, i] = P[i, i] + Rt[t, i];
+      }
     } else {
       x = Tt * x;
-      P = quad_form_sym(P, Tt') + gamma[t]^2 * Rt;
+      P = quad_form_sym(P, Tt');
+      for (i in 1:m) {
+         P[i, i] = P[i, i] + Rt[t, i];
+      }
     }
   }
 
-  r[,n+1] = rep_vector(0.0, m);
+  r[, n + 1] = rep_vector(0.0, m);
   for (tt in 1:n) {
     int t = n + 1 - tt;
     vector[m] tmp = r[, t+1];
     if(F[t] > 1.0e-12) {
       vector[m] tmp2 = rep_vector(0.0, m);
       tmp2[1:k] = xreg[, t];
-      r[ ,t] = tmp2 * v[t] / F[t] + (Tt - Tt * K[,t] * tmp2')' * tmp;
+      r[, t] = tmp2 * v[t] / F[t] + (Tt - Tt * K[,t] * tmp2')' * tmp;
     } else {
-      r[,t] = Tt' * tmp;
+      r[, t] = Tt' * tmp;
     }
   }
   
@@ -214,7 +238,7 @@ int k = rows(xreg);
   for (t in 2:n) {
     vector[m] tmp = r[,t-1];
     vector[m] tmp2 = r[,t];
-    r[,t] = Tt * tmp + gamma[t]^2 * Rt * tmp2;
+    r[,t] = Tt * tmp + Rt[t, ]' .* tmp2;
   }
 
   return r[1:m, 1:n];

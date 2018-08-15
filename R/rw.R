@@ -9,7 +9,7 @@
 #' prior mean and standard deviation of the Gaussian prior for coefficients at time 1.
 #' @param sigma_prior A vector of length two, defining the truncated Gaussian prior for 
 #' the coefficient level standard deviation. 
-rw1 <- function(formula, data, beta_prior, sigma_prior) {
+rw1 <- function(formula, data, beta_prior, sigma_prior, gamma = NULL) {
  
   mf <- match.call(expand.dots = FALSE)
   mf <- mf[c(1L, match(c("formula", "data"), names(mf), 0L))]
@@ -25,8 +25,17 @@ rw1 <- function(formula, data, beta_prior, sigma_prior) {
   if(length(sigma_prior) != 2) {
     stop("sigma_prior should be should be a vector of length two, defining the mean and standard deviation for the Gaussian prior of standard deviations. ")
   }
+  n <- nrow(xreg)
+  if (is.null(gamma)) {
+    gamma <- matrix(1, ncol(xreg), n) 
+  } else {
+    if (ncol(gamma) != n) 
+      stop("The number of column of gamma matrix for 'rw1' should equal to the number of observations. ")
+    if (!is.numeric(gamma) | any(gamma < 0 | is.na(gamma))) 
+      stop("Argument 'gamma' should be numeric matrix of nonnegative values. ")
+  } 
   list(xreg = xreg, beta_prior = beta_prior, 
-    sigma_prior = sigma_prior)
+    sigma_prior = sigma_prior, gamma = gamma)
   
 }
 #' Construct a first-order random walk component 
@@ -43,7 +52,7 @@ rw1 <- function(formula, data, beta_prior, sigma_prior) {
 #' @param slope_prior A vector of length two which defines the 
 #' prior mean and standard deviation of the Gaussian prior for the slopes at time 1.
 #' @export
-rw2 <- function(formula, data, beta_prior, sigma_prior, slope_prior) {
+rw2 <- function(formula, data, beta_prior, sigma_prior, slope_prior, gamma = NULL) {
   
   mf <- match.call(expand.dots = FALSE)
   mf <- mf[c(1L, match(c("formula", "data"), names(mf), 0L))]
@@ -62,7 +71,16 @@ rw2 <- function(formula, data, beta_prior, sigma_prior, slope_prior) {
   if(length(slope_prior) != 2) {
     stop("slope_prior should be should be a vector of length two, defining the mean and standard deviation for the Gaussian prior of initial slope coeffients. ")
   }
+  n <- nrow(xreg)
+  if (is.null(gamma)) {
+    gamma <- matrix(1, ncol(xreg), n)
+  } else {
+    if (ncol(gamma) != n) 
+      stop("The number of column of gamma matrix for 'rw1' should equal to the number of observations. ")
+    if (!is.numeric(gamma) | any(gamma < 0 | is.na(gamma))) 
+      stop("Argument 'gamma' should be numeric matrix of nonnegative values. ")
+  } 
   list(xreg = xreg, beta_prior = beta_prior, 
-    sigma_prior = sigma_prior, slope_prior = slope_prior)
+    sigma_prior = sigma_prior, slope_prior = slope_prior, gamma = gamma)
   
 }

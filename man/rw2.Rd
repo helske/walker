@@ -4,7 +4,7 @@
 \alias{rw2}
 \title{Construct a first-order random walk component}
 \usage{
-rw2(formula, data, beta_prior, sigma_prior, slope_prior)
+rw2(formula, data, beta_prior, sigma_prior, slope_prior, gamma = NULL)
 }
 \arguments{
 \item{formula}{Formula for RW1 part of the model. Only right-hand-side is used.}

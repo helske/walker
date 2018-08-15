@@ -5,7 +5,7 @@
 \title{Bayesian regression with random walk coefficients}
 \usage{
 walker(formula, data, sigma_y_prior, beta_prior, init, chains,
-  return_x_reg = FALSE, gamma = NULL, ...)
+  return_x_reg = FALSE, gamma_y = NULL, ...)
 }
 \arguments{
 \item{formula}{An object of class \code{\link[stats]{formula}} with additional terms 
@@ -27,10 +27,10 @@ Note that compared to default in \code{rstan}, here the default is a to sample f
 \item{return_x_reg}{If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
 predictors after processing the \code{formula}.}
 
+\item{...}{Further arguments to \code{\link[rstan]{sampling}}.}
+
 \item{gamma}{An optional vector defining a damping of the random walk noises. More specifically, 
 the variance of the conditional distribution of state_t+1 given state is of form gamma_t^2 * sigma^s2.}
-
-\item{...}{Further arguments to \code{\link[rstan]{sampling}}.}
 }
 \value{
 A list containing the \code{stanfit} object, observations \code{y},
@@ -74,7 +74,7 @@ rw2_fit <- walker(Nile ~ -1 +
     sigma_prior = c(0, 100), 
     slope_prior = c(0, 100)), 
   sigma_y_prior = c(0, 100), 
-  iter = 50, chains = 1)
+  iter = 200, chains = 1)
   
 g_y <- geom_point(data = data.frame(y = Nile, x = time(Nile)), 
   aes(x, y, alpha = 0.5), inherit.aes = FALSE) 

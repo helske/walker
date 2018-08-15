@@ -40,7 +40,8 @@ data {
   int<lower=0> u[n];
   int distribution;
   int<lower=0> N;
-  real<lower=0> gamma[n];
+  matrix[k_rw1, n] gamma_rw1;
+  matrix[k_rw2, n] gamma_rw2;
 }
 
 transformed data {
@@ -72,7 +73,7 @@ parameters {
 }
 
 transformed parameters {
-  matrix[m, m] Rt = rep_matrix(0.0, m, m);
+  matrix[n, m] Rt = rep_matrix(0.0, n, m);
   vector[n] xbeta;
   vector[n] y_;
   vector[2] loglik;
@@ -84,15 +85,17 @@ transformed parameters {
   }
    y_ = y - xbeta;
 
-  for(i in 1:k_rw1) {
-    Rt[i, i] = sigma_rw1[i]^2;
-  }
-   for(i in 1:k_rw2) {
-    Rt[k + i, k + i] = sigma_rw2[i]^2;
+  for (t in 1:n) { // i,t vs t,i... stan is row-major!
+    for(i in 1:k_rw1) {
+      Rt[t, i] = (gamma_rw1[i, t] * sigma_rw1[i])^2;
+    }
+    for(i in 1:k_rw2) {
+      Rt[t, k + i] = (gamma_rw2[i, t] * sigma_rw2[i])^2;
+    } 
   }
    
   loglik = glm_approx_loglik(y_, a1, P1, Ht, 
-    Tt, Rt, xreg_rw, distribution, u, y_original, xbeta, gamma);
+    Tt, Rt, xreg_rw, distribution, u, y_original, xbeta);
 
 }
 
@@ -136,11 +139,11 @@ generated quantities{
 
       for (t in 1:(n - 1)) {
         for(i in 1:k_rw1) {
-          beta_j[i, t + 1] = normal_rng(beta_j[i, t], gamma[t] * sigma_rw1[i]);
+          beta_j[i, t + 1] = normal_rng(beta_j[i, t], gamma_rw1[i, t] * sigma_rw1[i]);
         }
         for(i in 1:k_rw2) {
           beta_j[k_rw1 + i, t+1] = beta_j[k_rw1 + i, t] + slope_j[i, t];
-          slope_j[i, t + 1] = normal_rng(slope_j[i, t], gamma[t] * sigma_rw2[i]);
+          slope_j[i, t + 1] = normal_rng(slope_j[i, t], gamma_rw2[i, t] * sigma_rw2[i]);
         }
       }
       // sample new observations given previously simulated beta
@@ -150,7 +153,7 @@ generated quantities{
       // perform mean correction to obtain sample from the posterior
       {
         matrix[m, n] states = glm_approx_smoother(y_ - y_rep_j, a1, P1,
-          Ht, Tt, Rt, xreg_rw, gamma);
+          Ht, Tt, Rt, xreg_rw);
         beta_j = beta_j + states[1:k, 1:n];
         slope_j = slope_j + states[(k + 1):m, 1:n];
       }
