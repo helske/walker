@@ -1,6 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 .travis.yml
-README.md
 walker_html
 walker_extra
+.updatenotes

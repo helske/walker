@@ -1,5 +1,5 @@
 functions {
-  #include "common_functions.stan"
+#include /chunks/common_functions.stan
 }
 
 data {
@@ -128,8 +128,8 @@ generated quantities{
   {
     matrix[m, n] states = gaussian_smoother(y_ - y_rep, a1, P1,
                                             sigma_y^2, Tt, Rt, xreg_rw, gamma2_y);
-    beta_rw = beta_rw + states[1:k, 1:n];
-    slope = slope + states[(k + 1):m, 1:n];
+    beta_rw += states[1:k, 1:n];
+    slope += states[(k + 1):m, 1:n];
   }
 
   // replicated data from posterior predictive distribution

@@ -22,14 +22,14 @@ real gaussian_filter(vector y, vector a1, matrix P1, real Ht,
       x = Tt * (x + K * v);
       P = quad_form_sym(P - K * K' * F, Tt');
       for (i in 1:m) {
-         P[i, i] = P[i, i] + Rt[t, i];
+         P[i, i] += Rt[t, i];
       }
-      loglik = loglik - 0.5 * (log(F) + v * v / F);
+      loglik -= 0.5 * (log(F) + v * v / F);
     } else {
       x = Tt * x;
       P = quad_form_sym(P, Tt');
       for (i in 1:m) {
-         P[i, i] = P[i, i] + Rt[t, i];
+         P[i, i] += Rt[t, i];
       }
     }
   }
@@ -62,14 +62,14 @@ matrix gaussian_smoother(vector y, vector a1, matrix P1, real Ht,
       x = Tt * (x + K[,t] * v[t]);
       P = quad_form_sym(P - K[,t] * K[,t]' * F[t], Tt');
       for (i in 1:m) {
-         P[i, i] = P[i, i] + Rt[t, i];
+         P[i, i] += Rt[t, i];
       }
-      loglik = loglik - 0.5 * (log(F[t]) + v[t] * v[t] / F[t]);
+      loglik -= 0.5 * (log(F[t]) + v[t] * v[t] / F[t]);
     } else {
       x = Tt * x;
       P = quad_form_sym(P, Tt');
       for (i in 1:m) {
-         P[i, i] = P[i, i] + Rt[t, i];
+         P[i, i] += Rt[t, i];
       }
     }
   }
@@ -128,14 +128,14 @@ vector glm_approx_loglik(vector y, vector a1, matrix P1, vector Ht,
       x = Tt * (x + K[,t] * v[t]);
       P = quad_form_sym(P - K[,t] * K[,t]' * F[t], Tt');
       for (i in 1:m) {
-         P[i, i] = P[i, i] + Rt[t, i];
+         P[i, i] += Rt[t, i];
       }
-      loglik[1] = loglik[1] - 0.5 * (log(F[t]) + v[t] * v[t] / F[t]);
+      loglik[1] -= 0.5 * (log(F[t]) + v[t] * v[t] / F[t]);
     } else {
       x = Tt * x;
       P = quad_form_sym(P, Tt');
       for (i in 1:m) {
-         P[i, i] = P[i, i] + Rt[t, i];
+         P[i, i] += Rt[t, i];
       }
     }
   }
@@ -166,14 +166,14 @@ vector glm_approx_loglik(vector y, vector a1, matrix P1, vector Ht,
   if (distribution == 1) {
     for(t in 1:n) {
       real xbeta_rw = dot_product(xreg[,t], r[1:k, t]);
-      loglik[2] = loglik[2] + y_original[t] * (xbeta_rw + xbeta_fixed[t]) - 
+      loglik[2] += y_original[t] * (xbeta_rw + xbeta_fixed[t]) - 
       u[t] * exp(xbeta_rw + xbeta_fixed[t]) +
           0.5 * (y[t] - xbeta_rw)^2 / Ht[t];
     }
   } else {
     for(t in 1:n) {
      real xbeta_rw = dot_product(xreg[,t], r[1:k, t]);
-      loglik[2] = loglik[2] + y_original[t] * (xbeta_rw + xbeta_fixed[t]) - 
+      loglik[2] += y_original[t] * (xbeta_rw + xbeta_fixed[t]) - 
       u[t] * log1p(exp(xbeta_rw + xbeta_fixed[t])) +
           0.5 * (y[t] - xbeta_rw)^2 / Ht[t];
     }
@@ -209,13 +209,13 @@ int k = rows(xreg);
       x = Tt * (x + K[,t] * v[t]);
       P = quad_form_sym(P - K[,t] * K[,t]' * F[t], Tt');
       for (i in 1:m) {
-         P[i, i] = P[i, i] + Rt[t, i];
+         P[i, i] += Rt[t, i];
       }
     } else {
       x = Tt * x;
       P = quad_form_sym(P, Tt');
       for (i in 1:m) {
-         P[i, i] = P[i, i] + Rt[t, i];
+         P[i, i] += Rt[t, i];
       }
     }
   }

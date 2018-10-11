@@ -6,5 +6,5 @@ src-x64/
 *.o
 *.so
 *.dll
-*.Rproj
 walker_extra
+.updatenotes

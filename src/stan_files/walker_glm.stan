@@ -6,7 +6,7 @@
 // On ArXiv: https://arxiv.org/abs/1609.02541
 
 functions {
-  #include "common_functions.stan"
+#include /chunks/common_functions.stan
 }
 
 data {
@@ -154,8 +154,8 @@ generated quantities{
       {
         matrix[m, n] states = glm_approx_smoother(y_ - y_rep_j, a1, P1,
           Ht, Tt, Rt, xreg_rw);
-        beta_j = beta_j + states[1:k, 1:n];
-        slope_j = slope_j + states[(k + 1):m, 1:n];
+        beta_j += states[1:k, 1:n];
+        slope_j += states[(k + 1):m, 1:n];
       }
   
       beta_array[1:k,1:n,j] = to_array_2d(beta_j);
@@ -165,13 +165,13 @@ generated quantities{
       if (distribution == 1) {
         for(t in 1:n) {
           real xbeta_tmp = xbeta[t] + dot_product(xreg_rw[,t], beta_j[1:k,t]);
-          w[j] = w[j] + y_original[t] * xbeta_tmp - u[t] * exp(xbeta_tmp) +
+          w[j] += y_original[t] * xbeta_tmp - u[t] * exp(xbeta_tmp) +
             0.5 * (y[t] - xbeta_tmp)^2 / Ht[t];
         }
       } else {
         for(t in 1:n) {
           real xbeta_tmp = xbeta[t] + dot_product(xreg_rw[,t], beta_j[1:k,t]);
-          w[j] = w[j] + y_original[t] * xbeta_tmp - u[t] * log1p(exp(xbeta_tmp)) +
+          w[j] += y_original[t] * xbeta_tmp - u[t] * log1p(exp(xbeta_tmp)) +
             0.5 * (y[t] - xbeta_tmp)^2 / Ht[t];
         }
       }
@@ -179,9 +179,9 @@ generated quantities{
     
     {
       int index;
-      w = exp(w);
-      weights = mean(w);
-      index = categorical_rng(w / sum(w));
+      vector[N] expw = exp(w);
+      weights = mean(expw);
+      index = categorical_rng(expw / sum(expw));
       beta_rw = to_matrix(beta_array[, , index]);
       if (k_rw2 > 0) slope = to_matrix(slope_array[, , index]);
     //  // replicated data from posterior predictive distribution
