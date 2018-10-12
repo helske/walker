@@ -22,9 +22,9 @@ vector glm_approx_smoother(vector y, vector a1, vector P1, vector Ht, matrix Rt,
     F[t] = quad_form(P, xreg[, t]) + Ht[t];
     v[t] = y[t] - dot_product(xreg[, t], x);
     K[, t] = P * xreg[, t] / F[t];
-    x = x + K[, t] * v[t];
-    P = P - K[, t] * K[, t]' * F[t] + Rt;
-    loglik[1] = loglik[1] - 0.5 * (log(F[t]) + v[t] * v[t] / F[t]);
+    x += K[, t] * v[t];
+    P += - K[, t] * K[, t]' * F[t] + Rt;
+    loglik[1] -= 0.5 * (log(F[t]) + v[t] * v[t] / F[t]);
   }
   // smoother
   r[,n+1] = rep_vector(0.0, m);
@@ -47,7 +47,7 @@ vector glm_approx_smoother(vector y, vector a1, vector P1, vector Ht, matrix Rt,
  // if (distribution == 1) {
     for(t in 1:n) {
       real xbeta = dot_product(xreg[,t], r[, t]);
-      loglik[2] = loglik[2] + y_original[t] * xbeta - u[t] * exp(xbeta) +
+      loglik[2] += y_original[t] * xbeta - u[t] * exp(xbeta) +
           0.5 * (y[t] - xbeta)^2 / Ht[t];
     }
   //}  
@@ -70,8 +70,8 @@ matrix gaussian_smoother(vector y, vector a1, vector P1, vector Ht, matrix Rt, m
     F[t] = quad_form(P, xreg[, t]) + Ht[t];
     v[t] = y[t] - dot_product(xreg[, t], x);
     K[, t] = P * xreg[, t] / F[t];
-    x = x + K[, t] * v[t];
-    P = P - K[, t] * K[, t]' * F[t] + Rt;
+    x += K[, t] * v[t];
+    P += - K[, t] * K[, t]' * F[t] + Rt;
   }
   r[,n+1] = rep_vector(0.0, m);
   for (tt in 1:n) {
@@ -137,47 +137,48 @@ generated quantities{
   real weights;
   
   {  
-  vector[n] y_rep;
-  matrix[k, n] beta_j;
-  real beta_array[k, n, N];
-  //vector[n_new] y_new; not used yet
-  //vector[k] beta_new;
-  
-  vector[N] w; //importance sampling weights
-  // This is the simplest but not most efficient way to sample multiple realizations
-  // We can save a lot by running only one full Kalman smoother and then doing some 
-  // tricks (see for example DK2002, and implementations in KFAS and bssm)
-  for(j in 1:N) {
-    // sample coefficients given sigma's (no conditioning on y)  
-    for(i in 1:k) {
-       beta_j[i, 1] = normal_rng(beta_mean[i], beta_sd[i]);
-    }
-    for (t in 1:(n - 1)) {
-      for(i in 1:k) {
-        beta_j[i, t+1] = normal_rng(beta_j[i, t], sigma_b[i]);
-      }
-    }
-    // sample new observations given previously simulated beta
-    for(t in 1:n) {
-      y_rep[t] = normal_rng(dot_product(xreg[, t], beta_j[1:k, t]), sqrt(Ht[t]));
-    }
-    // perform mean correction to obtain sample from the posterior
-    beta_j = beta_j + gaussian_smoother(y - y_rep, beta_mean, P1_vector, Ht, diag_matrix(R_vector), xreg);
-    beta_array[1:k,1:n,j] = to_array_2d(beta_j);
+    vector[n] y_rep;
+    matrix[k, n] beta_j;
+    real beta_array[k, n, N];
+    //vector[n_new] y_new; not used yet
+    //vector[k] beta_new;
     
-    w[j] = -loglik[2];
-    //if (distribution == 1) {
-      for(t in 1:n) {
-        real xbeta = dot_product(xreg[,t], beta_j[1:k,t]);
-        w[j] = w[j] + y_original[t] * xbeta - u[t] * exp(xbeta) +
-            0.5 * (y[t] - xbeta)^2 / Ht[t];
+    vector[N] w; //importance sampling weights
+    // This is the simplest but not most efficient way to sample multiple realizations
+    // We can save a lot by running only one full Kalman smoother and then doing some 
+    // tricks (see for example DK2002, and implementations in KFAS and bssm)
+    for(j in 1:N) {
+      // sample coefficients given sigma's (no conditioning on y)  
+      for(i in 1:k) {
+         beta_j[i, 1] = normal_rng(beta_mean[i], beta_sd[i]);
       }
-    //}
-  }
-    w = exp(w);
-    weights = mean(w);
-    beta = beta_array[1:k,1:n,categorical_rng(w / sum(w))];
-  
+      for (t in 1:(n - 1)) {
+        for(i in 1:k) {
+          beta_j[i, t+1] = normal_rng(beta_j[i, t], sigma_b[i]);
+        }
+      }
+      // sample new observations given previously simulated beta
+      for(t in 1:n) {
+        y_rep[t] = normal_rng(dot_product(xreg[, t], beta_j[1:k, t]), sqrt(Ht[t]));
+      }
+      // perform mean correction to obtain sample from the posterior
+      beta_j += gaussian_smoother(y - y_rep, beta_mean, P1_vector, Ht, diag_matrix(R_vector), xreg);
+      beta_array[1:k,1:n,j] = to_array_2d(beta_j);
+      
+      w[j] = -loglik[2];
+      //if (distribution == 1) {
+        for(t in 1:n) {
+          real xbeta = dot_product(xreg[,t], beta_j[1:k,t]);
+          w[j] += y_original[t] * xbeta - u[t] * exp(xbeta) +
+              0.5 * (y[t] - xbeta)^2 / Ht[t];
+        }
+      //}
+    }
+    {
+      vector[N] wexp = exp(w);
+      weights = mean(wexp);
+      beta = beta_array[1:k,1:n,categorical_rng(wexp / sum(wexp))];
+    }
   }
   // These parts need bit more work (currently use only approximation)
   // The algorithm is in the KFAS paper

@@ -126,7 +126,9 @@ generated quantities{
     
     // This is the simplest but not most efficient way to sample multiple realizations
     // We could save a lot by running only one full Kalman smoother and then doing some
-    // tricks (see for example DK2002, and implementations in KFAS and bssm)
+    // tricks (see for example Durbin and Koopman (2002), 
+    // and implementations in KFAS (in Fortran) and in bssm (in C++))
+    
     for(j in 1:N) {
   
       for(i in 1:k_rw1) {
@@ -178,13 +180,20 @@ generated quantities{
     }
     
     {
+      // store only one of the simulated states
+      // we could store all as well but this is a compromise between
+      // space and accuracy. Of course, we could compute the summary 
+      // statistics of the states here already using all replications...
+      
+      // note that the results will be a weighted posterior sample
       int index;
       vector[N] expw = exp(w);
       weights = mean(expw);
       index = categorical_rng(expw / sum(expw));
       beta_rw = to_matrix(beta_array[, , index]);
       if (k_rw2 > 0) slope = to_matrix(slope_array[, , index]);
-    //  // replicated data from posterior predictive distribution
+   
+    // replicated data from posterior predictive distribution
    
       if (distribution == 1) {
         for(t in 1:n) {

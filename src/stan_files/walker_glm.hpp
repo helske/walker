@@ -27,7 +27,7 @@ stan::io::program_reader prog_reader__() {
     reader.add_event(8, 0, "start", "/chunks/common_functions.stan");
     reader.add_event(254, 246, "end", "/chunks/common_functions.stan");
     reader.add_event(254, 9, "restart", "model_walker_glm");
-    reader.add_event(451, 204, "end", "model_walker_glm");
+    reader.add_event(460, 213, "end", "model_walker_glm");
     return reader;
 }
 
@@ -2033,70 +2033,70 @@ public:
             stan::math::assign(w,rep_vector(0.0,N));
 
 
-            current_statement_begin__ = 375;
+            current_statement_begin__ = 377;
             for (int j = 1; j <= N; ++j) {
 
-                current_statement_begin__ = 377;
+                current_statement_begin__ = 379;
                 for (int i = 1; i <= k_rw1; ++i) {
 
-                    current_statement_begin__ = 378;
+                    current_statement_begin__ = 380;
                     stan::model::assign(beta_j, 
                                 stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
                                 normal_rng(beta_rw1_mean,beta_rw1_sd, base_rng__), 
                                 "assigning variable beta_j");
                 }
-                current_statement_begin__ = 380;
+                current_statement_begin__ = 382;
                 for (int i = 1; i <= k_rw2; ++i) {
 
-                    current_statement_begin__ = 381;
+                    current_statement_begin__ = 383;
                     stan::model::assign(beta_j, 
                                 stan::model::cons_list(stan::model::index_uni((k_rw1 + i)), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
                                 normal_rng(beta_rw2_mean,beta_rw2_sd, base_rng__), 
                                 "assigning variable beta_j");
-                    current_statement_begin__ = 382;
+                    current_statement_begin__ = 384;
                     stan::model::assign(slope_j, 
                                 stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
                                 normal_rng(slope_mean,slope_sd, base_rng__), 
                                 "assigning variable slope_j");
                 }
-                current_statement_begin__ = 385;
+                current_statement_begin__ = 387;
                 for (int t = 1; t <= (n - 1); ++t) {
 
-                    current_statement_begin__ = 386;
+                    current_statement_begin__ = 388;
                     for (int i = 1; i <= k_rw1; ++i) {
 
-                        current_statement_begin__ = 387;
+                        current_statement_begin__ = 389;
                         stan::model::assign(beta_j, 
                                     stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni((t + 1)), stan::model::nil_index_list())), 
                                     stan::model::deep_copy(normal_rng(get_base1(beta_j,i,t,"beta_j",1),(get_base1(gamma_rw1,i,t,"gamma_rw1",1) * get_base1(sigma_rw1,i,"sigma_rw1",1)), base_rng__)), 
                                     "assigning variable beta_j");
                     }
-                    current_statement_begin__ = 389;
+                    current_statement_begin__ = 391;
                     for (int i = 1; i <= k_rw2; ++i) {
 
-                        current_statement_begin__ = 390;
+                        current_statement_begin__ = 392;
                         stan::model::assign(beta_j, 
                                     stan::model::cons_list(stan::model::index_uni((k_rw1 + i)), stan::model::cons_list(stan::model::index_uni((t + 1)), stan::model::nil_index_list())), 
                                     stan::model::deep_copy((get_base1(beta_j,(k_rw1 + i),t,"beta_j",1) + get_base1(slope_j,i,t,"slope_j",1))), 
                                     "assigning variable beta_j");
-                        current_statement_begin__ = 391;
+                        current_statement_begin__ = 393;
                         stan::model::assign(slope_j, 
                                     stan::model::cons_list(stan::model::index_uni(i), stan::model::cons_list(stan::model::index_uni((t + 1)), stan::model::nil_index_list())), 
                                     stan::model::deep_copy(normal_rng(get_base1(slope_j,i,t,"slope_j",1),(get_base1(gamma_rw2,i,t,"gamma_rw2",1) * get_base1(sigma_rw2,i,"sigma_rw2",1)), base_rng__)), 
                                     "assigning variable slope_j");
                     }
                 }
-                current_statement_begin__ = 395;
+                current_statement_begin__ = 397;
                 for (int t = 1; t <= n; ++t) {
 
-                    current_statement_begin__ = 396;
+                    current_statement_begin__ = 398;
                     stan::model::assign(y_rep_j, 
                                 stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list()), 
                                 normal_rng(dot_product(stan::model::rvalue(xreg_rw, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg_rw"),stan::model::rvalue(beta_j, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "beta_j")),stan::math::sqrt(get_base1(Ht,t,"Ht",1)), base_rng__), 
                                 "assigning variable y_rep_j");
                 }
                 {
-                current_statement_begin__ = 400;
+                current_statement_begin__ = 402;
                 validate_non_negative_index("states", "m", m);
                 validate_non_negative_index("states", "n", n);
                 Eigen::Matrix<local_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  states(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(n));
@@ -2107,33 +2107,33 @@ public:
                 stan::math::assign(states,glm_approx_smoother(subtract(y_,y_rep_j),a1,P1,Ht,Tt,Rt,xreg_rw, pstream__));
 
 
-                current_statement_begin__ = 402;
+                current_statement_begin__ = 404;
                 stan::math::assign(beta_j, add(beta_j, stan::model::rvalue(states, stan::model::cons_list(stan::model::index_min_max(1, k), stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list())), "states")));
-                current_statement_begin__ = 403;
+                current_statement_begin__ = 405;
                 stan::math::assign(slope_j, add(slope_j, stan::model::rvalue(states, stan::model::cons_list(stan::model::index_min_max((k + 1), m), stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list())), "states")));
                 }
-                current_statement_begin__ = 406;
+                current_statement_begin__ = 408;
                 stan::model::assign(beta_array, 
                             stan::model::cons_list(stan::model::index_min_max(1, k), stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list()))), 
                             to_array_2d(beta_j), 
                             "assigning variable beta_array");
-                current_statement_begin__ = 407;
+                current_statement_begin__ = 409;
                 stan::model::assign(slope_array, 
                             stan::model::cons_list(stan::model::index_min_max(1, k_rw2), stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list()))), 
                             to_array_2d(slope_j), 
                             "assigning variable slope_array");
-                current_statement_begin__ = 409;
+                current_statement_begin__ = 411;
                 stan::model::assign(w, 
                             stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list()), 
                             -(get_base1(loglik,2,"loglik",1)), 
                             "assigning variable w");
-                current_statement_begin__ = 410;
+                current_statement_begin__ = 412;
                 if (as_bool(logical_eq(distribution,1))) {
 
-                    current_statement_begin__ = 411;
+                    current_statement_begin__ = 413;
                     for (int t = 1; t <= n; ++t) {
                         {
-                        current_statement_begin__ = 412;
+                        current_statement_begin__ = 414;
                         local_scalar_t__ xbeta_tmp;
                         (void) xbeta_tmp;  // dummy to suppress unused var warning
 
@@ -2142,7 +2142,7 @@ public:
                         stan::math::assign(xbeta_tmp,(get_base1(xbeta,t,"xbeta",1) + dot_product(stan::model::rvalue(xreg_rw, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg_rw"),stan::model::rvalue(beta_j, stan::model::cons_list(stan::model::index_min_max(1, k), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "beta_j"))));
 
 
-                        current_statement_begin__ = 413;
+                        current_statement_begin__ = 415;
                         stan::model::assign(w, 
                                     stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list()), 
                                     (stan::model::rvalue(w, stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list()), "w") + (((get_base1(y_original,t,"y_original",1) * xbeta_tmp) - (get_base1(u,t,"u",1) * stan::math::exp(xbeta_tmp))) + ((0.5 * pow((get_base1(y,t,"y",1) - xbeta_tmp),2)) / get_base1(Ht,t,"Ht",1)))), 
@@ -2151,10 +2151,10 @@ public:
                     }
                 } else {
 
-                    current_statement_begin__ = 417;
+                    current_statement_begin__ = 419;
                     for (int t = 1; t <= n; ++t) {
                         {
-                        current_statement_begin__ = 418;
+                        current_statement_begin__ = 420;
                         local_scalar_t__ xbeta_tmp;
                         (void) xbeta_tmp;  // dummy to suppress unused var warning
 
@@ -2163,7 +2163,7 @@ public:
                         stan::math::assign(xbeta_tmp,(get_base1(xbeta,t,"xbeta",1) + dot_product(stan::model::rvalue(xreg_rw, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg_rw"),stan::model::rvalue(beta_j, stan::model::cons_list(stan::model::index_min_max(1, k), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "beta_j"))));
 
 
-                        current_statement_begin__ = 419;
+                        current_statement_begin__ = 421;
                         stan::model::assign(w, 
                                     stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list()), 
                                     (stan::model::rvalue(w, stan::model::cons_list(stan::model::index_uni(j), stan::model::nil_index_list()), "w") + (((get_base1(y_original,t,"y_original",1) * xbeta_tmp) - (get_base1(u,t,"u",1) * stan::math::log1p(stan::math::exp(xbeta_tmp)))) + ((0.5 * pow((get_base1(y,t,"y",1) - xbeta_tmp),2)) / get_base1(Ht,t,"Ht",1)))), 
@@ -2173,12 +2173,12 @@ public:
                 }
             }
             {
-            current_statement_begin__ = 426;
+            current_statement_begin__ = 434;
             int index(0);
             (void) index;  // dummy to suppress unused var warning
 
             stan::math::fill(index, std::numeric_limits<int>::min());
-            current_statement_begin__ = 427;
+            current_statement_begin__ = 435;
             validate_non_negative_index("expw", "N", N);
             Eigen::Matrix<local_scalar_t__,Eigen::Dynamic,1>  expw(static_cast<Eigen::VectorXd::Index>(N));
             (void) expw;  // dummy to suppress unused var warning
@@ -2188,29 +2188,29 @@ public:
             stan::math::assign(expw,stan::math::exp(w));
 
 
-            current_statement_begin__ = 428;
+            current_statement_begin__ = 436;
             stan::math::assign(weights, mean(expw));
-            current_statement_begin__ = 429;
+            current_statement_begin__ = 437;
             stan::math::assign(index, categorical_rng(divide(expw,sum(expw)), base_rng__));
-            current_statement_begin__ = 430;
+            current_statement_begin__ = 438;
             stan::math::assign(beta_rw, to_matrix(stan::model::rvalue(beta_array, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(index), stan::model::nil_index_list()))), "beta_array")));
-            current_statement_begin__ = 431;
+            current_statement_begin__ = 439;
             if (as_bool(logical_gt(k_rw2,0))) {
-                current_statement_begin__ = 431;
+                current_statement_begin__ = 439;
                 stan::math::assign(slope, to_matrix(stan::model::rvalue(slope_array, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(index), stan::model::nil_index_list()))), "slope_array")));
             }
-            current_statement_begin__ = 434;
+            current_statement_begin__ = 443;
             if (as_bool(logical_eq(distribution,1))) {
 
-                current_statement_begin__ = 435;
+                current_statement_begin__ = 444;
                 for (int t = 1; t <= n; ++t) {
 
-                    current_statement_begin__ = 436;
+                    current_statement_begin__ = 445;
                     stan::model::assign(y_fit, 
                                 stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list()), 
                                 (get_base1(u,t,"u",1) * stan::math::exp((get_base1(xbeta,t,"xbeta",1) + dot_product(stan::model::rvalue(xreg_rw, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg_rw"),stan::model::rvalue(beta_rw, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "beta_rw"))))), 
                                 "assigning variable y_fit");
-                    current_statement_begin__ = 437;
+                    current_statement_begin__ = 446;
                     stan::model::assign(y_rep, 
                                 stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list()), 
                                 poisson_rng(get_base1(y_fit,t,"y_fit",1), base_rng__), 
@@ -2218,10 +2218,10 @@ public:
                 }
             } else {
 
-                current_statement_begin__ = 440;
+                current_statement_begin__ = 449;
                 for (int t = 1; t <= n; ++t) {
                     {
-                    current_statement_begin__ = 441;
+                    current_statement_begin__ = 450;
                     local_scalar_t__ tmp;
                     (void) tmp;  // dummy to suppress unused var warning
 
@@ -2230,12 +2230,12 @@ public:
                     stan::math::assign(tmp,stan::math::exp((get_base1(xbeta,t,"xbeta",1) + dot_product(stan::model::rvalue(xreg_rw, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg_rw"),stan::model::rvalue(beta_rw, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "beta_rw")))));
 
 
-                    current_statement_begin__ = 442;
+                    current_statement_begin__ = 451;
                     stan::model::assign(y_fit, 
                                 stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list()), 
                                 (tmp / (1.0 + tmp)), 
                                 "assigning variable y_fit");
-                    current_statement_begin__ = 443;
+                    current_statement_begin__ = 452;
                     stan::model::assign(y_rep, 
                                 stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list()), 
                                 binomial_rng(get_base1(u,t,"u",1),get_base1(y_fit,t,"y_fit",1), base_rng__), 

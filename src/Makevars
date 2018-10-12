@@ -1,8 +1,8 @@
 STANHEADERS_SRC = `"$(R_HOME)/bin$(R_ARCH_BIN)/Rscript" --vanilla -e "cat(system.file('include', 'src', package = 'StanHeaders'))"`
 PKG_CPPFLAGS = -I"../inst/include" -I"$(STANHEADERS_SRC)" -DBOOST_DISABLE_ASSERTS -DEIGEN_NO_DEBUG -DBOOST_MATH_OVERFLOW_ERROR_POLICY=errno_on_error
-CXX_STD = CXX11
-SOURCES = $(wildcard stan_files/*.stan)
-OBJECTS = $(SOURCES:.stan=.o)
+CXX_STD = CXX11 # might need CXX14 when StanHeaders and rstan update?
+STAN_SOURCES = $(wildcard stan_files/*.stan)
+OBJECTS = $(STAN_SOURCES:.stan=.o) $(CPP_SOURCES:.cpp=.o)
 
 all: $(SHLIB)
 		@if test -e "/usr/bin/install_name_tool" && test -e "/usr/local/clang4/lib/libc++.1.dylib" && test -e "/usr/lib/libc++.1.dylib"; then /usr/bin/install_name_tool -change /usr/local/clang4/lib/libc++.1.dylib /usr/lib/libc++.1.dylib $(SHLIB); fi
@@ -17,3 +17,4 @@ clean:
 		"$(R_HOME)/bin$(R_ARCH_BIN)/Rscript" -e "source(file.path('..', 'tools', 'make_cc.R')); make_cc(commandArgs(TRUE))" $<
 
 .phony: all clean
+

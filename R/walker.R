@@ -23,21 +23,21 @@
 #' @importFrom stats model.matrix model.response rnorm delete.response terms window ts end glm poisson
 #' @rdname walker
 #' @useDynLib walker, .registration = TRUE
-#' @param formula An object of class \code{\link[stats]{formula}} with additional terms 
+#' @param formula An object of class \code{{formula}} with additional terms 
 #' \code{rw1} and/or \code{rw2} e.g. \code{y ~ x1 + rw1(~ -1 + x2)}. See details.
-#' @param data An optional data.frame or object coercible to such, as in \code{\link[stats]{lm}}.
+#' @param data An optional data.frame or object coercible to such, as in \code{{lm}}.
 #' @param beta_prior A length vector of length two which defines the 
 #' prior mean and standard deviation of the Gaussian prior for time-invariant coefficients
 #' @param sigma_y_prior A vector of length two, defining the truncated Gaussian prior for 
 #' the observation level standard deviation. Not used in \code{walker_glm}. 
 #' @param chains Number of Markov chains. Default is 4.
-#' @param init Initial value specification, see \code{\link[rstan]{sampling}}. 
+#' @param init Initial value specification, see \code{\link{sampling}}. 
 #' Note that compared to default in \code{rstan}, here the default is a to sample from the priors.
 #' @param return_x_reg If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
 #' predictors after processing the \code{formula}.
 #' @param gamma An optional vector defining a damping of the random walk noises. More specifically, 
 #' the variance of the conditional distribution of state_t+1 given state is of form gamma_t^2 * sigma^s2.
-#' @param ... Further arguments to \code{\link[rstan]{sampling}}.
+#' @param ... Further arguments to \code{\link{sampling}}.
 #' @return A list containing the \code{stanfit} object, observations \code{y},
 #'   and covariates \code{xreg} and \code{xreg_new}.
 #' @seealso \code{\link{walker_glm}} for non-Gaussian models.
@@ -279,9 +279,14 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
 #' \code{"glm"} (mode is obtained from time-invariant GLM), \code{"mle"} 
 #' (default; mode is obtained from maximum likelihood estimate of the model), 
 #' or numeric vector (custom guess).
-#' @param u For Poisson model, a vector of exposures i.e. E(y) = u*exp(x*beta). 
+#' @param u For Poisson model, a vector of exposures i.e. \eqn{E(y) = u*exp(x*beta)}. 
 #' For binomial, a vector containing the number of trials. Defaults 1.
 #' @param mc_sim Number of samples used in importance sampling. Default is 50.
+#' @param resample If \code{TRUE}, perform resampling of the posterior samples based 
+#' on the importance weights, so there is no need for weighting when analysing results.
+#' Note that this renders some of the diagonostic checks are meaningless 
+#' (such as autocorrelation checks), and also somewhat decreases the efficiency. 
+#' Default is \code{FALSE}.
 #' @return A list containing the \code{stanfit} object, observations \code{y},
 #'   covariates \code{xreg_fixed}, and \code{xreg_rw}.
 #' @seealso Package \code{diagis} in CRAN, which provides functions for computing weighted 
@@ -325,7 +330,7 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
 #'              
 walker_glm <- function(formula, data, beta_prior, init, chains,
   return_x_reg = FALSE, distribution ,
-  initial_mode = "kfas", u, mc_sim = 50, ...) {
+  initial_mode = "kfas", u, mc_sim = 50, resample = FALSE, ...) {
   
   distribution <- match.arg(distribution, choices = c("poisson", "binomial"))
   
@@ -526,6 +531,9 @@ walker_glm <- function(formula, data, beta_prior, init, chains,
     pars = c("sigma_rw1", "sigma_rw2", "beta_fixed", "beta_rw", 
       "slope", "y_fit", "y_rep", "weights"), ...)
   
+  if (resample) {
+    stan
+  }
   structure(list(stanfit = stanfit, y = y, xreg_fixed = xreg_fixed, 
     xreg_rw = xreg_rw, u = u, distribution = distribution, call = mc), 
     class = "walker_fit")

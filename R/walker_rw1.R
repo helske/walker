@@ -6,8 +6,8 @@
 #' state space versions of the model in the vignette.
 #' 
 #' @export
-#' @param formula An object of class \code{\link[stats]{formula}}. See \code{\link[stats]{lm}} for details.
-#' @param data An optional data.frame or object coercible to such, as in \code{\link[stats]{lm}}.
+#' @param formula An object of class \code{\link[stats:formula]{formula}}. See \code{\link{lm}} for details.
+#' @param data An optional data.frame or object coercible to such, as in \code{\link{lm}}.
 #' @param beta_prior A matrix with \eqn{k} rows and 2 columns, where first columns defines the 
 #' prior means of the Gaussian priors of the corresponding \eqn{k} regression coefficients, 
 #' and the second column defines the the standard deviations of those prior distributions.
@@ -27,8 +27,8 @@
 #' @param return_x_reg If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
 #' predictors after processing the \code{formula}.
 #' @param chains Number of Markov chains. Default is 4.
-#' @param init Initial value specification, see \code{\link[rstan]{sampling}}. 
-#' @param ... Additional arguments to \code{\link[rstan]{sampling}}. 
+#' @param init Initial value specification, see \code{\link{sampling}}. 
+#' @param ... Additional arguments to \code{\link{sampling}}. 
 #' @examples
 #' \dontrun{
 #' ## Comparing the approaches, note that with such a small data 

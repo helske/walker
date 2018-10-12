@@ -15,9 +15,9 @@ real gaussian_filter_rw_lpdf(vector y, vector a1, vector P1, real Ht, matrix Rt,
     real F = quad_form(P, xreg[, t]) + Ht;
     real v = y[t] - dot_product(xreg[, t], x);
     vector[m] K = P * xreg[, t] / F;
-    x = x + K * v;
-    P = P - K * K' * F + Rt;
-    loglik = loglik - 0.5 * (log(F) + v * v / F);
+    x += K * v;
+    P += - K * K' * F + Rt;
+    loglik -= 0.5 * (log(F) + v * v / F);
   }
    return loglik;
   }
@@ -38,8 +38,8 @@ matrix gaussian_smoother_rw(vector y, vector a1, vector P1, real Ht, matrix Rt, 
     F[t] = quad_form(P, xreg[, t]) + Ht;
     v[t] = y[t] - dot_product(xreg[, t], x);
     K[, t] = P * xreg[, t] / F[t];
-    x = x + K[, t] * v[t];
-    P = P - K[, t] * K[, t]' * F[t] + Rt;
+    x += K[, t] * v[t];
+    P += - K[, t] * K[, t]' * F[t] + Rt;
   }
   r[,n+1] = rep_vector(0.0, m);
   for (tt in 1:n) {
@@ -120,7 +120,7 @@ generated quantities{
     y_rep[t] = normal_rng(dot_product(xreg[, t], beta[1:k, t]), sigma_y);
   }
   // perform mean correction to obtain sample from the posterior
-  beta = beta + gaussian_smoother_rw(y - y_rep, beta_mean, P1_vector, sigma_y^2, diag_matrix(R_vector), xreg);
+  beta += gaussian_smoother_rw(y - y_rep, beta_mean, P1_vector, sigma_y^2, diag_matrix(R_vector), xreg);
   
   // replicated data from posterior predictive distribution
   for(t in 1:n) {

@@ -3,7 +3,7 @@
 #' @param object An output from \code{\link{walker}} or \code{\link{walker_glm}}.
 #' @param level Level for intervals. Default is 0.05, leading to 90\% intervals.
 #' @param alpha Transparency level for \code{geom_ribbon}.
-#' @param ... Further arguments to \code{\link[bayesplot]{ppc_ribbon}}.
+#' @param ... Further arguments to \code{\link{ppc_ribbon}}.
 #' @export
 plot_fit <- function(object, level = 0.05, alpha = 0.33, ...){
   

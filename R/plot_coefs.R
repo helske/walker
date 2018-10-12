@@ -1,7 +1,7 @@
 #' Posterior predictive check for walker object
 #' 
 #' Plots sample quantiles from posterior predictive sample. 
-#' See \code{\link[bayesplot]{ppc_ribbon}} for details.
+#' See \code{\link{ppc_ribbon}} for details.
 #' 
 #' @importFrom dplyr group_by summarise_
 #' @importFrom stats quantile time update.formula drop.terms

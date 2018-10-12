@@ -36,7 +36,7 @@ Imports:
     methods
 LinkingTo: StanHeaders (>= 2.16.0), rstan (>= 2.16.2), BH (>= 1.62.0.1),
     Rcpp (>= 0.12.9), RcppArmadillo, RcppEigen (>= 0.3.3.0)
-SystemRequirements: C++11
+SystemRequirements: C++11, GNU make 
 VignetteBuilder: knitr
 RoxygenNote: 6.1.0
 ByteCompile: true

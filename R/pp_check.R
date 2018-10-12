@@ -1,11 +1,11 @@
 #' Posterior predictive check for walker object
 #' 
 #' Plots sample quantiles from posterior predictive sample. 
-#' See \code{\link[bayesplot]{ppc_ribbon}} for details.
+#' See \code{\link{ppc_ribbon}} for details.
 #' @importFrom bayesplot pp_check
 #' @method pp_check walker_fit
 #' @param object An output from \code{\link{walker}}.
-#' @param ... Further parameters to \code{\link[bayesplot]{ppc_ribbon}}.
+#' @param ... Further parameters to \code{\link{ppc_ribbon}}.
 #' @export
 pp_check.walker_fit <- function(object, ...){
   

@@ -111,11 +111,11 @@ gaussian_filter_rw_lpdf(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
 
             current_statement_begin__ = 18;
-            stan::math::assign(x, stan::model::deep_copy(add(x,multiply(K,v))));
+            stan::math::assign(x, add(x, multiply(K,v)));
             current_statement_begin__ = 19;
-            stan::math::assign(P, stan::model::deep_copy(add(subtract(P,multiply(multiply(K,transpose(K)),F)),Rt)));
+            stan::math::assign(P, add(P, add(multiply(multiply(minus(K),transpose(K)),F),Rt)));
             current_statement_begin__ = 20;
-            stan::math::assign(loglik, stan::model::deep_copy((loglik - (0.5 * (stan::math::log(F) + ((v * v) / F))))));
+            stan::math::assign(loglik, (loglik - (0.5 * (stan::math::log(F) + ((v * v) / F)))));
             }
         }
         current_statement_begin__ = 22;
@@ -257,9 +257,9 @@ gaussian_smoother_rw(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                         divide(multiply(P,stan::model::rvalue(xreg, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "xreg")),get_base1(F,t,"F",1)), 
                         "assigning variable K");
             current_statement_begin__ = 41;
-            stan::math::assign(x, stan::model::deep_copy(add(x,multiply(stan::model::rvalue(K, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "K"),get_base1(v,t,"v",1)))));
+            stan::math::assign(x, add(x, multiply(stan::model::rvalue(K, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "K"),get_base1(v,t,"v",1))));
             current_statement_begin__ = 42;
-            stan::math::assign(P, stan::model::deep_copy(add(subtract(P,multiply(multiply(stan::model::rvalue(K, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "K"),transpose(stan::model::rvalue(K, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "K"))),get_base1(F,t,"F",1))),Rt)));
+            stan::math::assign(P, add(P, add(multiply(multiply(minus(stan::model::rvalue(K, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "K")),transpose(stan::model::rvalue(K, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "K"))),get_base1(F,t,"F",1)),Rt)));
         }
         current_statement_begin__ = 44;
         stan::model::assign(r, 
@@ -932,7 +932,7 @@ public:
                             "assigning variable y_rep");
             }
             current_statement_begin__ = 123;
-            stan::math::assign(beta, stan::model::deep_copy(add(beta,gaussian_smoother_rw(subtract(y,y_rep),beta_mean,P1_vector,pow(sigma_y,2),diag_matrix(R_vector),xreg, pstream__))));
+            stan::math::assign(beta, add(beta, gaussian_smoother_rw(subtract(y,y_rep),beta_mean,P1_vector,pow(sigma_y,2),diag_matrix(R_vector),xreg, pstream__)));
             current_statement_begin__ = 126;
             for (int t = 1; t <= n; ++t) {
 

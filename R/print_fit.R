@@ -1,4 +1,4 @@
-#' Prediction intervals for walker object
+#' Print Summary of walker_fit Object
 #' 
 #' Plots sample quantiles from pre
 #' See \code{\link{ppc_ribbon}} for details.
@@ -8,8 +8,9 @@
 #' @param object An output from \code{\link{predict.walker_fit}}.
 #' @param level Level for intervals. Default is 0.05, leading to 90\% intervals.
 #' @param alpha Transparency level for \code{\link{geom_ribbon}}.
+#' @method print walker_fit
 #' @export
-plot_predict <- function(object, level = 0.05, alpha = 0.33){
+print.walker_fit <- function(object, level = 0.05, alpha = 0.33){
   
   pred_data <- as.data.frame(as.table(object$y_new))  
   pred_data$time <- as.numeric(levels(pred_data$time))[pred_data$time]
