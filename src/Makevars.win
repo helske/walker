@@ -1,22 +1,4 @@
 STANHEADERS_SRC = `"$(R_HOME)/bin$(R_ARCH_BIN)/Rscript" --vanilla -e "cat(system.file('include', 'src', package = 'StanHeaders'))"`
-PKG_CPPFLAGS = -I"../inst/include" -I"$(STANHEADERS_SRC)" -DBOOST_DISABLE_ASSERTS -DEIGEN_NO_DEBUG
+PKG_CPPFLAGS = -I"$(STANHEADERS_SRC)" -DBOOST_DISABLE_ASSERTS -DEIGEN_NO_DEBUG -DBOOST_NO_CXX11_RVALUE_REFERENCES
 PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
-
-CXX_STD = CXX11 # might need CXX14 when StanHeaders and rstan update?
-CPP_SOURCES = $(wildcard *.cpp)
-STAN_SOURCES = $(wildcard stan_files/*.stan)
-OBJECTS = $(STAN_SOURCES:.stan=.o) $(CPP_SOURCES:.cpp=.o)
-
-all: $(SHLIB)
-
-#clean:
-#		rm -rf stan_files/*.o
-#		rm -rf *.so *.o
-#		rm -rf stan_files/*.cc
-#		rm -rf stan_files/*.hpp
-
-%.cc: %.stan
-				"$(R_HOME)/bin$(R_ARCH_BIN)/Rscript" -e "source(file.path('..', 'tools', 'make_cc.R')); make_cc(commandArgs(TRUE))" $<
-
-
-#.phony: clean
+CXX_STD = CXX11

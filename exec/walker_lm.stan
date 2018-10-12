@@ -1,5 +1,5 @@
 functions {
-#include /chunks/common_functions.stan
+#include "common_functions.stan"
 }
 
 data {
