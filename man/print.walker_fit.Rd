@@ -8,6 +8,8 @@
 }
 \arguments{
 \item{x}{An output from \code{\link{walker}} or \code{\link{walker_glm}}.}
+
+\item{...}{Additional arguments to \code{\link{print.stanfit}}.}
 }
 \description{
 Prints the summary information of time-invariant model parameters.
