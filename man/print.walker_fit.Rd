@@ -4,7 +4,7 @@
 \alias{print.walker_fit}
 \title{Print Summary of walker_fit Object}
 \usage{
-\method{print}{walker_fit}(x)
+\method{print}{walker_fit}(x, ...)
 }
 \arguments{
 \item{x}{An output from \code{\link{walker}} or \code{\link{walker_glm}}.}

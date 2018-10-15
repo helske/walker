@@ -16,6 +16,9 @@ prior mean and standard deviation of the Gaussian prior for coefficients at time
 
 \item{sigma_prior}{A vector of length two, defining the truncated Gaussian prior for 
 the coefficient level standard deviation.}
+
+\item{gamma}{An optional vector defining a damping of the random walk noises. More specifically, 
+the variance of the conditional distribution of state_t+1 given state is of form gamma_t * sigma.}
 }
 \description{
 Auxiliary function used inside of the formula of \code{walker}.

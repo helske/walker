@@ -27,10 +27,10 @@ Note that compared to default in \code{rstan}, here the default is a to sample f
 \item{return_x_reg}{If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
 predictors after processing the \code{formula}.}
 
-\item{...}{Further arguments to \code{\link{sampling}}.}
+\item{gamma_y}{An optional vector defining a damping of the observational level noise. 
+More specifically, \eqn{\sigma_t = gamma_t * \sigma_y}.}
 
-\item{gamma}{An optional vector defining a damping of the random walk noises. More specifically, 
-the variance of the conditional distribution of state_t+1 given state is of form gamma_t^2 * sigma^s2.}
+\item{...}{Further arguments to \code{\link{sampling}}.}
 }
 \value{
 A list containing the \code{stanfit} object, observations \code{y},

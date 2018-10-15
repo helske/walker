@@ -23,3 +23,6 @@ A list containing samples from posterior predictive distribution.
 Given the new covariate data and output from \code{walker}, 
 obtain samples from posterior predictive distribution.
 }
+\seealso{
+\code{\link{plot_predict}} for example.
+}

@@ -32,7 +32,7 @@
 #'                         slope_prior = c(0, 10)), 
 #'                   sigma_y_prior = c(0, 10), 
 #'                   beta_prior = c(0, 10),
-#'                   iter = 500, chains = 1, data = data_old)
+#'                   iter = 400, chains = 1, data = data_old)
 #' 
 #' pred <- predict(rw2_fit, newdata = data.frame(x=x[(n-9):n]))
 #' data_new <- data.frame(t = (n-9):n, y = y[(n-9):n])

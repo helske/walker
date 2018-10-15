@@ -11,6 +11,7 @@
 #' @param ... Ignored.
 #' @return A list containing samples from posterior predictive distribution.
 #' @method predict walker_fit
+#' @seealso \code{\link{plot_predict}} for example.
 #' @export
 predict.walker_fit <- function(object, newdata, u, ...){
   

@@ -35,8 +35,8 @@
 #' Note that compared to default in \code{rstan}, here the default is a to sample from the priors.
 #' @param return_x_reg If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
 #' predictors after processing the \code{formula}.
-#' @param gamma An optional vector defining a damping of the random walk noises. More specifically, 
-#' the variance of the conditional distribution of state_t+1 given state is of form gamma_t^2 * sigma^s2.
+#' @param gamma_y An optional vector defining a damping of the observational level noise. 
+#' More specifically, \eqn{\sigma_t = gamma_t * \sigma_y}.
 #' @param ... Further arguments to \code{\link{sampling}}.
 #' @return A list containing the \code{stanfit} object, observations \code{y},
 #'   and covariates \code{xreg} and \code{xreg_new}.

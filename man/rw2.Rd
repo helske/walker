@@ -2,12 +2,12 @@
 % Please edit documentation in R/rw.R
 \name{rw2}
 \alias{rw2}
-\title{Construct a first-order random walk component}
+\title{Construct a second-order random walk component}
 \usage{
 rw2(formula, data, beta_prior, sigma_prior, slope_prior, gamma = NULL)
 }
 \arguments{
-\item{formula}{Formula for RW1 part of the model. Only right-hand-side is used.}
+\item{formula}{Formula for RW2 part of the model. Only right-hand-side is used.}
 
 \item{data}{Optional data.frame.}
 
@@ -19,6 +19,9 @@ the slope level standard deviation.}
 
 \item{slope_prior}{A vector of length two which defines the 
 prior mean and standard deviation of the Gaussian prior for the slopes at time 1.}
+
+\item{gamma}{An optional vector defining a damping of the slope level noises. More specifically, 
+the variance of the conditional distribution of state_t+1 given state is of form gamma_t * sigma.}
 }
 \description{
 Auxiliary function used inside of the formula of \code{walker}.
