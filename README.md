@@ -17,9 +17,8 @@ See the package [vignette](http://htmlpreview.github.io/?https://github.com/hels
 
 # NEWS
 
-### 11.10.2018
-
-New submission to CRAN (Version 0.2.2). 
+### 15.10.2018
+* Missing values in response variable are now supported.
 * Added gamma variables to models which can be used to damp the variance of the random walks. 
 * Tidied some Stan codes in order to reduce deep copying.
 * Moved stan codes under `src`.

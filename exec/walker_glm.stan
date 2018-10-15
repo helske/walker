@@ -19,7 +19,7 @@ data {
   matrix[n, k_fixed] xreg_fixed;
   matrix[k, n] xreg_rw;
   vector[n] y;
-  
+  int<lower=0> y_miss[n];
   real beta_fixed_mean;
   real beta_rw1_mean;
   real beta_rw2_mean;
@@ -73,7 +73,7 @@ parameters {
 }
 
 transformed parameters {
-  matrix[n, m] Rt = rep_matrix(0.0, n, m);
+  matrix[n, m] Rt = rep_matrix(0.0, m, n);
   vector[n] xbeta;
   vector[n] y_;
   vector[2] loglik;
@@ -85,16 +85,16 @@ transformed parameters {
   }
    y_ = y - xbeta;
 
-  for (t in 1:n) { // i,t vs t,i... stan is row-major!
+  for (t in 1:n) { 
     for(i in 1:k_rw1) {
-      Rt[t, i] = (gamma_rw1[i, t] * sigma_rw1[i])^2;
+      Rt[i, t] = (gamma_rw1[i, t] * sigma_rw1[i])^2;
     }
     for(i in 1:k_rw2) {
-      Rt[t, k + i] = (gamma_rw2[i, t] * sigma_rw2[i])^2;
+      Rt[k + i, t] = (gamma_rw2[i, t] * sigma_rw2[i])^2;
     } 
   }
    
-  loglik = glm_approx_loglik(y_, a1, P1, Ht, 
+  loglik = glm_approx_loglik(y_, y_miss, a1, P1, Ht, 
     Tt, Rt, xreg_rw, distribution, u, y_original, xbeta);
 
 }
@@ -154,7 +154,7 @@ generated quantities{
       }
       // perform mean correction to obtain sample from the posterior
       {
-        matrix[m, n] states = glm_approx_smoother(y_ - y_rep_j, a1, P1,
+        matrix[m, n] states = glm_approx_smoother(y_ - y_rep_j, y_miss, a1, P1,
           Ht, Tt, Rt, xreg_rw);
         beta_j += states[1:k, 1:n];
         slope_j += states[(k + 1):m, 1:n];

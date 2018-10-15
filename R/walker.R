@@ -191,6 +191,7 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
     xreg_fixed = xreg_fixed, 
     xreg_rw = t(xreg_rw), 
     y = y, 
+    y_miss = as.integer(is.na(y)),
     sigma_y_mean = sigma_y_prior[1],
     sigma_y_sd = sigma_y_prior[2],
     beta_fixed_mean = if (k_fixed > 0) beta_prior[1] else 0,
@@ -209,6 +210,7 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
     gamma_rw1 = rw1_out$gamma,
     gamma_rw2 = rw2_out$gamma
   )
+  stan_data$y[is.na(y)] <- 0 ## Stan does not accept NA's
   
   if (missing(chains)) chains <- 4
   if (missing(init)) {
@@ -282,11 +284,6 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
 #' @param u For Poisson model, a vector of exposures i.e. \eqn{E(y) = u*exp(x*beta)}. 
 #' For binomial, a vector containing the number of trials. Defaults 1.
 #' @param mc_sim Number of samples used in importance sampling. Default is 50.
-#' @param resample If \code{TRUE}, perform resampling of the posterior samples based 
-#' on the importance weights, so there is no need for weighting when analysing results.
-#' Note that this renders some of the diagonostic checks are meaningless 
-#' (such as autocorrelation checks), and also somewhat decreases the efficiency. 
-#' Default is \code{FALSE}.
 #' @return A list containing the \code{stanfit} object, observations \code{y},
 #'   covariates \code{xreg_fixed}, and \code{xreg_rw}.
 #' @seealso Package \code{diagis} in CRAN, which provides functions for computing weighted 
@@ -330,7 +327,7 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
 #'              
 walker_glm <- function(formula, data, beta_prior, init, chains,
   return_x_reg = FALSE, distribution ,
-  initial_mode = "kfas", u, mc_sim = 50, resample = FALSE, ...) {
+  initial_mode = "kfas", u, mc_sim = 50, ...) {
   
   distribution <- match.arg(distribution, choices = c("poisson", "binomial"))
   
@@ -402,7 +399,6 @@ walker_glm <- function(formula, data, beta_prior, init, chains,
   if (return_x_reg) return(list(xreg_fixed = xreg_fixed, xreg_rw = xreg_rw))
   
   if (any(is.na(xreg_fixed)) || any(is.na(xreg_rw))) stop("Missing values in covariates are not allowed.")
-  if (any(is.na(y))) stop("Missing values in response are not (yet) allowed.")
   
   if(k_fixed > 0 && length(beta_prior) != 2) {
     stop("beta_prior should be a vector of length two, defining the mean and standard deviation for the Gaussian prior of fixed coefficients. ")
@@ -493,6 +489,7 @@ walker_glm <- function(formula, data, beta_prior, init, chains,
     slope_mean = slope_mean,
     slope_sd = slope_sd,
     y = pseudo_y, 
+    y_miss = as.integer(is.na(y)),
     Ht = pseudo_H, 
     y_original = y, 
     u = as.integer(u), 
@@ -501,6 +498,8 @@ walker_glm <- function(formula, data, beta_prior, init, chains,
     gamma_rw1 = rw1_out$gamma,
     gamma_rw2 = rw2_out$gamma
   )
+  stan_data$y[is.na(y)] <- 0 ## Stan does not accept NA's
+  stan_data$pseudo_y[is.na(y)] <- 0 ## Stan does not accept NA's
   
   if (missing(chains)) chains <- 4
   if (missing(init)) {
@@ -531,9 +530,6 @@ walker_glm <- function(formula, data, beta_prior, init, chains,
     pars = c("sigma_rw1", "sigma_rw2", "beta_fixed", "beta_rw", 
       "slope", "y_fit", "y_rep", "weights"), ...)
   
-  if (resample) {
-    stan
-  }
   structure(list(stanfit = stanfit, y = y, xreg_fixed = xreg_fixed, 
     xreg_rw = xreg_rw, u = u, distribution = distribution, call = mc), 
     class = "walker_fit")

@@ -5,8 +5,7 @@
 \title{Bayesian generalized linear regression with time-varying coefficients}
 \usage{
 walker_glm(formula, data, beta_prior, init, chains, return_x_reg = FALSE,
-  distribution, initial_mode = "kfas", u, mc_sim = 50,
-  resample = FALSE, ...)
+  distribution, initial_mode = "kfas", u, mc_sim = 50, ...)
 }
 \arguments{
 \item{formula}{An object of class \code{{formula}} with additional terms 
@@ -38,12 +37,6 @@ or numeric vector (custom guess).}
 For binomial, a vector containing the number of trials. Defaults 1.}
 
 \item{mc_sim}{Number of samples used in importance sampling. Default is 50.}
-
-\item{resample}{If \code{TRUE}, perform resampling of the posterior samples based 
-on the importance weights, so there is no need for weighting when analysing results.
-Note that this renders some of the diagonostic checks are meaningless 
-(such as autocorrelation checks), and also somewhat decreases the efficiency. 
-Default is \code{FALSE}.}
 
 \item{...}{Further arguments to \code{\link{sampling}}.}
 }

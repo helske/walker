@@ -12,6 +12,7 @@ data {
   matrix[n, k_fixed] xreg_fixed;
   matrix[k, n] xreg_rw;
   vector[n] y;
+  int<lower=0> y_miss[n];
   real<lower=0> sigma_y_mean;
   real<lower=0> sigma_y_sd;
   
@@ -65,7 +66,7 @@ parameters {
 }
 
 transformed parameters {
-  matrix[n, m] Rt = rep_matrix(0.0, n, m);
+  matrix[m, n] Rt = rep_matrix(0.0, m, n);
   vector[n] xbeta;
   vector[n] y_;
   
@@ -75,12 +76,12 @@ transformed parameters {
     xbeta = rep_vector(0.0, n);
   }
   y_ = y - xbeta;
-  for (t in 1:n) { // i,t vs t,i... stan is row-major!
+  for (t in 1:n) {
     for(i in 1:k_rw1) {
-      Rt[t, i] = (gamma_rw1[i, t] * sigma_rw1[i])^2;
+      Rt[i, t] = (gamma_rw1[i, t] * sigma_rw1[i])^2;
     }
     for(i in 1:k_rw2) {
-      Rt[t, k + i] = (gamma_rw2[i, t] * sigma_rw2[i])^2;
+      Rt[k + i, t] = (gamma_rw2[i, t] * sigma_rw2[i])^2;
     } 
   }
 }
@@ -91,7 +92,7 @@ model {
   sigma_rw1 ~ normal(sigma_rw1_mean, sigma_rw1_sd);
   sigma_rw2 ~ normal(sigma_rw2_mean, sigma_rw2_sd);
 
-  target += gaussian_filter(y_, a1, P1, sigma_y^2, Tt, Rt, xreg_rw, gamma2_y);
+  target += gaussian_filter(y_, y_miss, a1, P1, sigma_y^2, Tt, Rt, xreg_rw, gamma2_y);
 }
 
 generated quantities{
@@ -126,7 +127,7 @@ generated quantities{
   }
   // perform mean correction to obtain sample from the posterior
   {
-    matrix[m, n] states = gaussian_smoother(y_ - y_rep, a1, P1,
+    matrix[m, n] states = gaussian_smoother(y_ - y_rep, y_miss, a1, P1,
                                             sigma_y^2, Tt, Rt, xreg_rw, gamma2_y);
     beta_rw += states[1:k, 1:n];
     slope += states[(k + 1):m, 1:n];

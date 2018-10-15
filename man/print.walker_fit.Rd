@@ -4,16 +4,11 @@
 \alias{print.walker_fit}
 \title{Print Summary of walker_fit Object}
 \usage{
-\method{print}{walker_fit}(object, level = 0.05, alpha = 0.33)
+\method{print}{walker_fit}(x)
 }
 \arguments{
-\item{object}{An output from \code{\link{predict.walker_fit}}.}
-
-\item{level}{Level for intervals. Default is 0.05, leading to 90\% intervals.}
-
-\item{alpha}{Transparency level for \code{\link{geom_ribbon}}.}
+\item{x}{An output from \code{\link{walker}} or \code{\link{walker_glm}}.}
 }
 \description{
-Plots sample quantiles from pre
-See \code{\link{ppc_ribbon}} for details.
+Prints the summary information of time-invariant model parameters.
 }
