@@ -2,28 +2,13 @@ language: r
 sudo: false
 cache: packages
 
-
+os:
+  - linux
+  - osx
+  
 warnings_are_errors: true
 
-matrix:
-  include:
-    - os: linux
-      language: r
-      compiler: gcc
-      r_binary_packages:
-        covr
-      after_success:
-        - Rscript -e 'library(covr);codecov()'
-      env: TRAVIS_LANG=R     
-    
-    - os: linux
-      language: r
-      compiler: clang
-      r_binary_packages:
-        covr
-      after_success:
-        - Rscript -e 'library(covr);codecov()'
-      env: TRAVIS_LANG=R     
- 
- 
 r_check_args: "--as-cran"
+
+after_success:
+  - Rscript -e 'library(covr);codecov()'
