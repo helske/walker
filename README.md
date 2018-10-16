@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/helske/walker.png?branch=master)](https://travis-ci.org/helske/walker)
-[![cran version](http://www.r-pkg.org/badges/version/walker)](https://cran.r-project.org/package=walker)
-[![downloads](http://cranlogs.r-pkg.org/badges/walker)](http://cranlogs.r-pkg.org/badges/walker)
+[![cran version](https://www.r-pkg.org/badges/version/walker)](https://cran.r-project.org/package=walker)
+[![downloads](https://cranlogs.r-pkg.org/badges/walker)](https://cranlogs.r-pkg.org/badges/walker)
 [![codecov](https://codecov.io/gh/helske/walker/branch/master/graph/badge.svg)](https://codecov.io/gh/helske/walker)
 
 # walker: Efficient Baysian dynamic linear regression models with Stan/R
@@ -24,3 +24,4 @@ See the package [vignette](http://htmlpreview.github.io/?https://github.com/hels
 * Tidied some Stan codes in order to reduce deep copying.
 * Moved stan codes under `src`.
 * Increased the iteration counts in examples in order to pass CRAN tests.
+<
