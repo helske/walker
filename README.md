@@ -18,6 +18,14 @@ See the package [vignette](http://htmlpreview.github.io/?https://github.com/hels
 
 # NEWS
 
+### 8.11.2018
+
+* Fixed StanHeaders search in Makevars. 
+
+### 22.10.2018
+
+* Pull request by Ben Goodrich for fixing the issue with clang4. New version on it's way to CRAN.
+
 ### 15.10.2018
 * Missing values in response variable are now supported.
 * Added gamma variables to models which can be used to damp the variance of the random walks. 
