@@ -73,7 +73,7 @@ parameters {
 }
 
 transformed parameters {
-  matrix[n, m] Rt = rep_matrix(0.0, m, n);
+  matrix[m, n] Rt = rep_matrix(0.0, m, n);
   vector[n] xbeta;
   vector[n] y_;
   vector[2] loglik;

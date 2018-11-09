@@ -18,6 +18,10 @@ See the package [vignette](http://htmlpreview.github.io/?https://github.com/hels
 
 # NEWS
 
+### 9.11.2018
+
+* Dimension bug in GLM case fixed.
+
 ### 8.11.2018
 
 * Fixed StanHeaders search in Makevars. 
