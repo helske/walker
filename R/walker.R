@@ -499,7 +499,6 @@ walker_glm <- function(formula, data, beta_prior, init, chains,
     gamma_rw2 = rw2_out$gamma
   )
   stan_data$y[is.na(y)] <- 0 ## Stan does not accept NA's
-  stan_data$pseudo_y[is.na(y)] <- 0 ## Stan does not accept NA's
   
   if (missing(chains)) chains <- 4
   if (missing(init)) {

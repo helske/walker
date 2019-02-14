@@ -18,7 +18,7 @@ See the package [vignette](http://htmlpreview.github.io/?https://github.com/hels
 
 # NEWS
 
-### 9.11.2018
+### 14.02.2019
 
 * Dimension bug in GLM case fixed.
 

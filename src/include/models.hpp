@@ -4750,9 +4750,9 @@ public:
 
             // transformed parameters
             current_statement_begin__ = 325;
-            validate_non_negative_index("Rt", "n", n);
             validate_non_negative_index("Rt", "m", m);
-            Eigen::Matrix<local_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  Rt(static_cast<Eigen::VectorXd::Index>(n),static_cast<Eigen::VectorXd::Index>(m));
+            validate_non_negative_index("Rt", "n", n);
+            Eigen::Matrix<local_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  Rt(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(n));
             (void) Rt;  // dummy to suppress unused var warning
 
             stan::math::initialize(Rt, DUMMY_VAR__);
@@ -4819,8 +4819,8 @@ public:
             stan::math::assign(loglik, glm_approx_loglik(y_,y_miss,a1,P1,Ht,Tt,Rt,xreg_rw,distribution,u,y_original,xbeta, pstream__));
 
             // validate transformed parameters
-            for (int i0__ = 0; i0__ < n; ++i0__) {
-                for (int i1__ = 0; i1__ < m; ++i1__) {
+            for (int i0__ = 0; i0__ < m; ++i0__) {
+                for (int i1__ = 0; i1__ < n; ++i1__) {
                     if (stan::math::is_uninitialized(Rt(i0__,i1__))) {
                         std::stringstream msg__;
                         msg__ << "Undefined transformed parameter: Rt" << '[' << i0__ << ']' << '[' << i1__ << ']';
@@ -4921,8 +4921,8 @@ public:
         dims__.push_back(k_rw2);
         dimss__.push_back(dims__);
         dims__.resize(0);
-        dims__.push_back(n);
         dims__.push_back(m);
+        dims__.push_back(n);
         dimss__.push_back(dims__);
         dims__.resize(0);
         dims__.push_back(n);
@@ -4997,9 +4997,9 @@ public:
 
         try {
             current_statement_begin__ = 325;
-            validate_non_negative_index("Rt", "n", n);
             validate_non_negative_index("Rt", "m", m);
-            Eigen::Matrix<local_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  Rt(static_cast<Eigen::VectorXd::Index>(n),static_cast<Eigen::VectorXd::Index>(m));
+            validate_non_negative_index("Rt", "n", n);
+            Eigen::Matrix<local_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  Rt(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(n));
             (void) Rt;  // dummy to suppress unused var warning
 
             stan::math::initialize(Rt, DUMMY_VAR__);
@@ -5073,8 +5073,8 @@ public:
 
             // write transformed parameters
             if (include_tparams__) {
-            for (int k_1__ = 0; k_1__ < m; ++k_1__) {
-                for (int k_0__ = 0; k_0__ < n; ++k_0__) {
+            for (int k_1__ = 0; k_1__ < n; ++k_1__) {
+                for (int k_0__ = 0; k_0__ < m; ++k_0__) {
                 vars__.push_back(Rt(k_0__, k_1__));
                 }
             }
@@ -5468,8 +5468,8 @@ public:
         if (!include_gqs__ && !include_tparams__) return;
 
         if (include_tparams__) {
-            for (int k_1__ = 1; k_1__ <= m; ++k_1__) {
-                for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            for (int k_1__ = 1; k_1__ <= n; ++k_1__) {
+                for (int k_0__ = 1; k_0__ <= m; ++k_0__) {
                     param_name_stream__.str(std::string());
                     param_name_stream__ << "Rt" << '.' << k_0__ << '.' << k_1__;
                     param_names__.push_back(param_name_stream__.str());
@@ -5547,8 +5547,8 @@ public:
         if (!include_gqs__ && !include_tparams__) return;
 
         if (include_tparams__) {
-            for (int k_1__ = 1; k_1__ <= m; ++k_1__) {
-                for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            for (int k_1__ = 1; k_1__ <= n; ++k_1__) {
+                for (int k_0__ = 1; k_0__ <= m; ++k_0__) {
                     param_name_stream__.str(std::string());
                     param_name_stream__ << "Rt" << '.' << k_0__ << '.' << k_1__;
                     param_names__.push_back(param_name_stream__.str());
