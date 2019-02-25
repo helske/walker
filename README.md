@@ -18,6 +18,10 @@ See the package [vignette](http://htmlpreview.github.io/?https://github.com/hels
 
 # NEWS
 
+### 25.02.2019
+
+* Issue with upcoming staged installation in CRAN fixed by Tomas Kalibera.
+
 ### 14.02.2019
 
 * Dimension bug in GLM case fixed.
