@@ -8,13 +8,17 @@
 #' @param newdata A \code{data.frame} containing covariates used for prediction.
 #' @param u For Poisson model, a vector of future exposures i.e. E(y) = u*exp(x*beta). 
 #' For binomial, a vector containing the number of trials for future time points. Defaults 1.
+#' @param type If \code{"response"} (default), predictions are on the response level 
+#' (e.g., 0/1 for Bernoulli case, and for Gaussian case the observational level noise is added to the mean predictions).
+#' If \code{"mean"}, predict means (e.g., success probabilities in Binomial case).
 #' @param ... Ignored.
 #' @return A list containing samples from posterior predictive distribution.
 #' @method predict walker_fit
 #' @seealso \code{\link{plot_predict}} for example.
 #' @export
-predict.walker_fit <- function(object, newdata, u, ...){
+predict.walker_fit <- function(object, newdata, u, type = "response", ...){
   
+  type <- match.arg(type, c("response", "mean"))
   y_name <- as.character(object$call$formula[[2]])
   
   if (!(y_name%in% names(newdata))) {
@@ -58,13 +62,13 @@ predict.walker_fit <- function(object, newdata, u, ...){
       t(xregs$xreg_rw), u, 
       pmatch(object$distribution, c("poisson", "binomial")), 
       extract(object$stanfit, pars = "weights")$weights, 
-      nrow(newdata), ncol(beta_fixed), ncol(sigma_rw1), ncol(sigma_rw2))
+      nrow(newdata), ncol(beta_fixed), ncol(sigma_rw1), ncol(sigma_rw2), type == "response")
   } else {
     pred <- predict_walker(t(sigma_rw1), t(sigma_rw2),
       extract(object$stanfit, pars = "sigma_y")$sigma_y,
       t(beta_fixed), t(beta_rw), t(slope), xregs$xreg_fixed, 
       t(xregs$xreg_rw), nrow(newdata), ncol(beta_fixed), ncol(sigma_rw1), 
-      ncol(sigma_rw2))
+      ncol(sigma_rw2), type == "response")
   }
   pred$y <- object$y
   
