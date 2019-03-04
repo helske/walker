@@ -160,8 +160,6 @@ Rcpp::List predict_walker_glm(const arma::mat& sigma_rw1,
   }
   
   
-}
-
-return Rcpp::List::create(Rcpp::Named("y_new") = y, 
-  Rcpp::Named("beta_new") = beta_new, Rcpp::Named("slope_new") = slope_new);
+  return Rcpp::List::create(Rcpp::Named("y_new") = y, 
+    Rcpp::Named("beta_new") = beta_new, Rcpp::Named("slope_new") = slope_new);
 }

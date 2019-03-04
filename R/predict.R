@@ -8,15 +8,16 @@
 #' @param newdata A \code{data.frame} containing covariates used for prediction.
 #' @param u For Poisson model, a vector of future exposures i.e. E(y) = u*exp(x*beta). 
 #' For binomial, a vector containing the number of trials for future time points. Defaults 1.
-#' @param type If \code{"response"} (default), predictions are on the response level 
+#' @param type If \code{"response"} (default for Gaussian model), predictions are on the response level 
 #' (e.g., 0/1 for Bernoulli case, and for Gaussian case the observational level noise is added to the mean predictions).
-#' If \code{"mean"}, predict means (e.g., success probabilities in Binomial case).
+#' If \code{"mean"} (default for non-Gaussian case), predict means (e.g., success probabilities in Binomial case).
 #' @param ... Ignored.
 #' @return A list containing samples from posterior predictive distribution.
 #' @method predict walker_fit
 #' @seealso \code{\link{plot_predict}} for example.
 #' @export
-predict.walker_fit <- function(object, newdata, u, type = "response", ...){
+predict.walker_fit <- function(object, newdata, u, 
+  type = ifelse(object$distribution == "gaussian", "response", "mean"), ...){
   
   type <- match.arg(type, c("response", "mean"))
   y_name <- as.character(object$call$formula[[2]])
