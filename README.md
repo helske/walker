@@ -20,6 +20,8 @@ See the package [vignette](http://htmlpreview.github.io/?https://github.com/hels
 
 ### 04.03.2019
 
+* Added methods fitted and coef for extracting the posterior means and and regression coefficents from the 
+  walker_fit object.
 * Fixed issue with Makevars and clang4 per request by CRAN.
 * Added option to predict on mean-scale, e.g, probabilities instead of 0/1 in Bernoulli case.
 * Fixed a bug in the Gaussian predictions, last time point was missing the observational level noise.

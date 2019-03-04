@@ -64,19 +64,32 @@ predict.walker_fit <- function(object, newdata, u,
       pmatch(object$distribution, c("poisson", "binomial")), 
       extract(object$stanfit, pars = "weights")$weights, 
       nrow(newdata), ncol(beta_fixed), ncol(sigma_rw1), ncol(sigma_rw2), type == "response")
+    
+    
+    pred$mean <- colMeans(fitted(object, summary = FALSE))
+    
   } else {
     pred <- predict_walker(t(sigma_rw1), t(sigma_rw2),
       extract(object$stanfit, pars = "sigma_y")$sigma_y,
       t(beta_fixed), t(beta_rw), t(slope), xregs$xreg_fixed, 
       t(xregs$xreg_rw), nrow(newdata), ncol(beta_fixed), ncol(sigma_rw1), 
       ncol(sigma_rw2), type == "response")
+    
+    pred$mean <- colMeans(fitted(object, summary = FALSE))
   }
-  pred$y <- object$y
+
   
   st <-  tsp(object$y)[2L]
   if (is.null(st)) st <- length(object$y)
+  s1 <- tsp(object$y)[1L]
+  if (is.null(s1)) s1 <- 1
+  d <- deltat(object$y)
+  pred$y <- object$y
+  pred$mean <- ts(pred$mean, start = s1, end = st, deltat = d)
+  
   dimnames(pred$y_new) <- 
     list(time = seq(st + deltat(object$y), by = deltat(object$y), 
       length = nrow(pred$y_new)), iter = 1:ncol(pred$y_new))
+  
   pred
 }
