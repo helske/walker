@@ -3,7 +3,7 @@
 #' Returns fitted values (posterior means) from output of \code{walker} or \code{walker_glm}.
 #' 
 #' @export
-#' @importFrom stats fitted
+#' @importFrom stats fitted sd
 #' @name fitted.walker_fit
 #' @param object Output of \code{walker} or \code{walker_glm}.
 #' @param summary If \code{TRUE} (default), return summary statistics. Otherwise returns samples.

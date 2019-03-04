@@ -4,12 +4,15 @@
 \alias{coef.walker_fit}
 \title{Extract Coeffients of Walker Fit}
 \usage{
-\method{coef}{walker_fit}(object, summary = TRUE, ...)
+\method{coef}{walker_fit}(object, summary = TRUE, transform = identity,
+  ...)
 }
 \arguments{
 \item{object}{Output of \code{walker} or \code{walker_glm}.}
 
 \item{summary}{If \code{TRUE} (default), return summary statistics. Otherwise returns samples.}
+
+\item{transform}{Optional vectorized function for transforming the coefficients (for example exp).}
 
 \item{...}{Ignored.}
 }
