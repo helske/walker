@@ -8,8 +8,8 @@
 using namespace Rcpp;
 
 // predict_walker
-Rcpp::List predict_walker(const arma::mat& sigma_rw1, const arma::mat& sigma_rw2, const arma::vec sigma_y, const arma::mat beta_fixed, const arma::mat& beta_rw, const arma::mat& slope, const arma::mat& xreg_fixed, const arma::mat& xreg_rw, const arma::uword n, const arma::uword k, const arma::uword k_rw1, const arma::uword k_rw2);
-RcppExport SEXP _walker_predict_walker(SEXP sigma_rw1SEXP, SEXP sigma_rw2SEXP, SEXP sigma_ySEXP, SEXP beta_fixedSEXP, SEXP beta_rwSEXP, SEXP slopeSEXP, SEXP xreg_fixedSEXP, SEXP xreg_rwSEXP, SEXP nSEXP, SEXP kSEXP, SEXP k_rw1SEXP, SEXP k_rw2SEXP) {
+Rcpp::List predict_walker(const arma::mat& sigma_rw1, const arma::mat& sigma_rw2, const arma::vec sigma_y, const arma::mat beta_fixed, const arma::mat& beta_rw, const arma::mat& slope, const arma::mat& xreg_fixed, const arma::mat& xreg_rw, const arma::uword n, const arma::uword k, const arma::uword k_rw1, const arma::uword k_rw2, const bool response);
+RcppExport SEXP _walker_predict_walker(SEXP sigma_rw1SEXP, SEXP sigma_rw2SEXP, SEXP sigma_ySEXP, SEXP beta_fixedSEXP, SEXP beta_rwSEXP, SEXP slopeSEXP, SEXP xreg_fixedSEXP, SEXP xreg_rwSEXP, SEXP nSEXP, SEXP kSEXP, SEXP k_rw1SEXP, SEXP k_rw2SEXP, SEXP responseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -25,13 +25,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::uword >::type k(kSEXP);
     Rcpp::traits::input_parameter< const arma::uword >::type k_rw1(k_rw1SEXP);
     Rcpp::traits::input_parameter< const arma::uword >::type k_rw2(k_rw2SEXP);
-    rcpp_result_gen = Rcpp::wrap(predict_walker(sigma_rw1, sigma_rw2, sigma_y, beta_fixed, beta_rw, slope, xreg_fixed, xreg_rw, n, k, k_rw1, k_rw2));
+    Rcpp::traits::input_parameter< const bool >::type response(responseSEXP);
+    rcpp_result_gen = Rcpp::wrap(predict_walker(sigma_rw1, sigma_rw2, sigma_y, beta_fixed, beta_rw, slope, xreg_fixed, xreg_rw, n, k, k_rw1, k_rw2, response));
     return rcpp_result_gen;
 END_RCPP
 }
 // predict_walker_glm
-Rcpp::List predict_walker_glm(const arma::mat& sigma_rw1, const arma::mat& sigma_rw2, const arma::mat beta_fixed, const arma::mat& beta_rw, const arma::mat& slope, const arma::mat& xreg_fixed, const arma::mat& xreg_rw, const arma::vec& u, const int distribution, arma::vec weights, const arma::uword n, const arma::uword k, const arma::uword k_rw1, const arma::uword k_rw2);
-RcppExport SEXP _walker_predict_walker_glm(SEXP sigma_rw1SEXP, SEXP sigma_rw2SEXP, SEXP beta_fixedSEXP, SEXP beta_rwSEXP, SEXP slopeSEXP, SEXP xreg_fixedSEXP, SEXP xreg_rwSEXP, SEXP uSEXP, SEXP distributionSEXP, SEXP weightsSEXP, SEXP nSEXP, SEXP kSEXP, SEXP k_rw1SEXP, SEXP k_rw2SEXP) {
+Rcpp::List predict_walker_glm(const arma::mat& sigma_rw1, const arma::mat& sigma_rw2, const arma::mat beta_fixed, const arma::mat& beta_rw, const arma::mat& slope, const arma::mat& xreg_fixed, const arma::mat& xreg_rw, const arma::vec& u, const int distribution, arma::vec weights, const arma::uword n, const arma::uword k, const arma::uword k_rw1, const arma::uword k_rw2, const bool response);
+RcppExport SEXP _walker_predict_walker_glm(SEXP sigma_rw1SEXP, SEXP sigma_rw2SEXP, SEXP beta_fixedSEXP, SEXP beta_rwSEXP, SEXP slopeSEXP, SEXP xreg_fixedSEXP, SEXP xreg_rwSEXP, SEXP uSEXP, SEXP distributionSEXP, SEXP weightsSEXP, SEXP nSEXP, SEXP kSEXP, SEXP k_rw1SEXP, SEXP k_rw2SEXP, SEXP responseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -49,7 +50,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::uword >::type k(kSEXP);
     Rcpp::traits::input_parameter< const arma::uword >::type k_rw1(k_rw1SEXP);
     Rcpp::traits::input_parameter< const arma::uword >::type k_rw2(k_rw2SEXP);
-    rcpp_result_gen = Rcpp::wrap(predict_walker_glm(sigma_rw1, sigma_rw2, beta_fixed, beta_rw, slope, xreg_fixed, xreg_rw, u, distribution, weights, n, k, k_rw1, k_rw2));
+    Rcpp::traits::input_parameter< const bool >::type response(responseSEXP);
+    rcpp_result_gen = Rcpp::wrap(predict_walker_glm(sigma_rw1, sigma_rw2, beta_fixed, beta_rw, slope, xreg_fixed, xreg_rw, u, distribution, weights, n, k, k_rw1, k_rw2, response));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -61,8 +63,8 @@ RcppExport SEXP _rcpp_module_boot_stan_fit4walker_glm_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4walker_lm_mod();
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_walker_predict_walker", (DL_FUNC) &_walker_predict_walker, 12},
-    {"_walker_predict_walker_glm", (DL_FUNC) &_walker_predict_walker_glm, 14},
+    {"_walker_predict_walker", (DL_FUNC) &_walker_predict_walker, 13},
+    {"_walker_predict_walker_glm", (DL_FUNC) &_walker_predict_walker_glm, 15},
     {"_rcpp_module_boot_stan_fit4rw1_model_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4rw1_model_mod, 0},
     {"_rcpp_module_boot_stan_fit4rw1_model_naive_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4rw1_model_naive_mod, 0},
     {"_rcpp_module_boot_stan_fit4rw_glm_model_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4rw_glm_model_mod, 0},

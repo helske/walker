@@ -8,13 +8,18 @@
 #' @param newdata A \code{data.frame} containing covariates used for prediction.
 #' @param u For Poisson model, a vector of future exposures i.e. E(y) = u*exp(x*beta). 
 #' For binomial, a vector containing the number of trials for future time points. Defaults 1.
+#' @param type If \code{"response"} (default for Gaussian model), predictions are on the response level 
+#' (e.g., 0/1 for Bernoulli case, and for Gaussian case the observational level noise is added to the mean predictions).
+#' If \code{"mean"} (default for non-Gaussian case), predict means (e.g., success probabilities in Binomial case).
 #' @param ... Ignored.
 #' @return A list containing samples from posterior predictive distribution.
 #' @method predict walker_fit
 #' @seealso \code{\link{plot_predict}} for example.
 #' @export
-predict.walker_fit <- function(object, newdata, u, ...){
+predict.walker_fit <- function(object, newdata, u, 
+  type = ifelse(object$distribution == "gaussian", "response", "mean"), ...){
   
+  type <- match.arg(type, c("response", "mean"))
   y_name <- as.character(object$call$formula[[2]])
   
   if (!(y_name%in% names(newdata))) {
@@ -58,20 +63,33 @@ predict.walker_fit <- function(object, newdata, u, ...){
       t(xregs$xreg_rw), u, 
       pmatch(object$distribution, c("poisson", "binomial")), 
       extract(object$stanfit, pars = "weights")$weights, 
-      nrow(newdata), ncol(beta_fixed), ncol(sigma_rw1), ncol(sigma_rw2))
+      nrow(newdata), ncol(beta_fixed), ncol(sigma_rw1), ncol(sigma_rw2), type == "response")
+    
+    
+    pred$mean <- colMeans(fitted(object, summary = FALSE))
+    
   } else {
     pred <- predict_walker(t(sigma_rw1), t(sigma_rw2),
       extract(object$stanfit, pars = "sigma_y")$sigma_y,
       t(beta_fixed), t(beta_rw), t(slope), xregs$xreg_fixed, 
       t(xregs$xreg_rw), nrow(newdata), ncol(beta_fixed), ncol(sigma_rw1), 
-      ncol(sigma_rw2))
+      ncol(sigma_rw2), type == "response")
+    
+    pred$mean <- colMeans(fitted(object, summary = FALSE))
   }
-  pred$y <- object$y
+
   
   st <-  tsp(object$y)[2L]
   if (is.null(st)) st <- length(object$y)
+  s1 <- tsp(object$y)[1L]
+  if (is.null(s1)) s1 <- 1
+  d <- deltat(object$y)
+  pred$y <- object$y
+  pred$mean <- ts(pred$mean, start = s1, end = st, deltat = d)
+  
   dimnames(pred$y_new) <- 
     list(time = seq(st + deltat(object$y), by = deltat(object$y), 
       length = nrow(pred$y_new)), iter = 1:ncol(pred$y_new))
+  
   pred
 }

@@ -13,7 +13,8 @@ Rcpp::List predict_walker(const arma::mat& sigma_rw1,
   const arma::mat& sigma_rw2, const arma::vec sigma_y,
   const arma::mat beta_fixed, const arma::mat& beta_rw, const arma::mat& slope,
   const arma::mat& xreg_fixed, const arma::mat& xreg_rw, 
-  const arma::uword n, const arma::uword k, const arma::uword k_rw1, const arma::uword k_rw2) {
+  const arma::uword n, const arma::uword k, const arma::uword k_rw1, const arma::uword k_rw2,
+  const bool response) {
   
   arma::uword k_rw = k_rw1 + k_rw2;
   arma::uword n_iter = sigma_y.n_elem;
@@ -36,7 +37,10 @@ Rcpp::List predict_walker(const arma::mat& sigma_rw1,
     
     for(arma::uword t = 0; t < (n - 1); t++) {
       // sample observations
-      y(t, i) = arma::dot(xreg_rw.col(t), beta_new.slice(i).col(t)) + R::rnorm(0, sigma_y(i));
+      y(t, i) = arma::dot(xreg_rw.col(t), beta_new.slice(i).col(t));
+      if (response) {
+        y(t, i) += R::rnorm(0, sigma_y(i)); 
+      }
       // and states
       for (arma::uword j = 0; j < k_rw1; j++) {
         beta_new(j, t + 1, i) = R::rnorm(beta_new(j, t, i), sigma_rw1(j, i));
@@ -49,6 +53,9 @@ Rcpp::List predict_walker(const arma::mat& sigma_rw1,
     }
     // and the observations at last time point
     y(n - 1, i) = arma::dot(xreg_rw.col(n - 1), beta_new.slice(i).col(n - 1));
+    if (response) {
+      y(n - 1, i) += R::rnorm(0, sigma_y(i)); 
+    }
   }
   
   if (k > 0) {
@@ -67,7 +74,8 @@ Rcpp::List predict_walker_glm(const arma::mat& sigma_rw1,
   const arma::mat beta_fixed, const arma::mat& beta_rw, const arma::mat& slope,
   const arma::mat& xreg_fixed, const arma::mat& xreg_rw, 
   const arma::vec& u, const int distribution, arma::vec weights, 
-  const arma::uword n, const arma::uword k, const arma::uword k_rw1, const arma::uword k_rw2) {
+  const arma::uword n, const arma::uword k, const arma::uword k_rw1, const arma::uword k_rw2,
+  const bool response) {
   
   arma::uword k_rw = k_rw1 + k_rw2;
   arma::uword n_iter = weights.n_elem;
@@ -120,20 +128,37 @@ Rcpp::List predict_walker_glm(const arma::mat& sigma_rw1,
   }
   
   y = arma::exp(y);
-  
-  if(distribution == 1) {
-    for (arma::uword i = 0; i < n_iter; i++) {
-      for(arma::uword t = 0; t < n; t++) {
-        y(t, i) = R::rpois(u(t) * y(t, i));
+  if (response) {
+    if(distribution == 1) {
+      for (arma::uword i = 0; i < n_iter; i++) {
+        for(arma::uword t = 0; t < n; t++) {
+          y(t, i) = R::rpois(u(t) * y(t, i));
+        }
+      }
+    } else {
+      for (arma::uword i = 0; i < n_iter; i++) {
+        for(arma::uword t = 0; t < n; t++) {
+          y(t, i) = R::rbinom(u(t),  y(t, i) / (1.0 + y(t, i)));
+        }
       }
     }
   } else {
-    for (arma::uword i = 0; i < n_iter; i++) {
-      for(arma::uword t = 0; t < n; t++) {
-        y(t, i) = R::rbinom(u(t),  y(t, i) / (1.0 + y(t, i)));
+    if(distribution == 1) {
+      for (arma::uword i = 0; i < n_iter; i++) {
+        for(arma::uword t = 0; t < n; t++) {
+          y(t, i) = u(t) * y(t, i);
+        }
+      }
+    } else {
+      for (arma::uword i = 0; i < n_iter; i++) {
+        for(arma::uword t = 0; t < n; t++) {
+          y(t, i) = y(t, i) / (1.0 + y(t, i));
+        }
       }
     }
+    
   }
+  
   
   return Rcpp::List::create(Rcpp::Named("y_new") = y, 
     Rcpp::Named("beta_new") = beta_new, Rcpp::Named("slope_new") = slope_new);

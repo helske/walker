@@ -62,16 +62,17 @@ plot_predict <- function(object, level = 0.05, alpha = 0.33){
   )  +
     geom_ribbon(aes_(color = "y_new", fill = "y_new"),
       alpha = alpha, linetype = 0) +
-   geom_line(aes_(color = "y_new")) +
+    geom_line(aes_(color = "y_new")) +
     labs(y = NULL) +  theme_default() + theme(legend.position = "none") + 
+    geom_line(data = data.frame(y = object$y, x = time(object$y)), 
+      aes_(~x, ~y, alpha = 1), inherit.aes = FALSE) +
+    geom_line(data = data.frame(y = object$mean, x = time(object$mean)), 
+      aes_(~x, ~y, alpha = 1, color = "mean"), inherit.aes = FALSE) +
     scale_color_manual(
       name = "",
-      values = c(y_new = color_scheme_get()[[2]])
-    ) +
+      values = c(y_new = color_scheme_get()[[2]], mean = color_scheme_get()[[4]])) +
     scale_fill_manual(
       name = "",
-      values = c(y_new = color_scheme_get()[[1]])
-    ) + geom_line(data = data.frame(y = object$y, x = time(object$y)), 
-      aes_(~x, ~y, alpha = 1), inherit.aes = FALSE) 
+      values = c(y_new = color_scheme_get()[[1]]))
   
 }
