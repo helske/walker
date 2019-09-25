@@ -1,8 +1,8 @@
 Package: walker
 Type: Package
 Title: Bayesian Regression with Time-Varying Coefficients
-Version: 0.2.5
-Date: 2019-03-04
+Version: 0.3.0
+Date: 2019-09-19
 Description: Bayesian dynamic regression models where the regression 
     coefficients can vary over time as random walks. 
     Gaussian, Poisson, and binomial observations are supported. 
@@ -17,7 +17,7 @@ Authors@R:
            role = c("aut", "cre"),
            email = "jouni.helske@iki.fi",
            comment = c(ORCID = "0000-0001-7130-793X"))
-License: GPL (>= 2)
+License: GPL (>= 3)
 Suggests: 
     diagis,
     gridExtra,

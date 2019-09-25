@@ -18,6 +18,10 @@ See the package [vignette](http://htmlpreview.github.io/?https://github.com/hels
 
 # NEWS
 
+### 20.9.2019
+
+* Switched from GPL2+ to GPL3 in order to be compatible with future Stan versions.
+
 ### 04.03.2019
 
 * Added methods fitted and coef for extracting the posterior means and and regression coefficents from the 
