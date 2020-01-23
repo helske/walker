@@ -18,6 +18,10 @@ See the package [vignette](http://htmlpreview.github.io/?https://github.com/hels
 
 # NEWS
 
+### 23.1.2020
+
+* Removed check for missing values in function `walker` which threw an error even though missing values in responses have been in principle supported since 2018...
+
 ### 20.9.2019
 
 * Switched from GPL2+ to GPL3 in order to be compatible with future Stan versions.

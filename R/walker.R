@@ -163,7 +163,6 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
   if (return_x_reg) return(list(xreg_fixed = xreg_fixed, xreg_rw = xreg_rw))
   
   if (any(is.na(xreg_fixed)) || any(is.na(xreg_rw))) stop("Missing values in covariates are not allowed.")
-  if (any(is.na(y))) stop("Missing values in response are not (yet) allowed.")
   
   if(k_fixed > 0 && length(beta_prior) != 2) {
     stop("beta_prior should be a vector of length two, defining the mean and standard deviation for the Gaussian prior of fixed coefficients. ")
