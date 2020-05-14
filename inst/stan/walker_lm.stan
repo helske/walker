@@ -1,5 +1,5 @@
 functions {
-#include "common_functions.stan"
+#include "include/common_functions.stan"
 }
 
 data {

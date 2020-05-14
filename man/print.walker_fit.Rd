@@ -12,5 +12,6 @@
 \item{...}{Additional arguments to \code{\link{print.stanfit}}.}
 }
 \description{
-Prints the summary information of time-invariant model parameters.
+Prints the summary information of time-invariant model parameters. In case of non-Gaussian models, 
+results based on approximate model are returned with a warning.
 }

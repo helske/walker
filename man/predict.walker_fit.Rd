@@ -4,9 +4,13 @@
 \alias{predict.walker_fit}
 \title{Predictions for walker object}
 \usage{
-\method{predict}{walker_fit}(object, newdata, u,
+\method{predict}{walker_fit}(
+  object,
+  newdata,
+  u,
   type = ifelse(object$distribution == "gaussian", "response", "mean"),
-  ...)
+  ...
+)
 }
 \arguments{
 \item{object}{An output from \code{\link{walker}} or \code{\link{walker_glm}}.}

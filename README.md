@@ -18,6 +18,11 @@ See the package [vignette](http://htmlpreview.github.io/?https://github.com/hels
 
 # NEWS
 
+
+### 12.5.2020
+
+* Updated to rstantools 2.0.0 package structure.
+
 ### 23.1.2020
 
 * Removed check for missing values in function `walker` which threw an error even though missing values in responses have been in principle supported since 2018...

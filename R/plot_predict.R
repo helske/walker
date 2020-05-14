@@ -45,19 +45,18 @@ plot_predict <- function(object, level = 0.05, alpha = 0.33){
   pred_data$time <- as.numeric(levels(pred_data$time))[pred_data$time]
   names(pred_data)[3] <- "value"
   grouped <- group_by(pred_data, time)
-  quantiles <- summarise_(grouped, 
-    .dots = list(
-      lwr = ~quantile(value, prob = level), 
-      median = ~quantile(value, prob = 0.5),
-      upr = ~quantile(value, prob = 1 - level)))
+  quantiles <- summarise(grouped, 
+    lwr = quantile(value, prob = level), 
+    median = quantile(value, prob = 0.5),
+    upr = quantile(value, prob = 1 - level))
   
   ggplot(
     data = quantiles,
-    mapping = aes_(
-      x = ~ time,
-      y = ~ median,
-      ymin = ~ lwr,
-      ymax = ~ upr
+    mapping = aes(
+      x = time,
+      y = median,
+      ymin = lwr,
+      ymax = upr
     )
   )  +
     geom_ribbon(aes_(color = "y_new", fill = "y_new"),

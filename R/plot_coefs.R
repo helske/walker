@@ -3,7 +3,7 @@
 #' Plots sample quantiles from posterior predictive sample. 
 #' See \code{\link{ppc_ribbon}} for details.
 #' 
-#' @importFrom dplyr group_by summarise_
+#' @importFrom dplyr group_by summarise
 #' @importFrom stats quantile time update.formula drop.terms
 #' @import ggplot2
 #' @import bayesplot
@@ -30,19 +30,18 @@ plot_coefs <- function(object, level = 0.05, alpha = 0.33, transform = identity,
   names(coef_data)[4] <- "value"
   coef_data$time <- as.numeric(levels(coef_data$time))[coef_data$time]
   grouped <- group_by(coef_data, time, beta)
-  quantiles <- summarise_(grouped, 
-    .dots = list(
-      lwr = ~quantile(value, prob = level), 
-      median = ~quantile(value, prob = 0.5),
-      upr = ~quantile(value, prob = 1 - level)))
+  quantiles <- summarise(grouped,
+      lwr = quantile(value, prob = level), 
+      median = quantile(value, prob = 0.5),
+      upr = quantile(value, prob = 1 - level))
   
   p <- ggplot(
     data = quantiles,
-    mapping = aes_(
-      x = ~ time,
-      y = ~ median,
-      ymin = ~ lwr,
-      ymax = ~ upr
+    mapping = aes(
+      x = time,
+      y = median,
+      ymin = lwr,
+      ymax = upr
     )
   )  + facet_wrap(~beta, scales = scales) + 
     geom_ribbon(aes_(color = "beta", fill = "beta"),

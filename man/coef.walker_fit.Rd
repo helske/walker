@@ -4,8 +4,7 @@
 \alias{coef.walker_fit}
 \title{Extract Coeffients of Walker Fit}
 \usage{
-\method{coef}{walker_fit}(object, summary = TRUE, transform = identity,
-  ...)
+\method{coef}{walker_fit}(object, summary = TRUE, transform = identity, ...)
 }
 \arguments{
 \item{object}{Output of \code{walker} or \code{walker_glm}.}

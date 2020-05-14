@@ -4,8 +4,17 @@
 \alias{walker_rw1}
 \title{Comparison of naive and state space implementation of RW1 regression model}
 \usage{
-walker_rw1(formula, data, beta_prior, sigma_prior, init, chains,
-  naive = FALSE, return_x_reg = FALSE, ...)
+walker_rw1(
+  formula,
+  data,
+  beta_prior,
+  sigma_prior,
+  init,
+  chains,
+  naive = FALSE,
+  return_x_reg = FALSE,
+  ...
+)
 }
 \arguments{
 \item{formula}{An object of class \code{\link[stats:formula]{formula}}. See \code{\link{lm}} for details.}

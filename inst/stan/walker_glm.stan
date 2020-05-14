@@ -6,7 +6,7 @@
 // On ArXiv: https://arxiv.org/abs/1609.02541
 
 functions {
-#include "common_functions.stan"
+#include "include/common_functions.stan"
 }
 
 data {

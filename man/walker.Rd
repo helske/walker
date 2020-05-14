@@ -4,8 +4,17 @@
 \alias{walker}
 \title{Bayesian regression with random walk coefficients}
 \usage{
-walker(formula, data, sigma_y_prior, beta_prior, init, chains,
-  return_x_reg = FALSE, gamma_y = NULL, ...)
+walker(
+  formula,
+  data,
+  sigma_y_prior,
+  beta_prior,
+  init,
+  chains,
+  return_x_reg = FALSE,
+  gamma_y = NULL,
+  ...
+)
 }
 \arguments{
 \item{formula}{An object of class \code{{formula}} with additional terms 

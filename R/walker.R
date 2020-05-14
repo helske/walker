@@ -21,6 +21,7 @@
 #' @import rstan Rcpp methods
 #' @importFrom Rcpp loadModule evalCpp
 #' @importFrom stats model.matrix model.response rnorm delete.response terms window ts end glm poisson
+#' @importFrom rstantools rstan_config
 #' @rdname walker
 #' @useDynLib walker, .registration = TRUE
 #' @param formula An object of class \code{{formula}} with additional terms 
@@ -94,9 +95,13 @@
 #' }
 #' 
 walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
-  return_x_reg = FALSE, gamma_y = NULL, ...) {
+                   return_x_reg = FALSE, gamma_y = NULL, ...) {
   
-  if (missing(data)) data <- environment(formula)
+  if (missing(data)) {
+    data <- environment(formula)
+  } else {
+    data <- as.data.frame(data)
+  }
   # Modifying formula object, catching special functions
   mf <- mc <- match.call(expand.dots = FALSE)
   mf <- mf[c(1L, match(c("formula", "data"), names(mf), 0L))]
@@ -110,10 +115,10 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
   if (length(rws) > 0) {
     if (length(attr(all_terms, "term.labels")) == length(rws)){
       all_terms <- terms(update.formula(all_terms, . ~ . + .emptyx.),
-        specials = specials)
+                         specials = specials)
     }
     drops <- which(attr(all_terms, "term.labels") %in%
-        rownames(attr(all_terms, "factors"))[rws])
+                     rownames(attr(all_terms, "factors"))[rws])
     mf$formula <- formula(drop.terms(all_terms, drops, keep.response = TRUE))
     mf$formula <- update.formula(mf$formula, . ~ . - .emptyx., simplify = TRUE)
   }
@@ -138,8 +143,8 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
     if (nrow(rw1_out$xreg) != n) stop("length of the series and covariates do not match.")
   } else {
     rw1_out <- list(xreg = matrix(0, n, 0), 
-      beta_prior = numeric(2), sigma_prior = numeric(2), 
-      gamma = matrix(0, 0, n))
+                    beta_prior = numeric(2), sigma_prior = numeric(2), 
+                    gamma = matrix(0, 0, n))
   }
   if (!is.null(attr(all_terms, "specials")$rw2)) {
     comp <- vars[[1 + attr(all_terms, "specials")$rw2[1]]]
@@ -152,8 +157,8 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
     if (nrow(rw2_out$xreg) != n) stop("length of the series and covariates do not match.")
   } else {
     rw2_out <- list(xreg = matrix(0, n, 0), 
-      beta_prior = numeric(2), sigma_prior = numeric(2), 
-      slope_prior = numeric(2), gamma = matrix(0, 0, n))
+                    beta_prior = numeric(2), sigma_prior = numeric(2), 
+                    slope_prior = numeric(2), gamma = matrix(0, 0, n))
   }
   
   xreg_rw <- cbind(rw1_out$xreg, rw2_out$xreg)
@@ -214,34 +219,34 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
   if (missing(chains)) chains <- 4
   if (missing(init)) {
     init <- replicate(chains, 
-      list(beta_fixed = 
-          if (k_fixed > 0) {
-            structure(rnorm(k_fixed, beta_prior[1], beta_prior[2] / 10), dim = k_fixed)
-          } else {
-            structure(numeric(0), dim = 0) 
-          },
-        sigma_y  = abs(rnorm(1, sigma_y_prior[1], sigma_y_prior[2] / 10)), 
-        sigma_rw1 = 
-          if (k_rw1 > 0) {
-            structure(abs(rnorm(k_rw1, rw1_out$sigma_prior[1], rw1_out$sigma_prior[2] / 10)), dim = k_rw1) 
-          } else {
-            structure(numeric(0), dim = 0)
-          }, 
-        sigma_rw2 = 
-          if (k_rw2 > 0) {
-            structure(abs(rnorm(k_rw2, rw2_out$sigma_prior[1], rw2_out$sigma_prior[2] / 10)), dim = k_rw2) 
-          } else {
-            structure(numeric(0), dim = 0)
-          }), 
-      simplify = FALSE)
+                      list(beta_fixed = 
+                             if (k_fixed > 0) {
+                               structure(rnorm(k_fixed, beta_prior[1], beta_prior[2] / 10), dim = k_fixed)
+                             } else {
+                               structure(numeric(0), dim = 0) 
+                             },
+                           sigma_y  = abs(rnorm(1, sigma_y_prior[1], sigma_y_prior[2] / 10)), 
+                           sigma_rw1 = 
+                             if (k_rw1 > 0) {
+                               structure(abs(rnorm(k_rw1, rw1_out$sigma_prior[1], rw1_out$sigma_prior[2] / 10)), dim = k_rw1) 
+                             } else {
+                               structure(numeric(0), dim = 0)
+                             }, 
+                           sigma_rw2 = 
+                             if (k_rw2 > 0) {
+                               structure(abs(rnorm(k_rw2, rw2_out$sigma_prior[1], rw2_out$sigma_prior[2] / 10)), dim = k_rw2) 
+                             } else {
+                               structure(numeric(0), dim = 0)
+                             }), 
+                      simplify = FALSE)
   }
   stanfit <- sampling(stanmodels$walker_lm,
-    data = stan_data, chains = chains, init = init,
-    pars = c("sigma_y", "sigma_rw1", "sigma_rw2", "beta_fixed", "beta_rw", 
-      "slope", "y_fit", "y_rep"), ...)
+                      data = stan_data, chains = chains, init = init,
+                      pars = c("sigma_y", "sigma_rw1", "sigma_rw2", "beta_fixed", "beta_rw", 
+                               "slope", "y_fit", "y_rep"), ...)
   
   structure(list(stanfit = stanfit, y = y, xreg_fixed = xreg_fixed, 
-    xreg_rw = xreg_rw, call = mc, distribution = "gaussian"), class = "walker_fit")
+                 xreg_rw = xreg_rw, call = mc, distribution = "gaussian"), class = "walker_fit")
 }
 
 #' Bayesian generalized linear regression with time-varying coefficients
@@ -325,12 +330,16 @@ walker <- function(formula, data, sigma_y_prior, beta_prior, init, chains,
 #' }
 #'              
 walker_glm <- function(formula, data, beta_prior, init, chains,
-  return_x_reg = FALSE, distribution ,
-  initial_mode = "kfas", u, mc_sim = 50, ...) {
+                       return_x_reg = FALSE, distribution ,
+                       initial_mode = "kfas", u, mc_sim = 50, ...) {
   
   distribution <- match.arg(distribution, choices = c("poisson", "binomial"))
   
-  if (missing(data)) data <- environment(formula)
+  if (missing(data)) {
+    data <- environment(formula)
+  } else {
+    data <- as.data.frame(data)
+  }
   # Modifying formula object, catching special functions
   mf <- mc <- match.call(expand.dots = FALSE)
   mf <- mf[c(1L, match(c("formula", "data"), names(mf), 0L))]
@@ -344,10 +353,10 @@ walker_glm <- function(formula, data, beta_prior, init, chains,
   if (length(rws) > 0) {
     if (length(attr(all_terms, "term.labels")) == length(rws)){
       all_terms <- terms(update.formula(all_terms, . ~ . + .emptyx.),
-        specials = specials)
+                         specials = specials)
     }
     drops <- which(attr(all_terms, "term.labels") %in%
-        rownames(attr(all_terms, "factors"))[rws])
+                     rownames(attr(all_terms, "factors"))[rws])
     mf$formula <- formula(drop.terms(all_terms, drops, keep.response = TRUE))
     mf$formula <- update.formula(mf$formula, . ~ . - .emptyx., simplify = TRUE)
   }
@@ -372,8 +381,8 @@ walker_glm <- function(formula, data, beta_prior, init, chains,
     if (nrow(rw1_out$xreg) != n) stop("length of the series and covariates do not match.")
   } else {
     rw1_out <- list(xreg = matrix(0, n, 0), 
-      beta_prior = numeric(2), sigma_prior = numeric(2), 
-      gamma = matrix(0, 0, n))
+                    beta_prior = numeric(2), sigma_prior = numeric(2), 
+                    gamma = matrix(0, 0, n))
   }
   if (!is.null(attr(all_terms, "specials")$rw2)) {
     comp <- vars[[1 + attr(all_terms, "specials")$rw2[1]]]
@@ -386,8 +395,8 @@ walker_glm <- function(formula, data, beta_prior, init, chains,
     if (nrow(rw2_out$xreg) != n) stop("length of the series and covariates do not match.")
   } else {
     rw2_out <- list(xreg = matrix(0, n, 0), 
-      beta_prior = numeric(2), sigma_prior = numeric(2), 
-      slope_prior = numeric(2), gamma = matrix(0, 0, n))
+                    beta_prior = numeric(2), sigma_prior = numeric(2), 
+                    slope_prior = numeric(2), gamma = matrix(0, 0, n))
   }
   
   xreg_rw <- cbind(rw1_out$xreg, rw2_out$xreg)
@@ -422,50 +431,50 @@ walker_glm <- function(formula, data, beta_prior, init, chains,
     pseudo_y <- y * pseudo_H + initial_mode - 1
   } else {
     switch(initial_mode, 
-      obs = {
-        
-        expmode <- y / u + 0.1
-        pseudo_H <- 1 / (u * expmode)
-        pseudo_y <- y * pseudo_H + log(expmode) - 1
-        
-      },
-      glm = {
-        
-        fit <- glm(y ~ ., data = data.frame(cbind(xreg_fixed, xreg_rw)), offset = log(u), family = poisson)
-        pseudo_H <- 1 / fit$fitted.values
-        pseudo_y <- y * pseudo_H + fit$linear.predictors - log(u) - 1
-        
-      },
-      kfas = {
-        m <- k_fixed + k_rw1 + 2 * k_rw2
-        Zt <- array(0, dim = c(1, m, n))
-        if (k_fixed > 0) {
-          Zt[1, 1:k_fixed, ] <- t(xreg_fixed)
-        }
-        Zt[1, (k_fixed + 1):(k_fixed + k_rw1 + k_rw2),] <- t(xreg_rw)
-        Tt <- Rt <- diag(m)
-        if(k_rw2 > 0) {
-          Tt[(k_fixed + k_rw1 + 1):(k_fixed + k_rw1 + k_rw2), 
-            (k_fixed + k_rw1 + k_rw2 + 1):m] <- diag(k_rw2)
-        }
-        Qt <- diag(rep(c(0, NA, 0, NA), times = c(k_fixed, k_rw1, k_rw2, k_rw2)), m)
-        a1 <- rep(c(beta_fixed_mean, beta_rw1_mean, beta_rw2_mean, slope_mean), 
-          times = c(k_fixed, k_rw1, k_rw2, k_rw2))
-        P1 <- diag(rep(c(beta_fixed_sd, beta_rw1_sd, beta_rw2_sd, slope_sd), 
-          times = c(k_fixed, k_rw1, k_rw2, k_rw2)), m)
-        P1inf <- diag(0, m)
-        model <- SSModel(y ~ -1 + SSMcustom(Zt, Tt, Rt, Qt, a1, P1, P1inf),
-          distribution = distribution, u = u)
-        fit <- fitSSM(model, inits = rep(-1, k_rw1 + k_rw2), method = "BFGS")
-        app <- approxSSM(fit$model)
-        pseudo_H <- as.numeric(app$H)
-        pseudo_y <- as.numeric(app$y)
-        
-      },
-      stop("Argument 'initial_mode' should be either 'obs', 'glm', 'kfas', or a numeric vector.")
+           obs = {
+             
+             expmode <- y / u + 0.1
+             pseudo_H <- 1 / (u * expmode)
+             pseudo_y <- y * pseudo_H + log(expmode) - 1
+             
+           },
+           glm = {
+             
+             fit <- glm(y ~ ., data = data.frame(cbind(xreg_fixed, xreg_rw)), offset = log(u), family = poisson)
+             pseudo_H <- 1 / fit$fitted.values
+             pseudo_y <- y * pseudo_H + fit$linear.predictors - log(u) - 1
+             
+           },
+           kfas = {
+             m <- k_fixed + k_rw1 + 2 * k_rw2
+             Zt <- array(0, dim = c(1, m, n))
+             if (k_fixed > 0) {
+               Zt[1, 1:k_fixed, ] <- t(xreg_fixed)
+             }
+             Zt[1, (k_fixed + 1):(k_fixed + k_rw1 + k_rw2),] <- t(xreg_rw)
+             Tt <- Rt <- diag(m)
+             if(k_rw2 > 0) {
+               Tt[(k_fixed + k_rw1 + 1):(k_fixed + k_rw1 + k_rw2), 
+                  (k_fixed + k_rw1 + k_rw2 + 1):m] <- diag(k_rw2)
+             }
+             Qt <- diag(rep(c(0, NA, 0, NA), times = c(k_fixed, k_rw1, k_rw2, k_rw2)), m)
+             a1 <- rep(c(beta_fixed_mean, beta_rw1_mean, beta_rw2_mean, slope_mean), 
+                       times = c(k_fixed, k_rw1, k_rw2, k_rw2))
+             P1 <- diag(rep(c(beta_fixed_sd, beta_rw1_sd, beta_rw2_sd, slope_sd), 
+                            times = c(k_fixed, k_rw1, k_rw2, k_rw2)), m)
+             P1inf <- diag(0, m)
+             model <- SSModel(y ~ -1 + SSMcustom(Zt, Tt, Rt, Qt, a1, P1, P1inf),
+                              distribution = distribution, u = u)
+             fit <- fitSSM(model, inits = rep(-1, k_rw1 + k_rw2), method = "BFGS")
+             app <- approxSSM(fit$model)
+             pseudo_H <- as.numeric(app$H)
+             pseudo_y <- as.numeric(app$y)
+             
+           },
+           stop("Argument 'initial_mode' should be either 'obs', 'glm', 'kfas', or a numeric vector.")
     )
   }
-
+  
   stan_data <- list(
     k_fixed = k_fixed, 
     k_rw1 = k_rw1,
@@ -502,33 +511,33 @@ walker_glm <- function(formula, data, beta_prior, init, chains,
   if (missing(chains)) chains <- 4
   if (missing(init)) {
     init <- replicate(chains, 
-      list(beta_fixed = 
-          if (k_fixed > 0) {
-            structure(rnorm(k_fixed, beta_prior[1], beta_prior[2] / 10), dim = k_fixed)
-          } else {
-            structure(numeric(0), dim = 0) 
-          },
-        sigma_rw1 = 
-          if (k_rw1 > 0) {
-            structure(abs(rnorm(k_rw1, rw1_out$sigma_prior[1], rw1_out$sigma_prior[2] / 10)), dim = k_rw1) 
-          } else {
-            structure(numeric(0), dim = 0)
-          }, 
-        sigma_rw2 = 
-          if (k_rw2 > 0) {
-            structure(abs(rnorm(k_rw2, rw2_out$sigma_prior[1], rw2_out$sigma_prior[2] / 10)), dim = k_rw2) 
-          } else {
-            structure(numeric(0), dim = 0)
-          }), 
-      simplify = FALSE)
+                      list(beta_fixed = 
+                             if (k_fixed > 0) {
+                               structure(rnorm(k_fixed, beta_prior[1], beta_prior[2] / 10), dim = k_fixed)
+                             } else {
+                               structure(numeric(0), dim = 0) 
+                             },
+                           sigma_rw1 = 
+                             if (k_rw1 > 0) {
+                               structure(abs(rnorm(k_rw1, rw1_out$sigma_prior[1], rw1_out$sigma_prior[2] / 10)), dim = k_rw1) 
+                             } else {
+                               structure(numeric(0), dim = 0)
+                             }, 
+                           sigma_rw2 = 
+                             if (k_rw2 > 0) {
+                               structure(abs(rnorm(k_rw2, rw2_out$sigma_prior[1], rw2_out$sigma_prior[2] / 10)), dim = k_rw2) 
+                             } else {
+                               structure(numeric(0), dim = 0)
+                             }), 
+                      simplify = FALSE)
   }
   
   stanfit <- sampling(stanmodels$walker_glm,
-    data = stan_data, chains = chains, init = init,
-    pars = c("sigma_rw1", "sigma_rw2", "beta_fixed", "beta_rw", 
-      "slope", "y_fit", "y_rep", "weights"), ...)
+                      data = stan_data, chains = chains, init = init,
+                      pars = c("sigma_rw1", "sigma_rw2", "beta_fixed", "beta_rw", 
+                               "slope", "y_fit", "y_rep", "weights"), ...)
   
   structure(list(stanfit = stanfit, y = y, xreg_fixed = xreg_fixed, 
-    xreg_rw = xreg_rw, u = u, distribution = distribution, call = mc), 
-    class = "walker_fit")
+                 xreg_rw = xreg_rw, u = u, distribution = distribution, call = mc), 
+            class = "walker_fit")
 }

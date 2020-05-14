@@ -58,13 +58,12 @@ coef.walker_fit <- function(object, summary = TRUE, transform = identity,  ...) 
     names(coef_data)[4] <- "value"
     coef_data$time <- as.numeric(levels(coef_data$time))[coef_data$time]
     grouped <- group_by(coef_data, time, beta)
-    summarise_(grouped, 
-      .dots = list(
-        mean = ~mean(value),
-        sd = ~sd(value),
-        "2.5%" = ~quantile(value, prob = 0.025), 
-        "50%" = ~quantile(value, prob = 0.5),
-        "97.5%" = ~quantile(value, prob = 0.975)))
+    summarise(grouped, 
+        mean = mean(value),
+        sd = sd(value),
+        "2.5%" = quantile(value, prob = 0.025), 
+        "50%" = quantile(value, prob = 0.5),
+        "97.5%" = quantile(value, prob = 0.975))
   } else {
     coef_data  
   }

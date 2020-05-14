@@ -4,8 +4,19 @@
 \alias{walker_glm}
 \title{Bayesian generalized linear regression with time-varying coefficients}
 \usage{
-walker_glm(formula, data, beta_prior, init, chains, return_x_reg = FALSE,
-  distribution, initial_mode = "kfas", u, mc_sim = 50, ...)
+walker_glm(
+  formula,
+  data,
+  beta_prior,
+  init,
+  chains,
+  return_x_reg = FALSE,
+  distribution,
+  initial_mode = "kfas",
+  u,
+  mc_sim = 50,
+  ...
+)
 }
 \arguments{
 \item{formula}{An object of class \code{{formula}} with additional terms 

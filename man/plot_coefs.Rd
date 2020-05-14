@@ -4,8 +4,14 @@
 \alias{plot_coefs}
 \title{Posterior predictive check for walker object}
 \usage{
-plot_coefs(object, level = 0.05, alpha = 0.33, transform = identity,
-  scales = "fixed", add_zero = TRUE)
+plot_coefs(
+  object,
+  level = 0.05,
+  alpha = 0.33,
+  transform = identity,
+  scales = "fixed",
+  add_zero = TRUE
+)
 }
 \arguments{
 \item{object}{An output from \code{\link{walker}}.}

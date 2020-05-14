@@ -2,5 +2,4 @@
 ^\.Rproj\.user$
 .travis.yml
 walker_html
-walker_extra
-.updatenotes
+paper
