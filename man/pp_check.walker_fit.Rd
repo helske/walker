@@ -12,6 +12,5 @@
 \item{...}{Further parameters to \code{\link{ppc_ribbon}}.}
 }
 \description{
-Plots sample quantiles from posterior predictive sample. 
-See \code{\link{ppc_ribbon}} for details.
+Plots sample quantiles from posterior predictive sample. See \code{\link{ppc_ribbon}} for details.
 }

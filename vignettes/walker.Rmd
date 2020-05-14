@@ -1,7 +1,7 @@
 ---
 title: "Efficient Bayesian generalized linear models with time-varying coefficients"
 author: "Jouni Helske"
-date: "8 January 2018"
+date: "15 May 2020"
 output:
 html_document: default
 bibliography: walker.bib
@@ -20,27 +20,24 @@ library(walker)
 
 ## Introduction
 
-Dynamic regression models are extension to basic linear regression models where instead of constant but unknown regression coefficients, the underlying coefficients are assumed to vary over "time" according to random walk. In their simplest form these models can be used to model regression models with additional time series component, and they also allow robust modelling of phenomenas where the effect size of the predictor variables can vary during the period of the study. The `R` [@R] package `walker` provides an efficient method for fully Bayesian inference of such models, where the main computations are performed using the Markov chain Monte Carlo (MCMC) algorithms provided by `Stan` [@stan, @rstan]. This also allows the use of many general diagnostic and graphical tools provided by several `Stan` related `R` packages such as `ShinyStan` [@shinystan].
+Varying coefficient regression models are extension to basic linear regression models where instead of constant but unknown regression coefficients, the underlying coefficients are assumed to vary over "time" according to random walk. In their simplest form these models can be used to model regression models with additional time series component, and they also allow robust modelling of phenomenas where the effect size of the predictor variables can vary during the period of the study. The `R` [@R] package `walker` provides an efficient method for fully Bayesian inference of such models, where the main computations are performed using the Markov chain Monte Carlo (MCMC) algorithms provided by `Stan` [@stan, @rstan]. This also allows the use of many general diagnostic and graphical tools provided by several `Stan` related `R` packages such as `ShinyStan` [@shinystan].
 
-More specifically, the dynamic linear regression model is defined as
+More specifically, the linear model with time-varying coefficients is defined as
 $$
 \begin{aligned}
 y_t &= x'_t \beta_t + \epsilon_t, \quad t = 1,\ldots, n\\
 \beta_{t+1} &= \beta_t + \eta_t,
 \end{aligned}
 $$
-where $y_t$ is the observation at time $t$, $x_t$ contains the corresponding predictor variables, $\beta_t$ is a $k$ dimensional vector of regression coefficients at time $t$, $\epsilon_t \sim N(0, \sigma^2_{\epsilon})$, and $\eta_t \sim N(0, D)$, with $D$ being $k \times k$ diagonal matrix with diagonal elements $\sigma^2_{i,\eta}$, $i=1,\ldots,k$. Denote the unknown parameters of the model by $\beta = (\beta'_1, \ldots, \beta'_n)'$ and $\sigma = (\sigma_{\epsilon}, \sigma_{1, \eta}, \ldots, \sigma_{k, \eta})$. We define priors for first $\beta_1$ as $N(\mu_{\beta_1}, \sigma_{\beta_1})$, and for $\sigma_i \sim N(\mu_{\sigma_i}, \sigma_{\sigma_i})$, $i=1,\ldots,k+1$, truncated to positive values, with slighly awful notation.
+where $y_t$ is the observation at time $t$, $x_t$ contains the corresponding predictor variables, $\beta_t$ is a $k$ dimensional vector of regression coefficients at time $t$, $\epsilon_t \sim N(0, \sigma^2_{\epsilon})$, and $\eta_t \sim N(0, D)$, with $D$ being $k \times k$ diagonal matrix with diagonal elements $\sigma^2_{i,\eta}$, $i=1,\ldots,k$. Denote the unknown parameters of the model by $\beta = (\beta'_1, \ldots, \beta'_n)'$ and $\sigma = (\sigma_{\epsilon}, \sigma_{1, \eta}, \ldots, \sigma_{k, \eta})$. We define priors for first $\beta_1$ as $N(\mu_{\beta_1}, \sigma_{\beta_1})$, and for $\sigma_i \sim N(\mu_{\sigma_i}, \sigma_{\sigma_i})$, $i=1,\ldots,k+1$, truncated to positive values.
 
-Although in principle writing dynamic linear regression model as above in `Stan` or `BUGS` [@lunn-thomas-best-spiegelhalter] language is straighforward, these standard implementations are computationally inefficient and prone to severe problems related to convergence of the underlying MCMC algorithm. For example in (block) Gibbs sampling approach we target the joint posterior $p(\beta, \sigma | y)$ by sampling from $p(\beta | \sigma, y)$ and $p(\sigma | \beta, y)$. But because of strong autocorrelations between the coeffients $\beta$ at different time points, as well as with the associated standard error parameters, this MCMC scheme can be very inefficient. Also, the total number of parameters to sample increase with number of data points $n$. Although the Hamiltonian Monte Carlo algoritms offered by `Stan` are typically more efficient exploring the posterior than Gibbs-type algorithms, we still encounter similar problems (see the illustration in next Section).
-
-An alternative solution used by `walker` is based on the marginalization of the regression coefficients $\beta$ during the MCMC sampling by using the Kalman filter. This provides fast and accurate inference of marginal posterior $p(\sigma | y)$. Then, the corresponding joint posterior $p(\sigma, \beta | y) = p(\beta | \sigma, y)p(\sigma | y)$ can be obtained by simulating the regression coefficients given marginal posterior of standard deviations. This sampling can be performed for example by simulation smoothing algorithm by @durbin-koopman2002. Note that we have opted to sample the $\beta$ parameters given $\sigma$'s, but it is also possible to obtain somewhat more accurate summary statistics such as mean and variance of these parameters by using the standard Kalman smoother for compution of $\textrm{E}(\beta| \sigma, y)$ and $\textrm{Var}(\beta| \sigma, y)$, and using the law of total expectation.
+Although in principle writing this model as above in `Stan` is straighforward, standard implementation can lead to some computational problems (see the illustration in next Section). An alternative solution used by `walker` is based on the marginalization of the regression coefficients $\beta$ during the MCMC sampling by using the Kalman filter. This provides fast and accurate inference of marginal posterior $p(\sigma | y)$. Then, the corresponding joint posterior $p(\sigma, \beta | y) = p(\beta | \sigma, y)p(\sigma | y)$ can be obtained by simulating the regression coefficients given marginal posterior of standard deviations. This sampling can be performed for example by simulation smoothing algorithm by @durbin-koopman2002. Note that we have opted to sample the $\beta$ parameters given $\sigma$'s, but it is also possible to obtain somewhat more accurate summary statistics such as mean and variance of these parameters by using the standard Kalman smoother for compution of $\textrm{E}(\beta| \sigma, y)$ and $\textrm{Var}(\beta| \sigma, y)$, and using the law of total expectation.
 
 In this vignette we first introduce the basic use using simple linear regression model with first order random walk, and then discuss extensions to second order random walk, as well as how to deal with non-Gaussian data.
 
 ## Illustration
 
-
-Let us consider a observations $y$ of length $n=250$, generated by random walk (i.e. time varying intercept) and two predictors. This is rather small problem, but it was chosen in order to make possible comparisons with the "naive" `Stan` implementation. For larger problems (in terms of number of observations and especially number of predictors) it is very difficult to get naive implementation to work properly, as even after tweaking several parameters of the underlying MCMC sampler, one typically ends up with divergent transitions or low BMFI index, meaning that the results are not to be trusted. 
+Let us consider a observations $y$ of length $n=100$, generated by random walk (i.e. time varying intercept) and two predictors. This is rather small problem, but it was chosen in order to make possible comparisons with the "naive" `Stan` implementation. For larger problems (in terms of number of observations and especially number of predictors) it is very difficult to get naive implementation to work properly, as even after tweaking several parameters of the underlying MCMC sampler, one typically ends up with divergent transitions or low BMFI index, meaning that the results are not to be trusted. 
 
 First we simulate the coefficients and the predictors:
 
@@ -61,11 +58,11 @@ y <- rnorm(n, signal, 0.5)
 ts.plot(cbind(signal, y), col = 1:2)
 ```
 
-Then we can call function `walker`. The model is defined as a formula like in `lm`, and we can give several arguments which are passed to `sampling` method of `rstan`, such as number of iteration `iter` and number of chains `chains` (default values for these are 2000 and 4). In addition to these, we use arguments `beta_prior` and `sigma_prior`, which define the prior distributions for $\beta_1$ and $\sigma$ respectively. These arguments should length two vectors, where the first value defines the prior mean, and the second value defines the prior standard deviation.
+Then we can call function `walker`. The model is defined as a formula like in `lm`, and we can give several arguments which are passed to `sampling` method of `rstan`, such as number of iteration `iter` and number of chains `chains` (default values for these are 2000 and 4). In addition to these, we use arguments `beta` and `sigma`, which define the prior distributions for $\beta_1$ and $\sigma$ respectively. These arguments should length two vectors, where the first value defines the prior mean, and the second value defines the prior standard deviation.
 
 ```{r walker}
-fit <- walker(y ~ -1 + rw1(~ x1 + x2, beta_prior = c(0, 10), sigma_prior = c(0, 10)), 
-  refresh = 0, chains = 2, sigma_y_prior = c(0, 10))
+fit <- walker(y ~ -1 + rw1(~ x1 + x2, beta = c(0, 10), sigma = c(0, 10)), 
+  refresh = 0, chains = 2, sigma_y = c(0, 10))
 ```
 
 We sometimes get a few (typically one) warning message about numerical problems, as the sampling algorithm warms up, but this is nothing to be concerned with (if more errors occur, then a Github issue for `walker` package is more than welcome). 
@@ -91,7 +88,6 @@ There is also simpler (and prettier) `ggplot` based plotting function for coeffi
 ```{r plot_pretty_betas}
 plot_coefs(fit)
 ```
-
 
 ### Posterior predictive checks
 
@@ -122,37 +118,35 @@ This is essentially local linear trend model [@harvey] with restriction that the
 
 ```{r walker_rw2}
 fit_rw2 <-walker(y ~ -1 + 
-    rw2(~ x1 + x2, beta_prior = c(0, 10), sigma_prior = c(0, 10), slope_prior = c(0, 10)), 
-  refresh = 0, chains = 2, sigma_y_prior = c(0, 10))
+    rw2(~ x1 + x2, beta = c(0, 10), sigma = c(0, 10), slope = c(0, 10)), 
+  refresh = 0, chains = 2, sigma_y = c(0, 10))
 plot_coefs(fit_rw2)
 ```
 
 So far we have focused on simple Gaussian linear regression. The above treatment cannot be directly extended to non-Gaussian models such as Poisson regression, as the marginal log-likelihood is intractable. However, it is possible to use relatively accurate Gaussian approximations, and the resulting approximate posterior can then be weighted using importance sampling type correction [@vihola-helske-franks], leading to exact inference. Function `walker_glm` extends the the package to handle Poisson and binomial observations using the aforementioned methodology.
-
 
 ## Comparison with naive approach
 
 We now compare the efficiency of the "naive" implementation and the state space approach. For this, we use function `walker_rw1`, which supports only basic random walk models. We can perform the same analysis with naive implementation by setting the argument `naive` to `TRUE`:
 
 ```{r naive}
-naive_walker <- walker_rw1(y ~ x1 + x2, seed = 1, refresh = 0, chains = 2,
-  beta_prior = cbind(0, rep(5, 3)), sigma_prior = cbind(0, rep(2, 4)),
+naive_fit <- walker_rw1(y ~ x1 + x2, seed = 1, refresh = 0, chains = 2,
+  beta = cbind(0, rep(5, 3)), sigma = cbind(0, rep(2, 4)),
   naive = TRUE, control = list(adapt_delta = 0.95, max_treedepth = 15))
-print(naive_walker$stanfit, pars = c("sigma_y", "sigma_b"))
 ```
 
 Let's run the state space version again:
 ```{r kalman}
-kalman_walker <- walker_rw1(y ~ x1 + x2, seed = 1, refresh = 0, chains = 2,
-  beta_prior = cbind(0, rep(5, 3)), sigma_prior = cbind(0, rep(2, 4)),
-  naive = FALSE)
-print(kalman_walker$stanfit, pars = c("sigma_y", "sigma_b"))
-
+kalman_fit <- walker_rw1(y ~ x1 + x2, seed = 1, refresh = 0, chains = 2,
+   beta = cbind(0, rep(5, 3)), sigma = cbind(0, rep(2, 4)),
+   naive = FALSE)
 ```
 
 ```{r times}
-sum(get_elapsed_time(kalman_walker$stanfit))
-sum(get_elapsed_time(naive_walker$stanfit))
+print(naive_fit$stanfit, pars = c("sigma_y", "sigma_b"))
+print(kalman_fit$stanfit, pars = c("sigma_y", "sigma_b"))
+sum(get_elapsed_time(naive_fit$stanfit))
+sum(get_elapsed_time(kalman_fit$stanfit))
 ```
 
 With naive implementation we get smaller effective sample sizes and much higher computation time, as well as some indications of divergence problems, even with adjusted step size (argument `adapt_delta`).
@@ -160,7 +154,7 @@ With naive implementation we get smaller effective sample sizes and much higher 
 
 ## Discussion
 
-In this vignette we illustrated the benefits of marginalisation in the context of dynamic regression models. The underlying idea is not new; this approach is typical especially in classic Metropolis-type algorithms for linear-Gaussian state space models where the marginal likelihood $p(y | \theta)$ (where $\theta$ denotes the hyperparameters i.e. not the latents states such as $\beta$'s in current context) is used in the computation of the acceptance probability. Here instead of building specific MCMC machinery, we rely on readily available Hamiltonian Monte Carlo based `Stan` software, thus allowing us to enjoy the benefits of diverse tools of the `Stan` community. 
+In this vignette we illustrated the benefits of marginalisation in the context of dynamic regression models. The underlying idea is not new; this approach is typical especially in classic Metropolis-type algorithms for linear-Gaussian state space models where the marginal likelihood $p(y | \theta)$ (where $\theta$ denotes the hyperparameters i.e. not the latents states such as $\beta$'s in current context) is used in the computation of the acceptance probability. Here we rely on readily available Hamiltonian Monte Carlo based `Stan` software, thus allowing us to enjoy the benefits of diverse tools of the `Stan` community. 
 
 The motivation behind the `walker` was to test the efficiency of importance sampling type weighting method of @vihola-helske-franks in a dynamic generalized linear model setting within the HMC context. Although some of our other preliminary results have suggested that naive combination of the HMC with IS weighting can provide rather limited computational gains, in case of dynamic GLMs so called global approximation technique [@vihola-helske-franks] provides fast and robust alternative to standard HMC approach of `Stan`.
 

@@ -4,20 +4,20 @@
 \alias{rw2}
 \title{Construct a second-order random walk component}
 \usage{
-rw2(formula, data, beta_prior, sigma_prior, slope_prior, gamma = NULL)
+rw2(formula, data, beta, sigma, nu, gamma = NULL)
 }
 \arguments{
 \item{formula}{Formula for RW2 part of the model. Only right-hand-side is used.}
 
 \item{data}{Optional data.frame.}
 
-\item{beta_prior}{A vector of length two which defines the 
+\item{beta}{A vector of length two which defines the 
 prior mean and standard deviation of the Gaussian prior for coefficients at time 1.}
 
-\item{sigma_prior}{A vector of length two, defining the truncated Gaussian prior for 
+\item{sigma}{A vector of length two, defining the truncated Gaussian prior for 
 the slope level standard deviation.}
 
-\item{slope_prior}{A vector of length two which defines the 
+\item{nu}{A vector of length two which defines the 
 prior mean and standard deviation of the Gaussian prior for the slopes at time 1.}
 
 \item{gamma}{An optional vector defining a damping of the slope level noises. More specifically, 

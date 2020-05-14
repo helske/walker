@@ -6,14 +6,14 @@
 # walker: Efficient Baysian dynamic linear regression models with Stan/R
 
 Walker provides a method for fully Bayesian generalized linear regression where the 
-regression coefficients are allowed to vary over "time" as a first or second order integrated random walk. 
+regression coefficients are allowed to vary over time as a first or second order integrated random walk. 
 
 The Markov chain Monte Carlo (MCMC) algorithm uses Hamiltonian Monte Carlo provided by Stan, 
 using a state space representation of the model in order to marginalise over the coefficients for accurate and efficient sampling.
 For non-Gaussian models the MCMC targets approximate marginal posterior based on Gaussian approximation, which is then corrected using 
 sequential Monte Carlo as in [Vihola, Helske, Franks (2018)](https://arxiv.org/abs/1609.02541).
 
-See the package [vignette](http://htmlpreview.github.io/?https://github.com/helske/walker/blob/master/walker_html/walker.html) for details and an examples.
+See the package [vignette](http://htmlpreview.github.io/?https://github.com/helske/walker/blob/master/walker_html/walker.html) and [documentation manual](https://cran.r-project.org/web/packages/walker/walker.pdf) for details and examples.
 
 
 # NEWS
@@ -21,7 +21,11 @@ See the package [vignette](http://htmlpreview.github.io/?https://github.com/hels
 
 ### 12.5.2020
 
-* Updated to rstantools 2.0.0 package structure.
+* Added as.data.frame function for `walker` and `walker_glm` output.
+* Added a `summary` method.
+* The print method now correctly warns about approximate results in case of non-Gaussian model.
+* Changed arguments `*_prior` to more concise versions (e.g. `sigma_prior` is now just `sigma`). 
+* Updated to rstantools 2.0.0 package structure and removed dependency on soft-depracated functions of `dplyr`.
 
 ### 23.1.2020
 

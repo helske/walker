@@ -1,7 +1,7 @@
 #' Prediction intervals for walker object
 #' 
-#' Plots sample quantiles from pre
-#' See \code{\link{ppc_ribbon}} for details.
+#' Plots sample quantiles and posterior means of the predictions 
+#' of the \code{predict.walker_fit} output.
 #' 
 #' @importFrom ggplot2 ggplot facet_wrap geom_ribbon geom_line 
 #' @importFrom bayesplot color_scheme_get theme_default
@@ -27,11 +27,11 @@
 #' data_old <- data.frame(y = y[1:(n-10)], x = x[1:(n-10)])
 #' rw2_fit <- walker(y ~ 1 + 
 #'                     rw2(~ -1 + x,
-#'                         beta_prior = c(0, 10), 
-#'                         sigma_prior = c(0, 10), 
-#'                         slope_prior = c(0, 10)), 
-#'                   sigma_y_prior = c(0, 10), 
-#'                   beta_prior = c(0, 10),
+#'                         beta = c(0, 10), 
+#'                         sigma = c(0, 10), 
+#'                         slope = c(0, 10)), 
+#'                   sigma_y = c(0, 10), 
+#'                   beta = c(0, 10),
 #'                   iter = 400, chains = 1, data = data_old)
 #' 
 #' pred <- predict(rw2_fit, newdata = data.frame(x=x[(n-9):n]))

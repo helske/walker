@@ -8,11 +8,11 @@
 #' @export
 #' @param formula An object of class \code{\link[stats:formula]{formula}}. See \code{\link{lm}} for details.
 #' @param data An optional data.frame or object coercible to such, as in \code{\link{lm}}.
-#' @param beta_prior A matrix with \eqn{k} rows and 2 columns, where first columns defines the 
+#' @param beta A matrix with \eqn{k} rows and 2 columns, where first columns defines the 
 #' prior means of the Gaussian priors of the corresponding \eqn{k} regression coefficients, 
 #' and the second column defines the the standard deviations of those prior distributions.
-#' @param sigma_prior A matrix with \eqn{k + 1} rows and two colums with similar structure as 
-#' \code{beta_prior}, with first row corresponding to the prior of the standard deviation of the 
+#' @param sigma A matrix with \eqn{k + 1} rows and two colums with similar structure as 
+#' \code{beta}, with first row corresponding to the prior of the standard deviation of the 
 #' observation level noise, and rest of the rows define the priors for the standard deviations of 
 #' random walk noise terms. The prior distributions for all sigmas are 
 #' Gaussians truncated to positive real axis. For non-Gaussian models, this should contain only k rows. 
@@ -45,15 +45,15 @@
 #' ts.plot(y)
 #' lines(u + beta1 * x1 + beta2 * x2, col = 2)
 #' kalman_walker <- walker_rw1(y ~ -1 + 
-#'   rw1(~ x1 + x2, beta_prior = c(0, 2), sigma_prior = c(0, 2)), 
-#'   sigma_y_prior = c(0, 2), iter = 2000, chains = 1)
+#'   rw1(~ x1 + x2, beta = c(0, 2), sigma = c(0, 2)), 
+#'   sigma_y = c(0, 2), iter = 2000, chains = 1)
 #' print(kalman_walker$stanfit, pars = c("sigma_y", "sigma_rw1"))
 #' betas <- extract(kalman_walker$stanfit, "beta")[[1]]
 #' ts.plot(cbind(u, beta1, beta2, apply(betas, 2, colMeans)), 
 #'   col = 1:3, lty = rep(2:1, each = 3))
 #' sum(get_elapsed_time(kalman_walker$stanfit))
 #' naive_walker <- walker_rw1(y ~ x1 + x2, iter = 2000, chains = 1, 
-#'   beta_prior = cbind(0, rep(2, 3)), sigma_prior = cbind(0, rep(2, 4)), 
+#'   beta = cbind(0, rep(2, 3)), sigma = cbind(0, rep(2, 4)), 
 #'   naive = TRUE)
 #' print(naive_walker$stanfit, pars = c("sigma_y", "sigma_b"))
 #' sum(get_elapsed_time(naive_walker$stanfit))
@@ -76,7 +76,7 @@
 #' ts.plot(y)
 #' lines(signal, col = 2)
 #' kalman_walker <- walker_rw1(y ~ x1 + x2 + x3, iter = 2000, chains = 1,
-#'   beta_prior = cbind(0, rep(2, 4)), sigma_prior = cbind(0, rep(2, 5)))
+#'   beta = cbind(0, rep(2, 4)), sigma = cbind(0, rep(2, 5)))
 #' print(kalman_walker$stanfit, pars = c("sigma_y", "sigma_b"))
 #' betas <- extract(kalman_walker$stanfit, "beta")[[1]]
 #' ts.plot(cbind(u, beta1, beta2, beta3, apply(betas, 2, colMeans)), 
@@ -86,13 +86,13 @@
 #' # and max_treedepth to get rid of related warnings
 #' # and still we end up with low BFMI warning after hours of computation
 #' naive_walker <- walker_rw1(y ~ x1 + x2 + x3, iter = 2000, chains = 1, 
-#'   beta_prior = cbind(0, rep(2, 4)), sigma_prior = cbind(0, rep(2, 5)),
+#'   beta = cbind(0, rep(2, 4)), sigma = cbind(0, rep(2, 5)),
 #'   naive = TRUE, control = list(adapt_delta = 0.9, max_treedepth = 15)) 
 #' print(naive_walker$stanfit, pars = c("sigma_y", "sigma_b"))
 #' sum(get_elapsed_time(naive_walker$stanfit))
 #' }
 #' 
-walker_rw1 <- function(formula, data, beta_prior, sigma_prior, init, chains,
+walker_rw1 <- function(formula, data, beta, sigma, init, chains,
   naive = FALSE, return_x_reg = FALSE,  ...) {
   
   # build y and xreg
@@ -115,24 +115,24 @@ walker_rw1 <- function(formula, data, beta_prior, sigma_prior, init, chains,
   if (any(is.na(y))) stop("Missing values in response are not (yet) allowed.")
   
   
-  if(!identical(dim(beta_prior), c(k, 2L))) {
-    stop("beta_prior should be k x 2 matrix containing columns of prior means and sds for each k coefficients. ")
+  if(!identical(dim(beta), c(k, 2L))) {
+    stop("beta should be k x 2 matrix containing columns of prior means and sds for each k coefficients. ")
   }
-  if(!identical(dim(sigma_prior), c(k + 1L, 2L))) {
-    stop("sigma_prior should be (k + 1) x 2 matrix containing columns of prior means and sds for each k + 1 standard deviations. ")
+  if(!identical(dim(sigma), c(k + 1L, 2L))) {
+    stop("sigma should be (k + 1) x 2 matrix containing columns of prior means and sds for each k + 1 standard deviations. ")
   }
   stan_data <- list(k = k, n = n, y = y, xreg = t(xreg), 
     n_new = n_new, xreg_new = t(xreg_new),
-    beta_mean = structure(beta_prior[, 1], dim = k), 
-    beta_sd = structure(beta_prior[, 2], dim = k),
-    sigma_mean = sigma_prior[, 1], sigma_sd = sigma_prior[, 2])
+    beta_mean = structure(beta[, 1], dim = k), 
+    beta_sd = structure(beta[, 2], dim = k),
+    sigma_mean = sigma[, 1], sigma_sd = sigma[, 2])
   
   if (missing(chains)) chains <- 4
   if (missing(init)) {
     init <- replicate(chains, 
-      list(sigma_y  = abs(rnorm(1, sigma_prior[1, 1], sigma_prior[1, 2])), 
-        sigma_b = structure(abs(rnorm(k, sigma_prior[-1, 1], sigma_prior[-1, 2])), dim = k), 
-        beta = structure(rnorm(k, beta_prior[, 1], beta_prior[, 2]), dim = k)), simplify = FALSE)
+      list(sigma_y  = abs(rnorm(1, sigma[1, 1], sigma[1, 2])), 
+        sigma_b = structure(abs(rnorm(k, sigma[-1, 1], sigma[-1, 2])), dim = k), 
+        beta = structure(rnorm(k, beta[, 1], beta[, 2]), dim = k)), simplify = FALSE)
   }
   stanfit <- if (naive) {
     sampling(stanmodels$rw1_model_naive,
@@ -147,7 +147,7 @@ walker_rw1 <- function(formula, data, beta_prior, sigma_prior, init, chains,
   structure(list(stanfit = stanfit, y = y, xreg = xreg, xreg_new = xreg_new), class = "walker_fit")
 }
 
-walker_rw1_glm <- function(formula, data, beta_prior, sigma_prior, init, chains,
+walker_rw1_glm <- function(formula, data, beta, sigma, init, chains,
   distribution = "poisson", initial_mode = "kfas", u, mc_sim = 50,
   return_x_reg = FALSE, ...) {
   
@@ -172,11 +172,11 @@ walker_rw1_glm <- function(formula, data, beta_prior, sigma_prior, init, chains,
   xreg_new <- matrix(0, 0, k)
   n_new <- 0L
   
-  if(!identical(dim(beta_prior), c(k, 2L))) {
-    stop("beta_prior should be k x 2 matrix containing columns of prior means and sds for each k coefficients. ")
+  if(!identical(dim(beta), c(k, 2L))) {
+    stop("beta should be k x 2 matrix containing columns of prior means and sds for each k coefficients. ")
   }
-  if(!identical(dim(sigma_prior), c(k, 2L))) {
-    stop("sigma_prior should be k x 2 matrix containing columns of prior means and sds for each k standard deviations. ")
+  if(!identical(dim(sigma), c(k, 2L))) {
+    stop("sigma should be k x 2 matrix containing columns of prior means and sds for each k standard deviations. ")
   }
   if (missing(u)) {
     u <- rep(1, n)
@@ -210,8 +210,8 @@ walker_rw1_glm <- function(formula, data, beta_prior, sigma_prior, init, chains,
         
         model <- SSModel(y ~ -1 +
             SSMregression(formula, Q = diag(NA, k), remove.intercept = FALSE, 
-              a1 = beta_prior[,1],
-              P1 = diag(beta_prior[,2]^2, k)),
+              a1 = beta[,1],
+              P1 = diag(beta[,2]^2, k)),
           distribution = "poisson", u = u)
         fit <- fitSSM(model, inits = rep(-1, k), method = "BFGS")
         app <- approxSSM(fit$model)
@@ -227,17 +227,17 @@ walker_rw1_glm <- function(formula, data, beta_prior, sigma_prior, init, chains,
   stan_data <- list(k = k, n = n, y = pseudo_y, Ht = pseudo_H, 
     y_original = y, u = u, distribution = 1L, N = mc_sim, xreg = t(xreg), 
     n_new = n_new, xreg_new = t(xreg_new),
-    beta_mean = structure(beta_prior[, 1], dim = k), 
-    beta_sd = structure(beta_prior[, 2], dim = k),
-    sigma_mean = structure(sigma_prior[, 1], dim = k), 
-    sigma_sd = structure(sigma_prior[, 2], dim = k))
+    beta_mean = structure(beta[, 1], dim = k), 
+    beta_sd = structure(beta[, 2], dim = k),
+    sigma_mean = structure(sigma[, 1], dim = k), 
+    sigma_sd = structure(sigma[, 2], dim = k))
   
   if (missing(chains)) chains <- 4
   if (missing(init)) {
     init <- replicate(chains, 
       list(
-        sigma_b = structure(abs(rnorm(k, sigma_prior[, 1], sigma_prior[, 2])), dim = k), 
-        beta = structure(rnorm(k, beta_prior[, 1], beta_prior[, 2]), dim = k)), 
+        sigma_b = structure(abs(rnorm(k, sigma[, 1], sigma[, 2])), dim = k), 
+        beta = structure(rnorm(k, beta[, 1], beta[, 2]), dim = k)), 
       simplify = FALSE)
   }
   

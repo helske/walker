@@ -47,7 +47,7 @@ plot_coefs <- function(object, level = 0.05, alpha = 0.33, transform = identity,
     geom_ribbon(aes_(color = "beta", fill = "beta"),
       alpha = alpha, linetype = 0) +
     geom_line(aes_(color = "beta")) +
-    labs(y = NULL) +  theme_default() + theme(legend.position = "none") + 
+    labs(y = NULL) + theme(legend.position = "none") + 
     scale_color_manual(
       name = "",
       values = c(beta = color_scheme_get()[[2]])

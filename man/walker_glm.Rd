@@ -7,7 +7,7 @@
 walker_glm(
   formula,
   data,
-  beta_prior,
+  beta,
   init,
   chains,
   return_x_reg = FALSE,
@@ -24,7 +24,7 @@ walker_glm(
 
 \item{data}{An optional data.frame or object coercible to such, as in \code{{lm}}.}
 
-\item{beta_prior}{A length vector of length two which defines the 
+\item{beta}{A length vector of length two which defines the 
 prior mean and standard deviation of the Gaussian prior for time-invariant coefficients}
 
 \item{init}{Initial value specification, see \code{\link{sampling}}. 
@@ -88,7 +88,7 @@ analysis.
 
 data("discoveries", package = "datasets")
 out <- walker_glm(discoveries ~ -1 + 
-  rw2(~ 1, beta_prior = c(0, 10), sigma_prior = c(0, 2), slope_prior = c(0, 2)), 
+  rw2(~ 1, beta = c(0, 10), sigma = c(0, 2), nu = c(0, 2)), 
   distribution = "poisson", iter = 1000, chains = 1, refresh = 0)
 
 plot_fit(out)
@@ -105,8 +105,8 @@ u <- sample(1:10, size = n, replace = TRUE)
 y <- rpois(n, u * exp(level + beta * x))
 ts.plot(y)
 
-out <- walker_glm(y ~ -1 + rw1(~ x, beta_prior = c(0, 10), 
-  sigma_prior = c(0, 10)), distribution = "poisson", 
+out <- walker_glm(y ~ -1 + rw1(~ x, beta = c(0, 10), 
+  sigma = c(0, 10)), distribution = "poisson", 
   iter = 1000, chains = 1, refresh = 0)
 print(out$stanfit, pars = "sigma_rw1") ## approximate results
 if (require("diagis")) {

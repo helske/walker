@@ -14,3 +14,13 @@
 \description{
 Creates a data.frame object from the output of walker fit.
 }
+\examples{
+\dontrun{
+ as.data.frame(fit, "tiv") \%>\% 
+ group_by(variable) \%>\%
+ summarise(mean = mean(value),
+           lwr = quantile(value, 0.05),
+           upr = quantile(value, 0.95))
+}
+
+}

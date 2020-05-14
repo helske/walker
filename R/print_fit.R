@@ -33,6 +33,7 @@ print.walker_fit <- function(x, ...) {
 as.data.frame.walker_fit <- function(x, type, ...) {
   
   type <- match.arg(type, c("tiv", "tv"))
+  
   if (type == "tiv") {
     pars <- setdiff(x$stanfit@sim$pars_oi, c("beta_rw", "slope", "y_fit", "y_rep", "lp__", "weights"))
     samples <- extract(x$stanfit, pars = pars, permuted = FALSE)
@@ -54,7 +55,7 @@ as.data.frame.walker_fit <- function(x, type, ...) {
                     chain = rep(1:k, each = n),
                     time = rep(as.numeric(time(x$y)), each = n * k * ncol(x$xreg_rw)),
                     value = c(samples), 
-                    variable = rep(paste0("beta_", colnames(out$xreg_rw)), 
+                    variable = rep(paste0("beta_", colnames(x$xreg_rw)), 
                                    each = n * k))
     if (x$distribution != "gaussian") {
       d$weight <- c(extract(x$stanfit, pars = "weights", permuted = FALSE))
@@ -70,15 +71,24 @@ as.data.frame.walker_fit <- function(x, type, ...) {
 #' Return summary information of time-invariant model parameters.
 #' 
 #' @param x An output from \code{\link{walker}} or \code{\link{walker_glm}}.
+#' @param type Either \code{tiv} (time-invariant parameters, the default) or \code{tv} (time-varying coefficients).
 #' @method summary walker_fit
 #' @export
-summary.walker_fit <- function(x, ...) {
+summary.walker_fit <- function(x, type = "tiv", ...) {
   
-  pars <- setdiff(x$stanfit@sim$pars_oi, c("beta_rw", "slope", "y_fit", "y_rep", "lp__", "weights"))
+  type <- match.arg(type, c("tiv", "tv"))
+  
+  if (type == "tiv") {
+    pars <- setdiff(x$stanfit@sim$pars_oi, c("beta_rw", "slope", "y_fit", "y_rep", "lp__", "weights"))
+  } else {
+    pars <- intersect(x$stanfit@sim$pars_oi, c("beta_rw", "slope"))
+  }
   
   if (x$distribution == "gaussian") {
+    
     d <- as.data.frame(summary(x$stanfit, pars = pars)$summary[, c("mean", "se_mean", "sd", "2.5%", "97.5%", "n_eff")])
     d$n_eff <- round(d$n_eff)
+    
   } else {
     
     samples <- extract(x$stanfit, pars = pars, permuted = FALSE)
