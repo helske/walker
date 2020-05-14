@@ -11,9 +11,9 @@
 #' The \code{rw1} and \code{rw2} functions used in the formula define new formulas 
 #' for the first and second order random walks. In addition, these functions 
 #' need to be supplied with priors for initial coefficients and the 
-#' standard devitions. For second order random walk model, these sigma priors 
-#' correspond to the standard deviation of slope distrurbances. For \code{rw2}, 
-#' also a prior for the initial slope needs to be defined. See examples.
+#' standard deviations. For second order random walk model, these sigma priors 
+#' correspond to the standard deviation of slope disturbances. For \code{rw2}, 
+#' also a prior for the initial slope nu needs to be defined. See examples.
 #' 
 #' @note Beware of overfitting and identifiability issues. In particular, 
 #' be careful in not defining multiple intercept terms (only one should be present).
@@ -243,7 +243,7 @@ walker <- function(formula, data, sigma_y_prior, beta, init, chains,
   stanfit <- sampling(stanmodels$walker_lm,
                       data = stan_data, chains = chains, init = init,
                       pars = c("sigma_y", "sigma_rw1", "sigma_rw2", "beta_fixed", "beta_rw", 
-                               "slope", "y_fit", "y_rep"), ...)
+                               "nu", "y_fit", "y_rep"), ...)
   
   structure(list(stanfit = stanfit, y = y, xreg_fixed = xreg_fixed, 
                  xreg_rw = xreg_rw, call = mc, distribution = "gaussian"), class = "walker_fit")
@@ -535,7 +535,7 @@ walker_glm <- function(formula, data, beta, init, chains,
   stanfit <- sampling(stanmodels$walker_glm,
                       data = stan_data, chains = chains, init = init,
                       pars = c("sigma_rw1", "sigma_rw2", "beta_fixed", "beta_rw", 
-                               "slope", "y_fit", "y_rep", "weights"), ...)
+                               "nu", "y_fit", "y_rep", "weights"), ...)
   
   structure(list(stanfit = stanfit, y = y, xreg_fixed = xreg_fixed, 
                  xreg_rw = xreg_rw, u = u, distribution = distribution, call = mc), 

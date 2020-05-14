@@ -31,7 +31,7 @@ y_t &= x'_t \beta_t + \epsilon_t, \quad t = 1,\ldots, n\\
 $$
 where $y_t$ is the observation at time $t$, $x_t$ contains the corresponding predictor variables, $\beta_t$ is a $k$ dimensional vector of regression coefficients at time $t$, $\epsilon_t \sim N(0, \sigma^2_{\epsilon})$, and $\eta_t \sim N(0, D)$, with $D$ being $k \times k$ diagonal matrix with diagonal elements $\sigma^2_{i,\eta}$, $i=1,\ldots,k$. Denote the unknown parameters of the model by $\beta = (\beta'_1, \ldots, \beta'_n)'$ and $\sigma = (\sigma_{\epsilon}, \sigma_{1, \eta}, \ldots, \sigma_{k, \eta})$. We define priors for first $\beta_1$ as $N(\mu_{\beta_1}, \sigma_{\beta_1})$, and for $\sigma_i \sim N(\mu_{\sigma_i}, \sigma_{\sigma_i})$, $i=1,\ldots,k+1$, truncated to positive values.
 
-Although in principle writing this model as above in `Stan` is straighforward, standard implementation can lead to some computational problems (see the illustration in next Section). An alternative solution used by `walker` is based on the marginalization of the regression coefficients $\beta$ during the MCMC sampling by using the Kalman filter. This provides fast and accurate inference of marginal posterior $p(\sigma | y)$. Then, the corresponding joint posterior $p(\sigma, \beta | y) = p(\beta | \sigma, y)p(\sigma | y)$ can be obtained by simulating the regression coefficients given marginal posterior of standard deviations. This sampling can be performed for example by simulation smoothing algorithm by @durbin-koopman2002. Note that we have opted to sample the $\beta$ parameters given $\sigma$'s, but it is also possible to obtain somewhat more accurate summary statistics such as mean and variance of these parameters by using the standard Kalman smoother for compution of $\textrm{E}(\beta| \sigma, y)$ and $\textrm{Var}(\beta| \sigma, y)$, and using the law of total expectation.
+Although in principle writing this model as above in `Stan` is straightforward, standard implementation can lead to some computational problems (see the illustration in next Section). An alternative solution used by `walker` is based on the marginalization of the regression coefficients $\beta$ during the MCMC sampling by using the Kalman filter. This provides fast and accurate inference of marginal posterior $p(\sigma | y)$. Then, the corresponding joint posterior $p(\sigma, \beta | y) = p(\beta | \sigma, y)p(\sigma | y)$ can be obtained by simulating the regression coefficients given marginal posterior of standard deviations. This sampling can be performed for example by simulation smoothing algorithm by @durbin-koopman2002. Note that we have opted to sample the $\beta$ parameters given $\sigma$'s, but it is also possible to obtain somewhat more accurate summary statistics such as mean and variance of these parameters by using the standard Kalman smoother for computation of $\textrm{E}(\beta| \sigma, y)$ and $\textrm{Var}(\beta| \sigma, y)$, and using the law of total expectation.
 
 In this vignette we first introduce the basic use using simple linear regression model with first order random walk, and then discuss extensions to second order random walk, as well as how to deal with non-Gaussian data.
 
@@ -118,7 +118,7 @@ This is essentially local linear trend model [@harvey] with restriction that the
 
 ```{r walker_rw2}
 fit_rw2 <-walker(y ~ -1 + 
-    rw2(~ x1 + x2, beta = c(0, 10), sigma = c(0, 10), slope = c(0, 10)), 
+    rw2(~ x1 + x2, beta = c(0, 10), sigma = c(0, 10), nu = c(0, 10)), 
   refresh = 0, chains = 2, sigma_y = c(0, 10))
 plot_coefs(fit_rw2)
 ```
@@ -154,14 +154,12 @@ With naive implementation we get smaller effective sample sizes and much higher 
 
 ## Discussion
 
-In this vignette we illustrated the benefits of marginalisation in the context of dynamic regression models. The underlying idea is not new; this approach is typical especially in classic Metropolis-type algorithms for linear-Gaussian state space models where the marginal likelihood $p(y | \theta)$ (where $\theta$ denotes the hyperparameters i.e. not the latents states such as $\beta$'s in current context) is used in the computation of the acceptance probability. Here we rely on readily available Hamiltonian Monte Carlo based `Stan` software, thus allowing us to enjoy the benefits of diverse tools of the `Stan` community. 
+In this vignette we illustrated the benefits of marginalisation in the context of time-varying regression models. The underlying idea is not new; this approach is typical in classic Metropolis-type algorithms for linear-Gaussian state space models where the marginal likelihood $p(y | \theta)$ (where $\theta$ denotes the hyperparameters i.e. not the latents states such as $\beta$'s in current context) is used in the computation of the acceptance probability. Here we rely on readily available Hamiltonian Monte Carlo based `Stan` software, thus allowing us to enjoy the benefits of diverse tools of the `Stan` community. 
 
 The motivation behind the `walker` was to test the efficiency of importance sampling type weighting method of @vihola-helske-franks in a dynamic generalized linear model setting within the HMC context. Although some of our other preliminary results have suggested that naive combination of the HMC with IS weighting can provide rather limited computational gains, in case of dynamic GLMs so called global approximation technique [@vihola-helske-franks] provides fast and robust alternative to standard HMC approach of `Stan`.
 
-In the future, the prior definitions and some of the post-processing options will extended to allow more flexible modelling. Collaboration regarding the development of the package as well as interesting applications are highly welcome.
-
 ## Acknowledgements
 
-This work has been supported by the Academy of Finland research grants 284513 and 312605.
+This work has been supported by the Academy of Finland research grants 284513, 312605, and 311877.
 
 ## References

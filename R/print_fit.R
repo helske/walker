@@ -8,7 +8,7 @@
 #' @method print walker_fit
 #' @export
 print.walker_fit <- function(x, ...) {
-  pars <- setdiff(x$stanfit@sim$pars_oi, c("beta_rw", "slope", "y_fit", "y_rep"))
+  pars <- setdiff(x$stanfit@sim$pars_oi, c("beta_rw", "nu", "y_fit", "y_rep"))
   if(x$distribution != "gaussian") warning("Results are based on approximate model, use summary method for exact results.")
   print(x$stanfit, pars = pars, ...)
 }
@@ -35,7 +35,7 @@ as.data.frame.walker_fit <- function(x, type, ...) {
   type <- match.arg(type, c("tiv", "tv"))
   
   if (type == "tiv") {
-    pars <- setdiff(x$stanfit@sim$pars_oi, c("beta_rw", "slope", "y_fit", "y_rep", "lp__", "weights"))
+    pars <- setdiff(x$stanfit@sim$pars_oi, c("beta_rw", "nu", "y_fit", "y_rep", "lp__", "weights"))
     samples <- extract(x$stanfit, pars = pars, permuted = FALSE)
     n <- nrow(samples)
     k <- ncol(samples)
@@ -47,7 +47,7 @@ as.data.frame.walker_fit <- function(x, type, ...) {
       d$weight <- c(extract(x$stanfit, pars = "weights", permuted = FALSE))
     }
   } else {
-    pars <- intersect(x$stanfit@sim$pars_oi, c("beta_rw", "slope"))
+    pars <- intersect(x$stanfit@sim$pars_oi, c("beta_rw", "nu"))
     samples <- extract(x$stanfit, pars = pars, permuted = FALSE)
     n <- nrow(samples)
     k <- ncol(samples)
@@ -79,9 +79,9 @@ summary.walker_fit <- function(x, type = "tiv", ...) {
   type <- match.arg(type, c("tiv", "tv"))
   
   if (type == "tiv") {
-    pars <- setdiff(x$stanfit@sim$pars_oi, c("beta_rw", "slope", "y_fit", "y_rep", "lp__", "weights"))
+    pars <- setdiff(x$stanfit@sim$pars_oi, c("beta_rw", "nu", "y_fit", "y_rep", "lp__", "weights"))
   } else {
-    pars <- intersect(x$stanfit@sim$pars_oi, c("beta_rw", "slope"))
+    pars <- intersect(x$stanfit@sim$pars_oi, c("beta_rw", "nu"))
   }
   
   if (x$distribution == "gaussian") {

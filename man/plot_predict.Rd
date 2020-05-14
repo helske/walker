@@ -37,7 +37,7 @@ rw2_fit <- walker(y ~ 1 +
                     rw2(~ -1 + x,
                         beta = c(0, 10), 
                         sigma = c(0, 10), 
-                        slope = c(0, 10)), 
+                        nu = c(0, 10)), 
                   sigma_y = c(0, 10), 
                   beta = c(0, 10),
                   iter = 400, chains = 1, data = data_old)

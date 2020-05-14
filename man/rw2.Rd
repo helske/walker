@@ -18,7 +18,7 @@ prior mean and standard deviation of the Gaussian prior for coefficients at time
 the slope level standard deviation.}
 
 \item{nu}{A vector of length two which defines the 
-prior mean and standard deviation of the Gaussian prior for the slopes at time 1.}
+prior mean and standard deviation of the Gaussian prior for the slopes nu at time 1.}
 
 \item{gamma}{An optional vector defining a damping of the slope level noises. More specifically, 
 the variance of the conditional distribution of state_t+1 given state is of form gamma_t * sigma.}

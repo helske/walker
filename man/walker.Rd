@@ -58,9 +58,9 @@ in order to marginalise over the coefficients for efficient sampling.
 The \code{rw1} and \code{rw2} functions used in the formula define new formulas 
 for the first and second order random walks. In addition, these functions 
 need to be supplied with priors for initial coefficients and the 
-standard devitions. For second order random walk model, these sigma priors 
-correspond to the standard deviation of slope distrurbances. For \code{rw2}, 
-also a prior for the initial slope needs to be defined. See examples.
+standard deviations. For second order random walk model, these sigma priors 
+correspond to the standard deviation of slope disturbances. For \code{rw2}, 
+also a prior for the initial slope nu needs to be defined. See examples.
 }
 \note{
 Beware of overfitting and identifiability issues. In particular, 

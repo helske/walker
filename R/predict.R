@@ -41,7 +41,7 @@ predict.walker_fit <- function(object, newdata, u,
   n_iter <- nrow(beta_rw)
   
   slope <- 
-    extract(object$stanfit, pars = "slope")$slope[, , n, drop = FALSE]
+    extract(object$stanfit, pars = "nu")$slope[, , n, drop = FALSE]
   if (is.null(slope)) {
     slope <- matrix(0, n_iter, 0)
   } else  dim(slope) <- dim(slope)[1:2]
