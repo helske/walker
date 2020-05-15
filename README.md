@@ -3,7 +3,7 @@
 [![downloads](https://cranlogs.r-pkg.org/badges/walker)](https://cranlogs.r-pkg.org/badges/walker)
 [![codecov](https://codecov.io/gh/helske/walker/branch/master/graph/badge.svg)](https://codecov.io/gh/helske/walker)
 
-# walker: Efficient Baysian dynamic linear regression models with Stan/R
+# walker: Bayesian Generalized Linear Models with Time-Varying Coefficients
 
 Walker provides a method for fully Bayesian generalized linear regression where the 
 regression coefficients are allowed to vary over time as a first or second order integrated random walk. 
@@ -18,13 +18,13 @@ See the package [vignette](http://htmlpreview.github.io/?https://github.com/hels
 
 # NEWS
 
-
 ### 12.5.2020
 
 * Added as.data.frame function for `walker` and `walker_glm` output.
 * Added a `summary` method.
 * The print method now correctly warns about approximate results in case of non-Gaussian model.
 * Changed arguments `*_prior` to more concise versions (e.g. `sigma_prior` is now just `sigma`). 
+* Changed the name of the slope terms to `nu` as in vignette formulas. 
 * Updated to rstantools 2.0.0 package structure and removed dependency on soft-depracated functions of `dplyr`.
 
 ### 23.1.2020

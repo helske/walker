@@ -28,8 +28,8 @@ data {
   real<lower=0> sigma_rw1_sd;
   real<lower=0> sigma_rw2_sd;
   
-  real<lower=0> slope_mean;
-  real<lower=0> slope_sd;
+  real<lower=0> nu_mean;
+  real<lower=0> nu_sd;
   vector[n] gamma_y;
   matrix[k_rw1, n] gamma_rw1;
   matrix[k_rw2, n] gamma_rw2;
@@ -52,8 +52,8 @@ transformed data {
     P1[i, i] = beta_rw2_sd^2;
   }
    for(i in (k + 1):m) {
-    a1[i] = slope_mean;
-    P1[i, i] = slope_sd^2;
+    a1[i] = nu_mean;
+    P1[i, i] = nu_sd^2;
   }
 
 }
@@ -99,7 +99,7 @@ generated quantities{
 
   vector[n] y_rep;
   matrix[k, n] beta_rw;
-  matrix[k_rw2, n] slope;
+  matrix[k_rw2, n] nu;
   vector[n] y_fit;
   
   // sample coefficients given sigma's (no conditioning on y)
@@ -109,7 +109,7 @@ generated quantities{
   }
   for(i in 1:k_rw2) {
      beta_rw[k_rw1 + i, 1] = normal_rng(beta_rw2_mean, beta_rw2_sd);
-     slope[i, 1] = normal_rng(slope_mean, slope_sd);
+     nu[i, 1] = normal_rng(nu_mean, nu_sd);
   }
 
   for (t in 1:(n - 1)) {
@@ -117,8 +117,8 @@ generated quantities{
       beta_rw[i, t + 1] = normal_rng(beta_rw[i, t], gamma_rw1[i, t] * sigma_rw1[i]);
     }
     for(i in 1:k_rw2) {
-      beta_rw[k_rw1 + i, t+1] = beta_rw[k_rw1 + i, t] + slope[i, t];
-      slope[i, t + 1] = normal_rng(slope[i, t], gamma_rw2[i, t] * sigma_rw2[i]);
+      beta_rw[k_rw1 + i, t+1] = beta_rw[k_rw1 + i, t] + nu[i, t];
+      nu[i, t + 1] = normal_rng(nu[i, t], gamma_rw2[i, t] * sigma_rw2[i]);
     }
   }
   // sample new observations given previously simulated beta
@@ -130,7 +130,7 @@ generated quantities{
     matrix[m, n] states = gaussian_smoother(y_ - y_rep, y_miss, a1, P1,
                                             sigma_y^2, Tt, Rt, xreg_rw, gamma2_y);
     beta_rw += states[1:k, 1:n];
-    slope += states[(k + 1):m, 1:n];
+    nu += states[(k + 1):m, 1:n];
   }
 
   // replicated data from posterior predictive distribution

@@ -58,7 +58,6 @@ END_RCPP
 
 RcppExport SEXP _rcpp_module_boot_stan_fit4rw1_model_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4rw1_model_naive_mod();
-RcppExport SEXP _rcpp_module_boot_stan_fit4rw_glm_model_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4walker_glm_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4walker_lm_mod();
 
@@ -67,7 +66,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_walker_predict_walker_glm", (DL_FUNC) &_walker_predict_walker_glm, 15},
     {"_rcpp_module_boot_stan_fit4rw1_model_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4rw1_model_mod, 0},
     {"_rcpp_module_boot_stan_fit4rw1_model_naive_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4rw1_model_naive_mod, 0},
-    {"_rcpp_module_boot_stan_fit4rw_glm_model_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4rw_glm_model_mod, 0},
     {"_rcpp_module_boot_stan_fit4walker_glm_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4walker_glm_mod, 0},
     {"_rcpp_module_boot_stan_fit4walker_lm_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4walker_lm_mod, 0},
     {NULL, NULL, 0}

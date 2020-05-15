@@ -10,7 +10,6 @@ vignette: |
   %\VignetteIndexEntry{Efficient Bayesian generalized linear models with time-varying coefficients}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-  %\VignetteDepends{rstan}
 ---
   
 ```{r setup, include=FALSE}

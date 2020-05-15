@@ -32,8 +32,8 @@ data {
   real<lower=0> sigma_rw1_sd;
   real<lower=0> sigma_rw2_sd;
   
-  real<lower=0> slope_mean;
-  real<lower=0> slope_sd;
+  real<lower=0> nu_mean;
+  real<lower=0> nu_sd;
   
   vector[n] Ht;
   vector[n] y_original;
@@ -60,8 +60,8 @@ transformed data {
     P1[i, i] = beta_rw2_sd^2;
   }
    for(i in (k + 1):m) {
-    a1[i] = slope_mean;
-    P1[i, i] = slope_sd^2;
+    a1[i] = nu_mean;
+    P1[i, i] = nu_sd^2;
   }
 
 }
@@ -110,7 +110,7 @@ model {
 generated quantities{
   
   matrix[k, n] beta_rw;
-  matrix[k_rw2, n] slope;
+  matrix[k_rw2, n] nu;
   real weights;
   vector[n] y_fit;
   vector[n] y_rep;
@@ -119,9 +119,9 @@ generated quantities{
 
     vector[n] y_rep_j;
     matrix[k, n] beta_j;
-    matrix[k_rw2, n] slope_j;
+    matrix[k_rw2, n] nu_j;
     real beta_array[k, n, N];
-    real slope_array[k_rw2, n, N];
+    real nu_array[k_rw2, n, N];
     vector[N] w = rep_vector(0.0, N); //importance sampling weights
     
     // This is the simplest but not most efficient way to sample multiple realizations
@@ -136,7 +136,7 @@ generated quantities{
       }
       for(i in 1:k_rw2) {
         beta_j[k_rw1 + i, 1] = normal_rng(beta_rw2_mean, beta_rw2_sd);
-        slope_j[i, 1] = normal_rng(slope_mean, slope_sd);
+        nu_j[i, 1] = normal_rng(nu_mean, nu_sd);
       }
 
       for (t in 1:(n - 1)) {
@@ -144,8 +144,8 @@ generated quantities{
           beta_j[i, t + 1] = normal_rng(beta_j[i, t], gamma_rw1[i, t] * sigma_rw1[i]);
         }
         for(i in 1:k_rw2) {
-          beta_j[k_rw1 + i, t+1] = beta_j[k_rw1 + i, t] + slope_j[i, t];
-          slope_j[i, t + 1] = normal_rng(slope_j[i, t], gamma_rw2[i, t] * sigma_rw2[i]);
+          beta_j[k_rw1 + i, t+1] = beta_j[k_rw1 + i, t] + nu_j[i, t];
+          nu_j[i, t + 1] = normal_rng(nu_j[i, t], gamma_rw2[i, t] * sigma_rw2[i]);
         }
       }
       // sample new observations given previously simulated beta
@@ -157,11 +157,11 @@ generated quantities{
         matrix[m, n] states = glm_approx_smoother(y_ - y_rep_j, y_miss, a1, P1,
           Ht, Tt, Rt, xreg_rw);
         beta_j += states[1:k, 1:n];
-        slope_j += states[(k + 1):m, 1:n];
+        nu_j += states[(k + 1):m, 1:n];
       }
   
       beta_array[1:k,1:n,j] = to_array_2d(beta_j);
-      slope_array[1:k_rw2,1:n,j] = to_array_2d(slope_j);
+      nu_array[1:k_rw2,1:n,j] = to_array_2d(nu_j);
 
       w[j] = -loglik[2];
       if (distribution == 1) {
@@ -191,7 +191,7 @@ generated quantities{
       weights = mean(expw);
       index = categorical_rng(expw / sum(expw));
       beta_rw = to_matrix(beta_array[, , index]);
-      if (k_rw2 > 0) slope = to_matrix(slope_array[, , index]);
+      if (k_rw2 > 0) nu = to_matrix(nu_array[, , index]);
    
     // replicated data from posterior predictive distribution
    

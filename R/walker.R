@@ -208,8 +208,8 @@ walker <- function(formula, data, sigma_y_prior, beta, init, chains,
     sigma_rw1_sd = rw1_out$sigma[2],
     sigma_rw2_mean = rw2_out$sigma[1],
     sigma_rw2_sd = rw2_out$sigma[2],
-    slope_mean = rw2_out$nu[1],
-    slope_sd = rw2_out$nu[2],
+    nu_mean = rw2_out$nu[1],
+    nu_sd = rw2_out$nu[2],
     gamma_y = gamma_y,
     gamma_rw1 = rw1_out$gamma,
     gamma_rw2 = rw2_out$gamma
@@ -423,8 +423,8 @@ walker_glm <- function(formula, data, beta, init, chains,
   beta_rw1_sd = rw1_out$beta[2]
   beta_rw2_mean = rw2_out$beta[1]
   beta_rw2_sd = rw2_out$beta[2]
-  slope_mean = rw2_out$nu[1]
-  slope_sd = rw2_out$nu[2]
+  nu_mean = rw2_out$nu[1]
+  nu_sd = rw2_out$nu[2]
   
   if (is.numeric(initial_mode)) {
     pseudo_H <- 1 / (u * exp(initial_mode))
@@ -458,9 +458,9 @@ walker_glm <- function(formula, data, beta, init, chains,
                   (k_fixed + k_rw1 + k_rw2 + 1):m] <- diag(k_rw2)
              }
              Qt <- diag(rep(c(0, NA, 0, NA), times = c(k_fixed, k_rw1, k_rw2, k_rw2)), m)
-             a1 <- rep(c(beta_fixed_mean, beta_rw1_mean, beta_rw2_mean, slope_mean), 
+             a1 <- rep(c(beta_fixed_mean, beta_rw1_mean, beta_rw2_mean, nu_mean), 
                        times = c(k_fixed, k_rw1, k_rw2, k_rw2))
-             P1 <- diag(rep(c(beta_fixed_sd, beta_rw1_sd, beta_rw2_sd, slope_sd), 
+             P1 <- diag(rep(c(beta_fixed_sd, beta_rw1_sd, beta_rw2_sd, nu_sd), 
                             times = c(k_fixed, k_rw1, k_rw2, k_rw2)), m)
              P1inf <- diag(0, m)
              model <- SSModel(y ~ -1 + SSMcustom(Zt, Tt, Rt, Qt, a1, P1, P1inf),
@@ -494,8 +494,8 @@ walker_glm <- function(formula, data, beta, init, chains,
     sigma_rw1_sd = rw1_out$sigma[2],
     sigma_rw2_mean = rw2_out$sigma[1],
     sigma_rw2_sd = rw2_out$sigma[2],
-    slope_mean = slope_mean,
-    slope_sd = slope_sd,
+    nu_mean = nu_mean,
+    nu_sd = nu_sd,
     y = pseudo_y, 
     y_miss = as.integer(is.na(y)),
     Ht = pseudo_H, 
