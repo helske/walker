@@ -4,12 +4,14 @@
 \alias{summary.walker_fit}
 \title{Summary of walker_fit Object}
 \usage{
-\method{summary}{walker_fit}(x, type = "tiv", ...)
+\method{summary}{walker_fit}(object, type = "tiv", ...)
 }
 \arguments{
-\item{x}{An output from \code{\link{walker}} or \code{\link{walker_glm}}.}
+\item{object}{An output from \code{\link{walker}} or \code{\link{walker_glm}}.}
 
 \item{type}{Either \code{tiv} (time-invariant parameters, the default) or \code{tv} (time-varying coefficients).}
+
+\item{...}{Ignored.}
 }
 \description{
 Return summary information of time-invariant model parameters.

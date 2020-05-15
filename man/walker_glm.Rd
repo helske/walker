@@ -65,14 +65,11 @@ generated quantities block of Stan model). Note that plotting functions \code{pp
 before plotting, leading to "exact" analysis.
 }
 \details{
-The underlying idea of \code{walker_glm} is based on 
-Vihola M, Helske J and Franks J (2016), 
-"Importance sampling type correction of Markov chain Monte Carlo and exact
-approximations", which is available at ArXiv.
+The underlying idea of \code{walker_glm} is based on paper 
+"Importance sampling type estimators based on approximate marginal MCMC" by 
+Vihola M, Helske J and Franks J which is available at ArXiv.
 
-This function is not fully tested yet, so please file an issue and/or pull request 
-on Github if you encounter problems. The reason there might be problems in some cases 
-is the use of global approximation (i.e. start of the MCMC) instead of more accurate 
+\code{walker_glm} uses the global approximation (i.e. start of the MCMC) instead of more accurate 
 but slower local approximation (where model is approximated at each iteration). 
 However for these restricted models global approximation should be sufficient, 
 assuming the the initial estimate of the conditional mode of p(xbeta | y, sigma) not too 
@@ -92,8 +89,6 @@ out <- walker_glm(discoveries ~ -1 +
   distribution = "poisson", iter = 1000, chains = 1, refresh = 0)
 
 plot_fit(out)
-
-
 
 set.seed(1)
 n <- 25

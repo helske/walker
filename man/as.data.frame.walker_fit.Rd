@@ -4,12 +4,19 @@
 \alias{as.data.frame.walker_fit}
 \title{Coerce Posterior Samples of walker Fit to a Data Frame}
 \usage{
-\method{as.data.frame}{walker_fit}(x, type, ...)
+\method{as.data.frame}{walker_fit}(x, row.names, optional, type, ...)
 }
 \arguments{
 \item{x}{An output from \code{\link{walker}} or \code{\link{walker_glm}}.}
 
+\item{row.names}{\code{NULL} (default) or a character vector giving the row names 
+for the data frame.}
+
+\item{optional}{Ignored (part of generic \code{as.data.frame} signature).}
+
 \item{type}{Either \code{tiv} (time-invariant parameters) or \code{tv} (time-varying coefficients).}
+
+\item{...}{Ignored.}
 }
 \description{
 Creates a data.frame object from the output of walker fit.
