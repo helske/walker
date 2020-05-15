@@ -82,7 +82,7 @@ as.data.frame.walker_fit <- function(x, row.names, optional,  type, ...) {
 #' @importFrom coda spectrum0.ar
 #' @method summary walker_fit
 #' @export
-summary.walker_fit <- function(x, type = "tiv", ...) {
+summary.walker_fit <- function(object, type = "tiv", ...) {
   
   type <- match.arg(type, c("tiv", "tv"))
   
