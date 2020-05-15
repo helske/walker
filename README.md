@@ -1,21 +1,26 @@
-[![Build Status](https://travis-ci.org/helske/walker.png?branch=master)](https://travis-ci.org/helske/walker)
 [![cran version](https://www.r-pkg.org/badges/version/walker)](https://cran.r-project.org/package=walker)
 [![downloads](https://cranlogs.r-pkg.org/badges/walker)](https://cranlogs.r-pkg.org/badges/walker)
-[![codecov](https://codecov.io/gh/helske/walker/branch/master/graph/badge.svg)](https://codecov.io/gh/helske/walker)
 
-# walker: Bayesian Generalized Linear Models with Time-Varying Coefficients
+walker: Bayesian Generalized Linear Models with Time-Varying Coefficients
+==========================================================================
 
-Walker provides a method for fully Bayesian generalized linear regression where the 
+The R package wwalker provides a method for fully Bayesian generalized linear regression where the 
 regression coefficients are allowed to vary over time as a first or second order integrated random walk. 
 
 The Markov chain Monte Carlo (MCMC) algorithm uses Hamiltonian Monte Carlo provided by Stan, 
 using a state space representation of the model in order to marginalise over the coefficients for accurate and efficient sampling.
-For non-Gaussian models the MCMC targets approximate marginal posterior based on Gaussian approximation, which is then corrected using importance sampling as in [Vihola, Helske, Franks (2018)](https://arxiv.org/abs/1609.02541).
+For non-Gaussian models the MCMC targets approximate marginal posterior based on Gaussian approximation, which is then corrected using importance sampling as in [Vihola, Helske, Franks (2020)](https://arxiv.org/abs/1609.02541v6).
 
 See the package [vignette](http://htmlpreview.github.io/?https://github.com/helske/walker/blob/master/walker_html/walker.html) and [documentation manual](https://cran.r-project.org/package=walker/walker.pdf) for details and examples.
 
+You can download the development version of `walker` from Github using the [`devtools`](https://cran.r-project.org/package=devtools) package:
 
-# NEWS
+```R
+devtools::install_github("helske/walker")
+```
+
+NEWS
+---------------------------------------------
 
 ### 12.5.2020
 
