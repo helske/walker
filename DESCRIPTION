@@ -26,13 +26,16 @@ Suggests:
 Depends:
     R (>= 3.4.0),
     Rcpp (>= 0.12.9),
-    bayesplot,
     rstan (>= 2.18.1)
 Imports:
+    bayesplot,
+    coda,
     dplyr,
+    Hmisc,
     ggplot2,
     KFAS,
     methods,
+    rlang,
     rstantools (>= 2.0.0)
 LinkingTo: 
     StanHeaders (>= 2.18.0), 

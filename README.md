@@ -12,7 +12,7 @@ The Markov chain Monte Carlo (MCMC) algorithm uses Hamiltonian Monte Carlo provi
 using a state space representation of the model in order to marginalise over the coefficients for accurate and efficient sampling.
 For non-Gaussian models the MCMC targets approximate marginal posterior based on Gaussian approximation, which is then corrected using importance sampling as in [Vihola, Helske, Franks (2018)](https://arxiv.org/abs/1609.02541).
 
-See the package [vignette](http://htmlpreview.github.io/?https://github.com/helske/walker/blob/master/walker_html/walker.html) and [documentation manual](https://cran.r-project.org/web/packages/walker/walker.pdf) for details and examples.
+See the package [vignette](http://htmlpreview.github.io/?https://github.com/helske/walker/blob/master/walker_html/walker.html) and [documentation manual](https://cran.r-project.org/package=walker/walker.pdf) for details and examples.
 
 
 # NEWS

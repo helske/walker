@@ -18,7 +18,11 @@ print.walker_fit <- function(x, ...) {
 #' Creates a data.frame object from the output of walker fit.
 #' 
 #' @param x An output from \code{\link{walker}} or \code{\link{walker_glm}}.
+#' @param row.names \code{NULL} (default) or a character vector giving the row names 
+#' for the data frame.
+#' @param optional Ignored (part of generic \code{as.data.frame} signature).
 #' @param type Either \code{tiv} (time-invariant parameters) or \code{tv} (time-varying coefficients).
+#' @param ... Ignored.
 #' @method as.data.frame walker_fit
 #' @export
 #' @examples 
@@ -30,7 +34,7 @@ print.walker_fit <- function(x, ...) {
 #'            upr = quantile(value, 0.95))
 #' }
 #'
-as.data.frame.walker_fit <- function(x, type, ...) {
+as.data.frame.walker_fit <- function(x, row.names, optional,  type, ...) {
   
   type <- match.arg(type, c("tiv", "tv"))
   
@@ -42,7 +46,8 @@ as.data.frame.walker_fit <- function(x, type, ...) {
     d <- data.frame(iter = 1:n,
                     chain = rep(1:k, each = n),
                     value = c(samples), 
-                    variable = rep(dimnames(samples)[[3]], each = n * k))
+                    variable = rep(dimnames(samples)[[3]], each = n * k),
+                    row.names = row.names)
     if (x$distribution != "gaussian") {
       d$weight <- c(extract(x$stanfit, pars = "weights", permuted = FALSE))
     }
@@ -56,12 +61,12 @@ as.data.frame.walker_fit <- function(x, type, ...) {
                     time = rep(as.numeric(time(x$y)), each = n * k * ncol(x$xreg_rw)),
                     value = c(samples), 
                     variable = rep(paste0("beta_", colnames(x$xreg_rw)), 
-                                   each = n * k))
+                                   each = n * k),
+                    row.names = row.names)
     if (x$distribution != "gaussian") {
       d$weight <- c(extract(x$stanfit, pars = "weights", permuted = FALSE))
     }
   }
-  
   d
 }
 
@@ -70,8 +75,11 @@ as.data.frame.walker_fit <- function(x, type, ...) {
 #' 
 #' Return summary information of time-invariant model parameters.
 #' 
-#' @param x An output from \code{\link{walker}} or \code{\link{walker_glm}}.
+#' @param object An output from \code{\link{walker}} or \code{\link{walker_glm}}.
 #' @param type Either \code{tiv} (time-invariant parameters, the default) or \code{tv} (time-varying coefficients).
+#' @param ... Ignored.
+#' @importFrom Hmisc wtd.mean wtd.var wtd.quantile
+#' @importFrom coda spectrum0.ar
 #' @method summary walker_fit
 #' @export
 summary.walker_fit <- function(x, type = "tiv", ...) {
@@ -79,25 +87,25 @@ summary.walker_fit <- function(x, type = "tiv", ...) {
   type <- match.arg(type, c("tiv", "tv"))
   
   if (type == "tiv") {
-    pars <- setdiff(x$stanfit@sim$pars_oi, c("beta_rw", "nu", "y_fit", "y_rep", "lp__", "weights"))
+    pars <- setdiff(object$stanfit@sim$pars_oi, c("beta_rw", "nu", "y_fit", "y_rep", "lp__", "weights"))
   } else {
-    pars <- intersect(x$stanfit@sim$pars_oi, c("beta_rw", "nu"))
+    pars <- intersect(object$stanfit@sim$pars_oi, c("beta_rw", "nu"))
   }
   
-  if (x$distribution == "gaussian") {
+  if (object$distribution == "gaussian") {
     
-    d <- as.data.frame(summary(x$stanfit, pars = pars)$summary[, c("mean", "se_mean", "sd", "2.5%", "97.5%", "n_eff")])
+    d <- as.data.frame(summary(object$stanfit, pars = pars)$summary[, c("mean", "se_mean", "sd", "2.5%", "97.5%", "n_eff")])
     d$n_eff <- round(d$n_eff)
     
   } else {
     
-    samples <- extract(x$stanfit, pars = pars, permuted = FALSE)
-    w <- extract(x$stanfit, pars = "weights", permuted = FALSE)
-    
-    means <- apply(samples, 3, function(x) Hmisc::wtd.mean(x, c(w), normwt = TRUE))
-    sds <- sqrt(apply(samples, 3, function(x) Hmisc::wtd.var(x, c(w), normwt = TRUE)))
-    lwrs <- apply(samples, 3, function(x) Hmisc::wtd.quantile(x, c(w), 0.025, normwt = TRUE))
-    uprs <- apply(samples, 3, function(x) Hmisc::wtd.quantile(x, c(w), 0.975, normwt = TRUE))
+    samples <- extract(object$stanfit, pars = pars, permuted = FALSE)
+    w <- extract(object$stanfit, pars = "weights", permuted = FALSE)
+ 
+    means <- apply(samples, 3, function(x) wtd.mean(x, c(w), normwt = TRUE))
+    sds <- sqrt(apply(samples, 3, function(x) wtd.var(x, c(w), normwt = TRUE)))
+    lwrs <- apply(samples, 3, function(x) wtd.quantile(x, c(w), 0.025, normwt = TRUE))
+    uprs <- apply(samples, 3, function(x) wtd.quantile(x, c(w), 0.975, normwt = TRUE))
     
     ess <- numeric(dim(samples)[3])
     for (i in 1:seq_along(ncol(samples))) {

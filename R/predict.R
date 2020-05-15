@@ -40,11 +40,11 @@ predict.walker_fit <- function(object, newdata, u,
   dim(beta_rw) <- dim(beta_rw)[1:2]
   n_iter <- nrow(beta_rw)
   
-  slope <- 
-    extract(object$stanfit, pars = "nu")$slope[, , n, drop = FALSE]
-  if (is.null(slope)) {
-    slope <- matrix(0, n_iter, 0)
-  } else  dim(slope) <- dim(slope)[1:2]
+  nu <- 
+    extract(object$stanfit, pars = "nu")$nu[, , n, drop = FALSE]
+  if (is.null(nu)) {
+    nu <- matrix(0, n_iter, 0)
+  } else  dim(nu) <- dim(nu)[1:2]
   
   beta_fixed <- extract(object$stanfit, pars = "beta_fixed")$beta_fixed
   if (is.null(beta_fixed)) beta_fixed <- matrix(0, n_iter, 0)
@@ -59,7 +59,7 @@ predict.walker_fit <- function(object, newdata, u,
     if (missing(u)) u <- rep(1, nrow(newdata))
     
     pred <- predict_walker_glm(t(sigma_rw1), t(sigma_rw2),
-      t(beta_fixed), t(beta_rw), t(slope), xregs$xreg_fixed, 
+      t(beta_fixed), t(beta_rw), t(nu), xregs$xreg_fixed, 
       t(xregs$xreg_rw), u, 
       pmatch(object$distribution, c("poisson", "binomial")), 
       extract(object$stanfit, pars = "weights")$weights, 
@@ -71,7 +71,7 @@ predict.walker_fit <- function(object, newdata, u,
   } else {
     pred <- predict_walker(t(sigma_rw1), t(sigma_rw2),
       extract(object$stanfit, pars = "sigma_y")$sigma_y,
-      t(beta_fixed), t(beta_rw), t(slope), xregs$xreg_fixed, 
+      t(beta_fixed), t(beta_rw), t(nu), xregs$xreg_fixed, 
       t(xregs$xreg_rw), nrow(newdata), ncol(beta_fixed), ncol(sigma_rw1), 
       ncol(sigma_rw2), type == "response")
     
