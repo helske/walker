@@ -70,6 +70,7 @@ The output of `walker` is `walker_fit` object, which is essentially a list with 
 
 ```{r pars}
 print(fit$stanfit, pars = c("sigma_y", "sigma_rw1"))
+library(bayesplot)
 mcmc_areas(as.matrix(fit$stanfit), regex_pars = c("sigma_y", "sigma_rw1"))
 ```
 
