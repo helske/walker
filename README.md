@@ -4,7 +4,7 @@
 walker: Bayesian Generalized Linear Models with Time-Varying Coefficients
 ==========================================================================
 
-The R package wwalker provides a method for fully Bayesian generalized linear regression where the 
+The R package walker provides a method for fully Bayesian generalized linear regression where the 
 regression coefficients are allowed to vary over time as a first or second order integrated random walk. 
 
 The Markov chain Monte Carlo (MCMC) algorithm uses Hamiltonian Monte Carlo provided by Stan, 
