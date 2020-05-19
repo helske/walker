@@ -34,7 +34,7 @@ print.walker_fit <- function(x, ...) {
 #'            upr = quantile(value, 0.95))
 #' }
 #'
-as.data.frame.walker_fit <- function(x, row.names, optional,  type, ...) {
+as.data.frame.walker_fit <- function(x, row.names = NULL, optional = FALSE,  type, ...) {
   
   type <- match.arg(type, c("tiv", "tv"))
   

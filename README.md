@@ -21,6 +21,9 @@ devtools::install_github("helske/walker")
 
 NEWS
 ---------------------------------------------
+### 19.5.2020
+
+* Added default values for `row.names` and `optional` for `as.data.frame` function.
 
 ### 12.5.2020
 

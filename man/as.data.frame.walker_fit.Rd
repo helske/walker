@@ -4,7 +4,7 @@
 \alias{as.data.frame.walker_fit}
 \title{Coerce Posterior Samples of walker Fit to a Data Frame}
 \usage{
-\method{as.data.frame}{walker_fit}(x, row.names, optional, type, ...)
+\method{as.data.frame}{walker_fit}(x, row.names = NULL, optional = FALSE, type, ...)
 }
 \arguments{
 \item{x}{An output from \code{\link{walker}} or \code{\link{walker_glm}}.}
