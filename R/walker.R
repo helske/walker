@@ -93,7 +93,31 @@
 #' pred <- predict(fit, newdata)
 #' plot_predict(pred)
 #' }
+#' \dontrun{
+#' # example on scalability
+#' set.seed(1)
+#' n <- 2^12
+#' beta1 <- cumsum(c(0.5, rnorm(n - 1, 0, sd = 0.05)))
+#' beta2 <- cumsum(c(-1, rnorm(n - 1, 0, sd = 0.15)))
+#' x1 <- rnorm(n, mean = 2)
+#' x2 <- cos(1:n)
+#' rw <- cumsum(rnorm(n, 0, 0.5))
+#' signal <- rw + beta1 * x1 + beta2 * x2
+#' y <- rnorm(n, signal, 0.5)
 #' 
+#' d <- data.frame(y, x1, x2)
+#' 
+#' n <- 2^(6:12)
+#' times <- numeric(length(n))
+#' for(i in seq_along(n)) {
+#'   times[i] <- sum(get_elapsed_time(
+#'     walker(y ~ 0 + rw1(~ x1 + x2, 
+#'       beta = c(0, 10), sigma = c(0, 10)), 
+#'       sigma_y = c(0, 10), data = d[1:n[i],],
+#'       chains = 1, seed = 1, refresh = 0)$stanfit))
+#' }
+#' plot(log2(n), log2(times))
+#'}
 walker <- function(formula, data, sigma_y_prior, beta, init, chains,
                    return_x_reg = FALSE, gamma_y = NULL, ...) {
   
