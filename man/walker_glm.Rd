@@ -2,7 +2,7 @@
 % Please edit documentation in R/walker.R
 \name{walker_glm}
 \alias{walker_glm}
-\title{Bayesian generalized linear regression with time-varying coefficients}
+\title{Bayesian generalized linear model with time-varying coefficients}
 \usage{
 walker_glm(
   formula,
@@ -81,15 +81,6 @@ analysis.
 }
 \examples{
 
-\dontrun{
-
-data("discoveries", package = "datasets")
-out <- walker_glm(discoveries ~ -1 + 
-  rw2(~ 1, beta = c(0, 10), sigma = c(0, 2), nu = c(0, 2)), 
-  distribution = "poisson", iter = 1000, chains = 1, refresh = 0)
-
-plot_fit(out)
-
 set.seed(1)
 n <- 25
 x <- rnorm(n, 1, 1)
@@ -100,9 +91,10 @@ u <- sample(1:10, size = n, replace = TRUE)
 y <- rpois(n, u * exp(level + beta * x))
 ts.plot(y)
 
+# note very small number of iterations for the CRAN checks!
 out <- walker_glm(y ~ -1 + rw1(~ x, beta = c(0, 10), 
   sigma = c(0, 10)), distribution = "poisson", 
-  iter = 1000, chains = 1, refresh = 0)
+  iter = 200, chains = 1, refresh = 0)
 print(out$stanfit, pars = "sigma_rw1") ## approximate results
 if (require("diagis")) {
   weighted_mean(extract(out$stanfit, pars = "sigma_rw1")$sigma_rw1, 
@@ -110,9 +102,15 @@ if (require("diagis")) {
 }
 plot_coefs(out)
 pp_check(out)
-
-}
              
+\dontrun{
+data("discoveries", package = "datasets")
+out <- walker_glm(discoveries ~ -1 + 
+  rw2(~ 1, beta = c(0, 10), sigma = c(0, 2), nu = c(0, 2)), 
+  distribution = "poisson", iter = 2000, chains = 1, refresh = 0)
+
+plot_fit(out)
+}
 }
 \seealso{
 Package \code{diagis} in CRAN, which provides functions for computing weighted 

@@ -23,4 +23,3 @@ test_that("we get proper output from glm", {
     distribution = "poisson", iter = 10, refresh=0), NA)
   expect_s4_class(fit$stanfit, "stanfit")
 })
-

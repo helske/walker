@@ -23,7 +23,7 @@ c(
     author = "Jouni Helske",
     year = sub("-.*", "", meta$Date),
     note = sprintf("R package version %s", meta$Version),
-    url = "http://github.com/helske/walker",
+    url = "https://github.com/helske/walker",
     key = "package"
   )
  

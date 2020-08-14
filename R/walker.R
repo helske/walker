@@ -45,14 +45,14 @@
 #' @export
 #' @examples 
 #' 
-#' ## note very low number of iterations for the CRAN checks
+#' \dontrun{
 #' 
 #' rw1_fit <- walker(Nile ~ -1 + 
 #'   rw1(~ 1, 
 #'     beta = c(1000, 100), 
 #'     sigma = c(0, 100)), 
 #'   sigma_y_prior = c(0, 100), 
-#'   iter = 200, chains = 1)
+#'   iter = 2000, chains = 1)
 #'   
 #' rw2_fit <- walker(Nile ~ -1 + 
 #'   rw2(~ 1,
@@ -60,7 +60,7 @@
 #'     sigma = c(0, 100), 
 #'     nu = c(0, 100)), 
 #'   sigma_y_prior = c(0, 100), 
-#'   iter = 200, chains = 1)
+#'   iter = 2000, chains = 1)
 #'   
 #' g_y <- geom_point(data = data.frame(y = Nile, x = time(Nile)), 
 #'   aes(x, y, alpha = 0.5), inherit.aes = FALSE) 
@@ -72,7 +72,7 @@
 #'   g_rw1
 #'   g_rw2
 #' }
-#' \dontrun{
+#' 
 #' y <- window(log10(UKgas), end = time(UKgas)[100])
 #' n <- 100
 #' cos_t <- cos(2 * pi * 1:n / 4)
@@ -80,7 +80,7 @@
 #' dat <- data.frame(y, cos_t, sin_t)
 #' fit <- walker(y ~ -1 + 
 #'   rw1(~ cos_t + sin_t, beta = c(0, 10), sigma = c(0, 2)), 
-#'   sigma_y_prior = c(0, 10), data = dat, chains = 1, iter = 500)
+#'   sigma_y_prior = c(0, 10), data = dat, chains = 1, iter = 2000)
 #' print(fit$stanfit, pars = c("sigma_y", "sigma_rw1"))
 #' 
 #' plot_coefs(fit)
@@ -92,8 +92,7 @@
 #'   sin_t = sin(2 * pi * 101:108 / 4))
 #' pred <- predict(fit, newdata)
 #' plot_predict(pred)
-#' }
-#' \dontrun{
+#' 
 #' # example on scalability
 #' set.seed(1)
 #' n <- 2^12
@@ -273,7 +272,7 @@ walker <- function(formula, data, sigma_y_prior, beta, init, chains,
                  xreg_rw = xreg_rw, call = mc, distribution = "gaussian"), class = "walker_fit")
 }
 
-#' Bayesian generalized linear regression with time-varying coefficients
+#' Bayesian generalized linear model with time-varying coefficients
 #' 
 #' Function \code{walker_glm} is a generalization of \code{walker} for non-Gaussian 
 #' models. Compared to \code{walker}, the returned samples are based on Gaussian approximation, 
@@ -314,16 +313,7 @@ walker <- function(formula, data, sigma_y_prior, beta, init, chains,
 #' @seealso Package \code{diagis} in CRAN, which provides functions for computing weighted 
 #' summary statistics.
 #' @export
-#' @examples 
-#' 
-#' \dontrun{
-#' 
-#' data("discoveries", package = "datasets")
-#' out <- walker_glm(discoveries ~ -1 + 
-#'   rw2(~ 1, beta = c(0, 10), sigma = c(0, 2), nu = c(0, 2)), 
-#'   distribution = "poisson", iter = 1000, chains = 1, refresh = 0)
-#' 
-#' plot_fit(out)
+#' @examples
 #' 
 #' set.seed(1)
 #' n <- 25
@@ -335,9 +325,10 @@ walker <- function(formula, data, sigma_y_prior, beta, init, chains,
 #' y <- rpois(n, u * exp(level + beta * x))
 #' ts.plot(y)
 #' 
+#' # note very small number of iterations for the CRAN checks!
 #' out <- walker_glm(y ~ -1 + rw1(~ x, beta = c(0, 10), 
 #'   sigma = c(0, 10)), distribution = "poisson", 
-#'   iter = 1000, chains = 1, refresh = 0)
+#'   iter = 200, chains = 1, refresh = 0)
 #' print(out$stanfit, pars = "sigma_rw1") ## approximate results
 #' if (require("diagis")) {
 #'   weighted_mean(extract(out$stanfit, pars = "sigma_rw1")$sigma_rw1, 
@@ -345,9 +336,15 @@ walker <- function(formula, data, sigma_y_prior, beta, init, chains,
 #' }
 #' plot_coefs(out)
 #' pp_check(out)
-#' 
-#' }
 #'              
+#' \dontrun{
+#' data("discoveries", package = "datasets")
+#' out <- walker_glm(discoveries ~ -1 + 
+#'   rw2(~ 1, beta = c(0, 10), sigma = c(0, 2), nu = c(0, 2)), 
+#'   distribution = "poisson", iter = 2000, chains = 1, refresh = 0)
+#' 
+#' plot_fit(out)
+#' }
 walker_glm <- function(formula, data, beta, init, chains,
                        return_x_reg = FALSE, distribution ,
                        initial_mode = "kfas", u, mc_sim = 50, ...) {

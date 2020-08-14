@@ -11,7 +11,7 @@ The Markov chain Monte Carlo (MCMC) algorithm uses Hamiltonian Monte Carlo provi
 using a state space representation of the model in order to marginalise over the coefficients for accurate and efficient sampling.
 For non-Gaussian models the MCMC targets approximate marginal posterior based on Gaussian approximation, which is then corrected using importance sampling as in [Vihola, Helske, Franks (2020)](https://arxiv.org/abs/1609.02541v6).
 
-See the package [vignette](http://htmlpreview.github.io/?https://github.com/helske/walker/blob/master/walker_html/walker.html) and [documentation manual](https://cran.r-project.org/package=walker/walker.pdf) for details and examples.
+See the package [vignette](https://htmlpreview.github.io/?https://github.com/helske/walker/blob/master/walker_html/walker.html) and [documentation manual](https://cran.r-project.org/package=walker/walker.pdf) for details and examples.
 
 You can download the development version of `walker` from Github using the [`devtools`](https://cran.r-project.org/package=devtools) package:
 
@@ -21,6 +21,10 @@ devtools::install_github("helske/walker")
 
 NEWS
 ---------------------------------------------
+### 13.8.2020
+
+* Proper export of `pp_check` for `bayesplot`, fixed some minor technical issues.
+
 ### 19.5.2020
 
 * Added default values for `row.names` and `optional` for `as.data.frame` function.

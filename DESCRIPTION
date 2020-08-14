@@ -1,8 +1,8 @@
 Package: walker
 Type: Package
 Title: Bayesian Generalized Linear Models with Time-Varying Coefficients
-Version: 0.4.1
-Date: 2020-08-10
+Version: 0.4.1-3
+Date: 2020-08-13
 Description: Bayesian generalized linear models with time-varying coefficients. 
     Gaussian, Poisson, and binomial observations are supported. 
     The Markov chain Monte Carlo computations are done using 
@@ -24,11 +24,11 @@ Suggests:
     rmarkdown (>= 0.8.1),
     testthat
 Depends:
+    bayesplot,
     R (>= 3.4.0),
     Rcpp (>= 0.12.9),
     rstan (>= 2.18.1)
 Imports:
-    bayesplot,
     coda,
     dplyr,
     Hmisc,

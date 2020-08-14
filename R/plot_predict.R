@@ -25,6 +25,8 @@
 #' y <- rnorm(n, signal, 0.25)
 #' ts.plot(cbind(signal, y), col = 1:2)
 #' data_old <- data.frame(y = y[1:(n-10)], x = x[1:(n-10)])
+#' 
+#' # note very small number of iterations for the CRAN checks!
 #' rw2_fit <- walker(y ~ 1 + 
 #'                     rw2(~ -1 + x,
 #'                         beta = c(0, 10), 
@@ -32,7 +34,7 @@
 #'                         nu = c(0, 10)), 
 #'                   sigma_y = c(0, 10), 
 #'                   beta = c(0, 10),
-#'                   iter = 400, chains = 1, data = data_old)
+#'                   iter = 300, chains = 1, data = data_old)
 #' 
 #' pred <- predict(rw2_fit, newdata = data.frame(x=x[(n-9):n]))
 #' data_new <- data.frame(t = (n-9):n, y = y[(n-9):n])

@@ -12,5 +12,22 @@
 \item{...}{Further parameters to \code{\link{ppc_ribbon}}.}
 }
 \description{
-Plots sample quantiles from posterior predictive sample. See \code{\link{ppc_ribbon}} for details.
+Plots sample quantiles from posterior predictive sample.
+}
+\details{
+For other types of posterior predictive checks for example with \code{bayesplot}, 
+you can extract the variable \code{yrep} from the output, see examples.#'
+}
+\examples{
+\dontrun{
+# Extracting the yrep variable for general use:
+# extract yrep
+y_rep <- extract(object$stanfit, pars = "y_rep", permuted = TRUE)$y_rep
+
+# For non-gaussian model:
+weights <- extract(object$stanfit, pars = "weights", permuted = TRUE)$weights
+y_rep <- y_rep[sample(1:nrow(y_rep), 
+  size = nrow(y_rep), replace = TRUE, prob = weights), , drop = FALSE]
+}
+
 }
