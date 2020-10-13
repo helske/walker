@@ -56,7 +56,14 @@ predict.walker_fit <- function(object, newdata, u,
   if (is.null(sigma_rw2)) sigma_rw2 <- matrix(0, n_iter, 0)
   
   if (object$distribution != "gaussian") {
-    if (missing(u)) u <- rep(1, nrow(newdata))
+    if (missing(u)) {
+      u <- rep(1, nrow(newdata))
+    } else {
+      if (length(u) != nrow(newdata)) {
+        if(length(u) > 1) stop("Length of 'u' should be 1 or equal to the number of predicted time points. ")
+        u <- rep(u, nrow(newdata))
+      }
+    }
     
     pred <- predict_walker_glm(t(sigma_rw1), t(sigma_rw2),
       t(beta_fixed), t(beta_rw), t(nu), xregs$xreg_fixed, 
@@ -86,7 +93,7 @@ predict.walker_fit <- function(object, newdata, u,
   d <- deltat(object$y)
   pred$y <- object$y
   pred$mean <- ts(pred$mean, start = s1, end = st, deltat = d)
-  
+  attr(pred, "type") <- type
   dimnames(pred$y_new) <- 
     list(time = seq(st + deltat(object$y), by = deltat(object$y), 
       length = nrow(pred$y_new)), iter = 1:ncol(pred$y_new))

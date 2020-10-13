@@ -21,6 +21,10 @@ devtools::install_github("helske/walker")
 
 NEWS
 ---------------------------------------------
+### 13.10.2020
+
+* Fix out-of-sample predictions for non-Gaussian models.
+
 ### 13.8.2020
 
 * Proper export of `pp_check` for `bayesplot`, fixed some minor technical issues.

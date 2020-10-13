@@ -98,27 +98,27 @@ Rcpp::List predict_walker_glm(const arma::mat& sigma_rw1,
     unsigned int i = indices(ii); // just laziness
     
     for (arma::uword j = 0; j < k_rw1; j++) {
-      beta_new(j, 0, i) = R::rnorm(beta_rw(j, i), sigma_rw1(j, i));
+      beta_new(j, 0, ii) = R::rnorm(beta_rw(j, i), sigma_rw1(j, i));
     }
     for (arma::uword j = 0; j < k_rw2; j++) {
-      beta_new(k_rw1 + j, 0, i) = beta_rw(k_rw1 + j, i) + slope(j, i);
-      slope_new(j, 0, i) = R::rnorm(slope(j, i), sigma_rw2(j, i));
+      beta_new(k_rw1 + j, 0, ii) = beta_rw(k_rw1 + j, i) + slope(j, i);
+      slope_new(j, 0, ii) = R::rnorm(slope(j, i), sigma_rw2(j, i));
     }
     
     for(arma::uword t = 0; t < n - 1; t++) {
       // linear predictor
-      y(t, i) = arma::dot(xreg_rw.col(t), beta_new.slice(i).col(t));
+      y(t, ii) = arma::dot(xreg_rw.col(t), beta_new.slice(ii).col(t));
       for (arma::uword j = 0; j < k_rw1; j++) {
-        beta_new(j, t + 1, i) = R::rnorm(beta_new(j, t, i), sigma_rw1(j, i));
+        beta_new(j, t + 1, ii) = R::rnorm(beta_new(j, t, ii), sigma_rw1(j, i));
       }
       for (arma::uword j = 0; j < k_rw2; j++) {
-        beta_new(k_rw1 + j, t + 1, i) = beta_new(k_rw1 + j, t, i) + 
-          slope_new(j, t, i);
-        slope_new(j, t + 1, i) = R::rnorm(slope_new(j, t, i), sigma_rw2(j, i));
+        beta_new(k_rw1 + j, t + 1, ii) = beta_new(k_rw1 + j, t, ii) + 
+          slope_new(j, t, ii);
+        slope_new(j, t + 1, ii) = R::rnorm(slope_new(j, t, ii), sigma_rw2(j, i));
       }
     }
     // linear predictor at last time point
-    y(n - 1, i) =  arma::dot(xreg_rw.col(n - 1), beta_new.slice(i).col(n - 1));
+    y(n - 1, ii) =  arma::dot(xreg_rw.col(n - 1), beta_new.slice(ii).col(n - 1));
   }
   
   if (k > 0) {
