@@ -1,7 +1,7 @@
 #' Predictions for walker object
 #' 
 #' Given the new covariate data and output from \code{walker}, 
-#' obtain samples from posterior predictive distribution.
+#' obtain samples from posterior predictive distribution for future time points.
 #' 
 #' @importFrom stats deltat tsp
 #' @param object An output from \code{\link{walker}} or \code{\link{walker_glm}}.

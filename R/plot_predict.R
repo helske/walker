@@ -86,14 +86,20 @@ plot_predict <- function(object, draw_obs = NULL, level = 0.05, alpha = 0.33){
       alpha = alpha, linetype = 0) +
     geom_line(aes_(color = "y_new")) +
     labs(y = NULL) +  theme_default() + theme(legend.position = "none") + 
-    geom_line(data = data.frame(y = object$mean, x = time(object$mean)), 
-      aes_(~x, ~y, alpha = 1, color = "mean"), inherit.aes = FALSE) +
-    scale_color_manual(
-      name = "",
-      values = c(y_new = color_scheme_get()[[2]], mean = color_scheme_get()[[4]])) +
     scale_fill_manual(
       name = "",
       values = c(y_new = color_scheme_get()[[1]]))
+  if(attr(object, "type") != "link") {
+    p <- p + geom_line(data = data.frame(y = object$mean, x = time(object$mean)), 
+      aes_(~x, ~y, alpha = 1, color = "mean"), inherit.aes = FALSE) + 
+      scale_color_manual(
+        name = "",
+        values = c(y_new = color_scheme_get()[[2]], mean = color_scheme_get()[[4]]))
+  } else {
+    p <- p +  scale_color_manual(
+      name = "",
+      values = c(y_new = color_scheme_get()[[2]]))
+  }
   if(draw_obs != "none") {
     p <- p + geom_line(data = obs, 
       aes_(~x, ~y, alpha = 1), inherit.aes = FALSE)

@@ -30,7 +30,7 @@ fitted.walker_fit <- function(object, summary = TRUE, ...) {
 
 #' Extract Coeffients of Walker Fit
 #'
-#' Returns the regression coeffients from output of \code{walker} or \code{walker_glm}.
+#' Returns the time-varying regression coefficients from output of \code{walker} or \code{walker_glm}.
 #' 
 #' @export
 #' @importFrom stats coef
@@ -39,7 +39,7 @@ fitted.walker_fit <- function(object, summary = TRUE, ...) {
 #' @param summary If \code{TRUE} (default), return summary statistics. Otherwise returns samples.
 #' @param transform Optional vectorized function for transforming the coefficients (for example exp).
 #' @param ... Ignored.
-#' @return Time series containing coeffients values.
+#' @return Time series containing coefficient values.
 coef.walker_fit <- function(object, summary = TRUE, transform = identity,  ...) {
   # N x k x n array
   coef_data <- transform(extract(object$stanfit, pars = "beta_rw", permuted = TRUE)$beta)
