@@ -51,10 +51,11 @@ plot_predict <- function(object, draw_obs = NULL, level = 0.05, alpha = 0.33){
   if (missing(draw_obs)) {
     if(attr(object, "type") == "link") {
       draw_obs <- "none"
-    } 
-    if(attr(object, "type") == "mean") {
-      draw_obs <- "mean"
-    } else draw_obs <- "response" 
+    } else {
+      if(attr(object, "type") == "mean") {
+        draw_obs <- "mean"
+      } else draw_obs <- "response" 
+    }
   } else {
     draw_obs <- match.arg(draw_obs, c("mean", "response", "none"))
   }
