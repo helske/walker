@@ -46,7 +46,7 @@ LinkingTo:
     RcppEigen (>= 0.3.3.3.0)
 SystemRequirements: C++14, GNU make 
 VignetteBuilder: knitr
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 ByteCompile: true
 URL: https://github.com/helske/walker
 BugReports: https://github.com/helske/walker/issues

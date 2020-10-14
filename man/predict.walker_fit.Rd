@@ -21,8 +21,10 @@
 For binomial, a vector containing the number of trials for future time points. Defaults 1.}
 
 \item{type}{If \code{"response"} (default for Gaussian model), predictions are on the response level 
-(e.g., 0/1 for Bernoulli case, and for Gaussian case the observational level noise is added to the mean predictions).
-If \code{"mean"} (default for non-Gaussian case), predict means (e.g., success probabilities in Binomial case).}
+(e.g., number of successes for Binomial case, and for Gaussian case the observational 
+level noise is added to the mean predictions).
+If \code{"mean"} (default for non-Gaussian case), predict means (e.g., success probabilities in Binomial case).
+If \code{"link"}, predictions for non-Gaussian models are returned before applying the inverse of the link-function.}
 
 \item{...}{Ignored.}
 }

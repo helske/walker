@@ -9,8 +9,10 @@
 #' @param u For Poisson model, a vector of future exposures i.e. E(y) = u*exp(x*beta). 
 #' For binomial, a vector containing the number of trials for future time points. Defaults 1.
 #' @param type If \code{"response"} (default for Gaussian model), predictions are on the response level 
-#' (e.g., 0/1 for Bernoulli case, and for Gaussian case the observational level noise is added to the mean predictions).
+#' (e.g., number of successes for Binomial case, and for Gaussian case the observational 
+#' level noise is added to the mean predictions).
 #' If \code{"mean"} (default for non-Gaussian case), predict means (e.g., success probabilities in Binomial case).
+#' If \code{"link"}, predictions for non-Gaussian models are returned before applying the inverse of the link-function.
 #' @param ... Ignored.
 #' @return A list containing samples from posterior predictive distribution.
 #' @method predict walker_fit
@@ -19,7 +21,7 @@
 predict.walker_fit <- function(object, newdata, u, 
   type = ifelse(object$distribution == "gaussian", "response", "mean"), ...){
   
-  type <- match.arg(type, c("response", "mean"))
+  type <- match.arg(type, c("response", "mean", "link"))
   y_name <- as.character(object$call$formula[[2]])
   
   if (!(y_name%in% names(newdata))) {
@@ -64,18 +66,22 @@ predict.walker_fit <- function(object, newdata, u,
         u <- rep(u, nrow(newdata))
       }
     }
-    
+    type_int <- pmatch(type, c("link", "response", "mean"))
     pred <- predict_walker_glm(t(sigma_rw1), t(sigma_rw2),
       t(beta_fixed), t(beta_rw), t(nu), xregs$xreg_fixed, 
       t(xregs$xreg_rw), u, 
       pmatch(object$distribution, c("poisson", "binomial")), 
       extract(object$stanfit, pars = "weights")$weights, 
-      nrow(newdata), ncol(beta_fixed), ncol(sigma_rw1), ncol(sigma_rw2), type == "response")
+      nrow(newdata), ncol(beta_fixed), ncol(sigma_rw1), ncol(sigma_rw2), 
+      type_int)
     
     
     pred$mean <- colMeans(fitted(object, summary = FALSE))
+    pred$u <- object$u
     
   } else {
+    if (type == "link") type <- "mean"
+    
     pred <- predict_walker(t(sigma_rw1), t(sigma_rw2),
       extract(object$stanfit, pars = "sigma_y")$sigma_y,
       t(beta_fixed), t(beta_rw), t(nu), xregs$xreg_fixed, 
@@ -93,6 +99,7 @@ predict.walker_fit <- function(object, newdata, u,
   d <- deltat(object$y)
   pred$y <- object$y
   pred$mean <- ts(pred$mean, start = s1, end = st, deltat = d)
+  
   attr(pred, "type") <- type
   dimnames(pred$y_new) <- 
     list(time = seq(st + deltat(object$y), by = deltat(object$y), 

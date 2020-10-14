@@ -6,6 +6,9 @@
 #' @importFrom ggplot2 ggplot facet_wrap geom_ribbon geom_line 
 #' @importFrom bayesplot color_scheme_get theme_default
 #' @param object An output from \code{\link{predict.walker_fit}}.
+#' @param draw_obs Either \code{"response"}, \code{"mean"}, or \code{"none"}, 
+#' where \code{"mean"} is response variable divided by number of trials or exposures 
+#' in case of binomial/poisson models. 
 #' @param level Level for intervals. Default is 0.05, leading to 90\% intervals.
 #' @param alpha Transparency level for \code{\link{geom_ribbon}}.
 #' @export
@@ -39,10 +42,22 @@
 #' pred <- predict(rw2_fit, newdata = data.frame(x=x[(n-9):n]))
 #' data_new <- data.frame(t = (n-9):n, y = y[(n-9):n])
 #' plot_predict(pred) + 
-#'   geom_line(data=data_new, aes(t, y), linetype="dashed", colour = "red", inherit.aes = FALSE)
+#'   geom_line(data=data_new, aes(t, y), linetype = "dashed", 
+#'   colour = "red", inherit.aes = FALSE)
 #'
-plot_predict <- function(object, level = 0.05, alpha = 0.33){
+plot_predict <- function(object, draw_obs = NULL, level = 0.05, alpha = 0.33){
   
+  
+  if (missing(draw_obs)) {
+    if(attr(object, "type") == "link") {
+      draw_obs <- "none"
+    } 
+    if(attr(object, "type") == "mean") {
+      draw_obs <- "mean"
+    } else draw_obs <- "response" 
+  } else {
+    draw_obs <- match.arg(draw_obs, c("mean", "response", "none"))
+  }
   pred_data <- as.data.frame(as.table(object$y_new))  
   pred_data$time <- as.numeric(levels(pred_data$time))[pred_data$time]
   names(pred_data)[3] <- "value"
@@ -51,7 +66,14 @@ plot_predict <- function(object, level = 0.05, alpha = 0.33){
     median = quantile(.data$value, prob = 0.5),
     upr = quantile(.data$value, prob = 1 - level))
   
-  ggplot(
+  if (draw_obs != "none") {
+    if(draw_obs == "mean" && !is.null(object$u)) {
+      obs <- data.frame(y = object$y / object$u, x = time(object$y))
+    } else {
+      obs <- data.frame(y = object$y, x = time(object$y))
+    }
+  }
+  p <- ggplot(
     data = quantiles,
     mapping = aes(
       x = .data$time,
@@ -64,8 +86,6 @@ plot_predict <- function(object, level = 0.05, alpha = 0.33){
       alpha = alpha, linetype = 0) +
     geom_line(aes_(color = "y_new")) +
     labs(y = NULL) +  theme_default() + theme(legend.position = "none") + 
-    geom_line(data = data.frame(y = object$y, x = time(object$y)), 
-      aes_(~x, ~y, alpha = 1), inherit.aes = FALSE) +
     geom_line(data = data.frame(y = object$mean, x = time(object$mean)), 
       aes_(~x, ~y, alpha = 1, color = "mean"), inherit.aes = FALSE) +
     scale_color_manual(
@@ -74,5 +94,9 @@ plot_predict <- function(object, level = 0.05, alpha = 0.33){
     scale_fill_manual(
       name = "",
       values = c(y_new = color_scheme_get()[[1]]))
-  
+  if(draw_obs != "none") {
+    p <- p + geom_line(data = obs, 
+      aes_(~x, ~y, alpha = 1), inherit.aes = FALSE)
+  }
+  p
 }

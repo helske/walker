@@ -23,6 +23,8 @@ NEWS
 ---------------------------------------------
 ### 13.10.2020
 
+* Predict method now allow predictions on link scale.
+* Added argument for plot_predict for controlling the drawing of past observations.
 * Fix out-of-sample predictions for non-Gaussian models.
 
 ### 13.8.2020

@@ -75,7 +75,7 @@ Rcpp::List predict_walker_glm(const arma::mat& sigma_rw1,
   const arma::mat& xreg_fixed, const arma::mat& xreg_rw, 
   const arma::vec& u, const int distribution, arma::vec weights, 
   const arma::uword n, const arma::uword k, const arma::uword k_rw1, const arma::uword k_rw2,
-  const bool response) {
+  const int type) {
   
   arma::uword k_rw = k_rw1 + k_rw2;
   arma::uword n_iter = weights.n_elem;
@@ -126,40 +126,39 @@ Rcpp::List predict_walker_glm(const arma::mat& sigma_rw1,
       y.col(i) += xreg_fixed * beta_fixed.col(i);
     }
   }
-  
-  y = arma::exp(y);
-  if (response) {
-    if(distribution == 1) {
-      for (arma::uword i = 0; i < n_iter; i++) {
-        for(arma::uword t = 0; t < n; t++) {
-          y(t, i) = R::rpois(u(t) * y(t, i));
+  if (type > 0) { // type 0 is link
+    y = arma::exp(y);
+    if (type == 1) { // response
+      if(distribution == 1) {
+        for (arma::uword i = 0; i < n_iter; i++) {
+          for(arma::uword t = 0; t < n; t++) {
+            y(t, i) = R::rpois(u(t) * y(t, i));
+          }
+        }
+      } else {
+        for (arma::uword i = 0; i < n_iter; i++) {
+          for(arma::uword t = 0; t < n; t++) {
+            y(t, i) = R::rbinom(u(t),  y(t, i) / (1.0 + y(t, i)));
+          }
         }
       }
-    } else {
-      for (arma::uword i = 0; i < n_iter; i++) {
-        for(arma::uword t = 0; t < n; t++) {
-          y(t, i) = R::rbinom(u(t),  y(t, i) / (1.0 + y(t, i)));
+    } else { // mean
+      if(distribution == 1) {
+        for (arma::uword i = 0; i < n_iter; i++) {
+          for(arma::uword t = 0; t < n; t++) {
+            y(t, i) = u(t) * y(t, i);
+          }
+        }
+      } else {
+        for (arma::uword i = 0; i < n_iter; i++) {
+          for(arma::uword t = 0; t < n; t++) {
+            y(t, i) = y(t, i) / (1.0 + y(t, i));
+          }
         }
       }
+      
     }
-  } else {
-    if(distribution == 1) {
-      for (arma::uword i = 0; i < n_iter; i++) {
-        for(arma::uword t = 0; t < n; t++) {
-          y(t, i) = u(t) * y(t, i);
-        }
-      }
-    } else {
-      for (arma::uword i = 0; i < n_iter; i++) {
-        for(arma::uword t = 0; t < n; t++) {
-          y(t, i) = y(t, i) / (1.0 + y(t, i));
-        }
-      }
-    }
-    
   }
-  
-  
   return Rcpp::List::create(Rcpp::Named("y_new") = y, 
     Rcpp::Named("beta_new") = beta_new, Rcpp::Named("slope_new") = slope_new);
 }
