@@ -66,7 +66,7 @@ predict.walker_fit <- function(object, newdata, u,
         u <- rep(u, nrow(newdata))
       }
     }
-    type_int <- pmatch(type, c("link", "response", "mean"))
+    type_int <- pmatch(type, c("link", "response", "mean")) - 1L
     pred <- predict_walker_glm(t(sigma_rw1), t(sigma_rw2),
       t(beta_fixed), t(beta_rw), t(nu), xregs$xreg_fixed, 
       t(xregs$xreg_rw), u, 
