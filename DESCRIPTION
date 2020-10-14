@@ -1,15 +1,15 @@
 Package: walker
 Type: Package
 Title: Bayesian Generalized Linear Models with Time-Varying Coefficients
-Version: 0.4.2
-Date: 2020-10-13
+Version: 0.5.0
+Date: 2020-10-14
 Description: Bayesian generalized linear models with time-varying coefficients. 
     Gaussian, Poisson, and binomial observations are supported. 
     The Markov chain Monte Carlo computations are done using 
     Hamiltonian Monte Carlo provided by Stan, using a state space representation 
     of the model in order to marginalise over the coefficients for efficient sampling. 
     For non-Gaussian models, the package uses the importance sampling type estimators based on 
-    approximate marginal MCMC as in Vihola, Helske, Franks (2020, <arXiv:1609.02541>).
+    approximate marginal MCMC as in Vihola, Helske, Franks (2020, <doi:10.1111/sjos.12492>).
 Authors@R: 
     person(given = "Jouni",
            family = "Helske",
