@@ -4,7 +4,7 @@
 #' obtain samples from posterior predictive distribution for counterfactual case,
 #' i.e. for past time points with different covariate values.
 #' 
-#' @importFrom stats deltat tsp
+#' @importFrom stats deltat tsp rpois plogis rbinom
 #' @param object An output from \code{\link{walker}} or \code{\link{walker_glm}}.
 #' @param newdata A \code{data.frame} containing covariates used for prediction. 
 #' Should have equal number of rows as the original data
@@ -107,7 +107,7 @@ predict_counterfactual <- function(object, newdata, u, summary = TRUE,
         y_new <- plogis(y_new)
       }
       if (type == "response") {
-        if (distribution == "poisson") {
+        if (object$distribution == "poisson") {
           for (i in 1:n_iter) {
             y_new[, i] <- rpois(n, y_new[,i])
           }
