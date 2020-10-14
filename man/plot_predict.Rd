@@ -51,6 +51,7 @@ rw2_fit <- walker(y ~ 1 +
 pred <- predict(rw2_fit, newdata = data.frame(x=x[(n-9):n]))
 data_new <- data.frame(t = (n-9):n, y = y[(n-9):n])
 plot_predict(pred) + 
-  geom_line(data=data_new, aes(t, y), linetype="dashed", colour = "red", inherit.aes = FALSE)
+  geom_line(data=data_new, aes(t, y), linetype = "dashed", 
+  colour = "red", inherit.aes = FALSE)
 
 }

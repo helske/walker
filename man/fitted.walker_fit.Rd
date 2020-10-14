@@ -14,7 +14,8 @@
 \item{...}{Ignored.}
 }
 \value{
-Time series containing fitted values.
+If \code{summary=TRUE}, matrix containing summary statistics of fitted values. 
+Otherwise a matrix of samples.
 }
 \description{
 Returns fitted values (posterior means) from output of \code{walker} or \code{walker_glm}.

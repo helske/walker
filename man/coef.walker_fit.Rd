@@ -16,8 +16,8 @@
 \item{...}{Ignored.}
 }
 \value{
-Time series containing coeffients values.
+Time series containing coefficient values.
 }
 \description{
-Returns the regression coeffients from output of \code{walker} or \code{walker_glm}.
+Returns the time-varying regression coefficients from output of \code{walker} or \code{walker_glm}.
 }

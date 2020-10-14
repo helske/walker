@@ -8,7 +8,8 @@
 #' @param object Output of \code{walker} or \code{walker_glm}.
 #' @param summary If \code{TRUE} (default), return summary statistics. Otherwise returns samples.
 #' @param ... Ignored.
-#' @return Time series containing fitted values.
+#' @return If \code{summary=TRUE}, matrix containing summary statistics of fitted values. 
+#' Otherwise a matrix of samples.
 fitted.walker_fit <- function(object, summary = TRUE, ...) {
   
   y_fit <- extract(object$stanfit, pars = "y_fit", permuted = TRUE)$y_fit

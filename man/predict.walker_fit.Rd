@@ -33,7 +33,7 @@ A list containing samples from posterior predictive distribution.
 }
 \description{
 Given the new covariate data and output from \code{walker}, 
-obtain samples from posterior predictive distribution.
+obtain samples from posterior predictive distribution for future time points.
 }
 \seealso{
 \code{\link{plot_predict}} for example.

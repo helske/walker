@@ -431,7 +431,11 @@ walker_glm <- function(formula, data, beta, init, chains,
   if (missing(u)) {
     u <- rep(1, n)
   }
+  if (length(u) == 1) u <- rep(u, n)
+  if (length(u) != n) stop("Length of 'u' should be equal to the number of observations. ")
   if(any(u <= 0)) stop("All values of 'u' must be positive. ")
+  
+  if(distribution == "binomial" && any(u < y)) stop("Number of trials 'u' must be larger or equal to number of successes y. ")
   
   beta_fixed_mean = if (k_fixed > 0) beta[1] else 0
   beta_fixed_sd = if (k_fixed > 0) beta[2] else 0
