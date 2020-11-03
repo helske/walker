@@ -66,6 +66,7 @@ parameters {
 }
 
 transformed parameters {
+  real loglik;
   matrix[m, n] Rt = rep_matrix(0.0, m, n);
   vector[n] xbeta;
   vector[n] y_;
@@ -84,6 +85,7 @@ transformed parameters {
       Rt[k + i, t] = (gamma_rw2[i, t] * sigma_rw2[i])^2;
     } 
   }
+  loglik = gaussian_filter(y_, y_miss, a1, P1, sigma_y^2, Tt, Rt, xreg_rw, gamma2_y);
 }
 
 model {
@@ -92,7 +94,7 @@ model {
   sigma_rw1 ~ normal(sigma_rw1_mean, sigma_rw1_sd);
   sigma_rw2 ~ normal(sigma_rw2_mean, sigma_rw2_sd);
 
-  target += gaussian_filter(y_, y_miss, a1, P1, sigma_y^2, Tt, Rt, xreg_rw, gamma2_y);
+  target += loglik;
 }
 
 generated quantities{
