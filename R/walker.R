@@ -266,7 +266,7 @@ walker <- function(formula, data, sigma_y_prior, beta, init, chains,
   stanfit <- sampling(stanmodels$walker_lm,
                       data = stan_data, chains = chains, init = init,
                       pars = c("sigma_y", "sigma_rw1", "sigma_rw2", "beta_fixed", "beta_rw", 
-                               "nu", "y_fit", "y_rep"), ...)
+                               "nu", "y_fit", "y_rep", "loglik"), ...)
   
   structure(list(stanfit = stanfit, y = y, xreg_fixed = xreg_fixed, 
                  xreg_rw = xreg_rw, call = mc, distribution = "gaussian"), class = "walker_fit")
@@ -555,7 +555,7 @@ walker_glm <- function(formula, data, beta, init, chains,
   stanfit <- sampling(stanmodels$walker_glm,
                       data = stan_data, chains = chains, init = init,
                       pars = c("sigma_rw1", "sigma_rw2", "beta_fixed", "beta_rw", 
-                               "nu", "y_fit", "y_rep", "weights"), ...)
+                               "nu", "y_fit", "y_rep", "weights", "loglik"), ...)
   
   structure(list(stanfit = stanfit, y = y, xreg_fixed = xreg_fixed, 
                  xreg_rw = xreg_rw, u = u, distribution = distribution, call = mc), 

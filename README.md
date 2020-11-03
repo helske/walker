@@ -21,7 +21,13 @@ devtools::install_github("helske/walker")
 
 NEWS
 ---------------------------------------------
-### 14.10.2020
+### 3.11.2020
+
+* stanfit object of walker output now contains also variable `loglik`.
+  For non-Gaussian models this has two elements, and their sum correspond to 
+  the approximate log-likelihood.
+
+### 19.10.2020
 
 * Predict method now allow predictions on link scale.
 * Added argument for plot_predict for controlling the drawing of past observations.
