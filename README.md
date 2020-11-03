@@ -23,9 +23,9 @@ NEWS
 ---------------------------------------------
 ### 3.11.2020
 
-* stanfit object of walker output now contains also variable `loglik`.
-  For non-Gaussian models this has two elements, and their sum correspond to 
-  the approximate log-likelihood.
+* stanfit object of walker output now contains also variable `logLik`.
+  For non-Gaussian models this is the approximate log-likelihood, the
+  unbiased estimate is then `logLik + mean(w)`, where `w` are the returned weights.
 
 ### 19.10.2020
 

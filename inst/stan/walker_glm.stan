@@ -114,6 +114,8 @@ generated quantities{
   real weights;
   vector[n] y_fit;
   vector[n] y_rep;
+  // approximate log-likelihood, unbiased estimate is logLik + mean(w)
+  real logLik = sum(loglik);
 
   {
 
