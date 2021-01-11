@@ -21,6 +21,15 @@ devtools::install_github("helske/walker")
 
 NEWS
 ---------------------------------------------
+### 8.1.2021
+
+* For linear-Gaussian models the stanfit object now returns partial log-likelihood terms
+  p(y_t | y_1,...,y_t-1,theta) which can be used for leave-future-out cross-validation (see function `lfo`). 
+* New function `lfo` for estimating the leave-future-out information criterion.
+* Priors for the standard deviation parameters are now Gamma instead of truncated normal, which helps to avoid
+  (rare) problems where sampler wonders close to degenerate case of having all variances near zero. 
+  There are also default prior Gamma(2, 0.0001) for these parameters now.
+  
 ### 3.11.2020
 
 * stanfit object of walker output now contains also variable `logLik`.

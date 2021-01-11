@@ -4,7 +4,7 @@
 \alias{rw2}
 \title{Construct a second-order random walk component}
 \usage{
-rw2(formula, data, beta, sigma, nu, gamma = NULL)
+rw2(formula, data, beta, sigma = c(2, 1e-04), nu, gamma = NULL)
 }
 \arguments{
 \item{formula}{Formula for RW2 part of the model. Only right-hand-side is used.}
@@ -14,8 +14,9 @@ rw2(formula, data, beta, sigma, nu, gamma = NULL)
 \item{beta}{A vector of length two which defines the 
 prior mean and standard deviation of the Gaussian prior for coefficients at time 1.}
 
-\item{sigma}{A vector of length two, defining the truncated Gaussian prior for 
-the slope level standard deviation.}
+\item{sigma}{A vector of length two, defining the Gamma prior for 
+the slope level standard deviation. First element corresponds to the shape parameter and 
+second to the rate parameter. Default is Gamma(2, 0.0001).}
 
 \item{nu}{A vector of length two which defines the 
 prior mean and standard deviation of the Gaussian prior for the slopes nu at time 1.}

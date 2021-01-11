@@ -8,7 +8,7 @@
 #' @method print walker_fit
 #' @export
 print.walker_fit <- function(x, ...) {
-  pars <- setdiff(x$stanfit@sim$pars_oi, c("beta_rw", "nu", "y_fit", "y_rep"))
+  pars <- setdiff(x$stanfit@sim$pars_oi, c("beta_rw", "nu", "y_fit", "y_rep", "logLik"))
   if(x$distribution != "gaussian") warning("Results are based on approximate model, use summary method for exact results.")
   print(x$stanfit, pars = pars, ...)
 }
@@ -39,7 +39,7 @@ as.data.frame.walker_fit <- function(x, row.names = NULL, optional = FALSE,  typ
   type <- match.arg(type, c("tiv", "tv"))
   
   if (type == "tiv") {
-    pars <- setdiff(x$stanfit@sim$pars_oi, c("beta_rw", "nu", "y_fit", "y_rep", "lp__", "weights"))
+    pars <- setdiff(x$stanfit@sim$pars_oi, c("beta_rw", "nu", "y_fit", "y_rep", "lp__", "weights", "logLik"))
     samples <- extract(x$stanfit, pars = pars, permuted = FALSE)
     n <- nrow(samples)
     k <- ncol(samples)

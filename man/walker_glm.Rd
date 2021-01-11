@@ -15,6 +15,7 @@ walker_glm(
   initial_mode = "kfas",
   u,
   mc_sim = 50,
+  return_data = TRUE,
   ...
 )
 }
@@ -48,6 +49,9 @@ or numeric vector (custom guess).}
 For binomial, a vector containing the number of trials. Defaults 1.}
 
 \item{mc_sim}{Number of samples used in importance sampling. Default is 50.}
+
+\item{return_data}{if \code{TRUE}, returns data input to \code{sampling}. This is needed for
+\code{lfo}.}
 
 \item{...}{Further arguments to \code{\link{sampling}}.}
 }
@@ -93,7 +97,7 @@ ts.plot(y)
 
 # note very small number of iterations for the CRAN checks!
 out <- walker_glm(y ~ -1 + rw1(~ x, beta = c(0, 10), 
-  sigma = c(0, 10)), distribution = "poisson", 
+  sigma = c(2, 10)), distribution = "poisson", 
   iter = 200, chains = 1, refresh = 0)
 print(out$stanfit, pars = "sigma_rw1") ## approximate results
 if (require("diagis")) {
@@ -106,11 +110,29 @@ pp_check(out)
 \dontrun{
 data("discoveries", package = "datasets")
 out <- walker_glm(discoveries ~ -1 + 
-  rw2(~ 1, beta = c(0, 10), sigma = c(0, 2), nu = c(0, 2)), 
+  rw2(~ 1, beta = c(0, 10), sigma = c(2, 10), nu = c(0, 2)), 
   distribution = "poisson", iter = 2000, chains = 1, refresh = 0)
 
 plot_fit(out)
+
+# Dummy covariate example
+
+fit <- walker_glm(VanKilled ~ -1 + 
+  rw1(~ law, beta = c(0, 1), sigma = c(2, 10)), dist = "poisson", 
+   data = as.data.frame(Seatbelts), chains = 1, refresh = 0)
+
+# compute effect * law
+d <- coef(fit, transform = function(x) {
+  x[, 2, 1:170] <- 0
+  x
+})
+
+require("ggplot2")
+d \%>\% ggplot(aes(time, mean)) +
+  geom_ribbon(aes(ymin = `2.5\%`, ymax = `97.5\%`), fill = "grey90") +
+  geom_line() + facet_wrap(~ beta, scales = "free") + theme_bw()
 }
+
 }
 \seealso{
 Package \code{diagis} in CRAN, which provides functions for computing weighted 

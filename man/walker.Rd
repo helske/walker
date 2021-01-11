@@ -7,12 +7,13 @@
 walker(
   formula,
   data,
-  sigma_y_prior,
+  sigma_y_prior = c(2, 0.01),
   beta,
   init,
   chains,
   return_x_reg = FALSE,
   gamma_y = NULL,
+  return_data = TRUE,
   ...
 )
 }
@@ -22,8 +23,9 @@ walker(
 
 \item{data}{An optional data.frame or object coercible to such, as in \code{{lm}}.}
 
-\item{sigma_y_prior}{A vector of length two, defining the truncated Gaussian prior for 
-the observation level standard deviation. Not used in \code{walker_glm}.}
+\item{sigma_y_prior}{A vector of length two, defining the a Gamma prior for 
+the observation level standard deviation with first element corresponding to the shape parameter and 
+second to rate parameter. Default is Gamma(2, 0.0001). Not used in \code{walker_glm}.}
 
 \item{beta}{A length vector of length two which defines the 
 prior mean and standard deviation of the Gaussian prior for time-invariant coefficients}
@@ -38,6 +40,9 @@ predictors after processing the \code{formula}.}
 
 \item{gamma_y}{An optional vector defining a damping of the observational level noise. 
 More specifically, \eqn{\sigma_t = gamma_t * \sigma_y}.}
+
+\item{return_data}{if \code{TRUE}, returns data input to \code{sampling}. This is needed for
+\code{lfo}.}
 
 \item{...}{Further arguments to \code{\link{sampling}}.}
 }
@@ -73,16 +78,16 @@ be careful in not defining multiple intercept terms (only one should be present)
 rw1_fit <- walker(Nile ~ -1 + 
   rw1(~ 1, 
     beta = c(1000, 100), 
-    sigma = c(0, 100)), 
-  sigma_y_prior = c(0, 100), 
+    sigma = c(2, 0.001)), 
+  sigma_y_prior = c(2, 0.005), 
   iter = 2000, chains = 1)
   
 rw2_fit <- walker(Nile ~ -1 + 
   rw2(~ 1,
     beta = c(1000, 100), 
-    sigma = c(0, 100), 
+    sigma = c(2, 0.001), 
     nu = c(0, 100)), 
-  sigma_y_prior = c(0, 100), 
+  sigma_y_prior = c(2, 0.005), 
   iter = 2000, chains = 1)
   
 g_y <- geom_point(data = data.frame(y = Nile, x = time(Nile)), 
@@ -102,8 +107,8 @@ cos_t <- cos(2 * pi * 1:n / 4)
 sin_t <- sin(2 * pi * 1:n / 4)
 dat <- data.frame(y, cos_t, sin_t)
 fit <- walker(y ~ -1 + 
-  rw1(~ cos_t + sin_t, beta = c(0, 10), sigma = c(0, 2)), 
-  sigma_y_prior = c(0, 10), data = dat, chains = 1, iter = 2000)
+  rw1(~ cos_t + sin_t, beta = c(0, 10), sigma = c(2, 1)), 
+  sigma_y_prior = c(2, 10), data = dat, chains = 1, iter = 2000)
 print(fit$stanfit, pars = c("sigma_y", "sigma_rw1"))
 
 plot_coefs(fit)
@@ -134,8 +139,8 @@ times <- numeric(length(n))
 for(i in seq_along(n)) {
   times[i] <- sum(get_elapsed_time(
     walker(y ~ 0 + rw1(~ x1 + x2, 
-      beta = c(0, 10), sigma = c(0, 10)), 
-      sigma_y = c(0, 10), data = d[1:n[i],],
+      beta = c(0, 10)), 
+      data = d[1:n[i],],
       chains = 1, seed = 1, refresh = 0)$stanfit))
 }
 plot(log2(n), log2(times))

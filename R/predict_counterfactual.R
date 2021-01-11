@@ -34,7 +34,7 @@
 #' 
 #' d <- data.frame(y, x1, x2, x3)
 #' out <- walker_glm(y ~ x3 + rw1(~ -1 + x1 + x2, beta = c(0, 2), 
-#'   sigma = c(0, 1)), distribution = "binomial", beta = c(0, 2), 
+#'   sigma = c(2, 10)), distribution = "binomial", beta = c(0, 2), 
 #'   u = u, data = d,
 #'   iter = 2000, chains = 1, refresh = 0)
 #' 

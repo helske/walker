@@ -4,7 +4,7 @@
 \alias{rw1}
 \title{Construct a first-order random walk component}
 \usage{
-rw1(formula, data, beta, sigma, gamma = NULL)
+rw1(formula, data, beta, sigma = c(2, 1e-04), gamma = NULL)
 }
 \arguments{
 \item{formula}{Formula for RW1 part of the model. Only right-hand-side is used.}
@@ -14,8 +14,9 @@ rw1(formula, data, beta, sigma, gamma = NULL)
 \item{beta}{A length vector of length two which defines the 
 prior mean and standard deviation of the Gaussian prior for coefficients at time 1.}
 
-\item{sigma}{A vector of length two, defining the truncated Gaussian prior for 
-the coefficient level standard deviation.}
+\item{sigma}{A vector of length two, defining the Gamma prior for 
+the coefficient level standard deviation. First element corresponds to the shape parameter and 
+second to the rate parameter. Default is Gamma(2, 0.0001).}
 
 \item{gamma}{An optional vector defining a damping of the random walk noises. More specifically, 
 the variance of the conditional distribution of state_t+1 given state is of form gamma_t * sigma.}

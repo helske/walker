@@ -7,11 +7,12 @@
 #' @param data Optional data.frame.
 #' @param beta A length vector of length two which defines the 
 #' prior mean and standard deviation of the Gaussian prior for coefficients at time 1.
-#' @param sigma A vector of length two, defining the truncated Gaussian prior for 
-#' the coefficient level standard deviation. 
+#' @param sigma A vector of length two, defining the Gamma prior for 
+#' the coefficient level standard deviation. First element corresponds to the shape parameter and 
+#' second to the rate parameter. Default is Gamma(2, 0.0001).
 #' @param gamma An optional vector defining a damping of the random walk noises. More specifically, 
 #' the variance of the conditional distribution of state_t+1 given state is of form gamma_t * sigma.
-rw1 <- function(formula, data, beta, sigma, gamma = NULL) {
+rw1 <- function(formula, data, beta, sigma = c(2, 0.0001), gamma = NULL) {
  
   mf <- match.call(expand.dots = FALSE)
   mf <- mf[c(1L, match(c("formula", "data"), names(mf), 0L))]
@@ -25,7 +26,7 @@ rw1 <- function(formula, data, beta, sigma, gamma = NULL) {
     stop("beta should be a vector of length two, defining the mean and standard deviation for the Gaussian prior of coefficients. ")
   }
   if(length(sigma) != 2) {
-    stop("sigma should be should be a vector of length two, defining the mean and standard deviation for the Gaussian prior of standard deviations. ")
+    stop("sigma should be should be a vector of length two, defining the shape and rate parameter for the Gamma prior of standard deviations. ")
   }
   n <- nrow(xreg)
   if (is.null(gamma)) {
@@ -49,14 +50,15 @@ rw1 <- function(formula, data, beta, sigma, gamma = NULL) {
 #' @param data Optional data.frame.
 #' @param beta A vector of length two which defines the 
 #' prior mean and standard deviation of the Gaussian prior for coefficients at time 1.
-#' @param sigma A vector of length two, defining the truncated Gaussian prior for 
-#' the slope level standard deviation. 
+#' @param sigma A vector of length two, defining the Gamma prior for 
+#' the slope level standard deviation. First element corresponds to the shape parameter and 
+#' second to the rate parameter. Default is Gamma(2, 0.0001).
 #' @param nu A vector of length two which defines the 
 #' prior mean and standard deviation of the Gaussian prior for the slopes nu at time 1.
 #'@param gamma An optional vector defining a damping of the slope level noises. More specifically, 
 #' the variance of the conditional distribution of state_t+1 given state is of form gamma_t * sigma.
 #' @export
-rw2 <- function(formula, data, beta, sigma, nu, gamma = NULL) {
+rw2 <- function(formula, data, beta, sigma = c(2, 0.0001), nu, gamma = NULL) {
   
   mf <- match.call(expand.dots = FALSE)
   mf <- mf[c(1L, match(c("formula", "data"), names(mf), 0L))]
@@ -70,7 +72,7 @@ rw2 <- function(formula, data, beta, sigma, nu, gamma = NULL) {
     stop("beta should be a vector of length two, defining the mean and standard deviation for the Gaussian prior of initial coefficients. ")
   }
   if(length(sigma) != 2) {
-    stop("sigma should be should be a vector of length two, defining the mean and standard deviation for the Gaussian prior of standard deviations. ")
+    stop("sigma should be should be a vector of length two, defining the shape and rate for the Gamma prior of standard deviations. ")
   }
   if(length(nu) != 2) {
     stop("nu should be should be a vector of length two, defining the mean and standard deviation for the Gaussian prior of initial slope coeffients. ")
