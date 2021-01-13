@@ -1,3 +1,4 @@
+[![R-CMD-check](https://github.com/helske/walker/workflows/R-CMD-check/badge.svg)](https://github.com/helske/walker/actions)
 [![cran version](https://www.r-pkg.org/badges/version/walker)](https://cran.r-project.org/package=walker)
 [![downloads](https://cranlogs.r-pkg.org/badges/walker)](https://cranlogs.r-pkg.org/badges/walker)
 

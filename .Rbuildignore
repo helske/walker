@@ -4,3 +4,4 @@
 walker_html
 paper
 LICENSE.txt
+^\.github$
