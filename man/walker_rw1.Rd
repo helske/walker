@@ -53,7 +53,8 @@ predictors after processing the \code{formula}.}
 This function is the first iteration of the function \code{walker},
 which supports only time-varying model where all coefficients ~ rw1.
 This is kept as part of the package in order to compare "naive" and 
-state space versions of the model in the vignette.
+state space versions of the model in the vignette, 
+but there is little reason to use it for other purposes.
 }
 \examples{
 \dontrun{

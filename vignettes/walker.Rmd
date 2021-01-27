@@ -1,7 +1,7 @@
 ---
 title: "Efficient Bayesian generalized linear models with time-varying coefficients"
 author: "Jouni Helske"
-date: "15 May 2020"
+date: "25 January 2021"
 output:
 html_document: default
 bibliography: walker.bib
@@ -19,7 +19,7 @@ library(walker)
 
 ## Introduction
 
-Varying coefficient regression models are extension to basic linear regression models where instead of constant but unknown regression coefficients, the underlying coefficients are assumed to vary over "time" according to random walk. In their simplest form these models can be used to model regression models with additional time series component, and they also allow robust modelling of phenomenas where the effect size of the predictor variables can vary during the period of the study. The `R` [@R] package `walker` provides an efficient method for fully Bayesian inference of such models, where the main computations are performed using the Markov chain Monte Carlo (MCMC) algorithms provided by `Stan` [@stan, @rstan]. This also allows the use of many general diagnostic and graphical tools provided by several `Stan` related `R` packages such as `ShinyStan` [@shinystan].
+This is complementary vignette to the paper @walkerpaper with more detailed examples and a short comparison with naive `Stan` implementation for regression model with time-varying coefficients. The Varying coefficient regression models are extension to basic linear regression models where instead of constant but unknown regression coefficients, the underlying coefficients are assumed to vary over "time" according to random walk. In their simplest form these models can be used to model regression models with additional time series component, and they also allow robust modelling of phenomenas where the effect size of the predictor variables can vary during the period of the study. The `R` [@R] package `walker` provides an efficient method for fully Bayesian inference of such models, where the main computations are performed using the Markov chain Monte Carlo (MCMC) algorithms provided by `Stan` [@stan, @rstan]. This also allows the use of many general diagnostic and graphical tools provided by several `Stan` related `R` packages such as `ShinyStan` [@shinystan].
 
 More specifically, the linear model with time-varying coefficients is defined as
 $$
@@ -57,16 +57,17 @@ y <- rnorm(n, signal, 0.5)
 ts.plot(cbind(signal, y), col = 1:2)
 ```
 
-Then we can call function `walker`. The model is defined as a formula like in `lm`, and we can give several arguments which are passed to `sampling` method of `rstan`, such as number of iteration `iter` and number of chains `chains` (default values for these are 2000 and 4). In addition to these, we use arguments `beta` and `sigma`, which define the Gaussian and Gamma prior distributions for $\beta_1$ and $\sigma$ respectively. These arguments should be vectors of length two defining the parameters of the prior distributions: mean and sd for the coefficients, and shape and rate for standard deviation parameters)..
+Then we can call function `walker`. The model is defined as a formula like in `lm`, and we can give several arguments which are passed to `sampling` method of `rstan`, such as number of iteration `iter` and number of chains `chains` (default values for these are 2000 and 4). In addition to these, we use arguments `beta` and `sigma`, which define the Gaussian and Gamma prior distributions for $\beta_1$ and $\sigma$ respectively. These arguments should be vectors of length two defining the parameters of the prior distributions: mean and sd for the coefficients, and shape and rate for standard deviation parameters).
 
 ```{r walker}
+set.seed(1)
 fit <- walker(y ~ -1 + rw1(~ x1 + x2, beta = c(0, 10), sigma = c(2, 10)), 
-  refresh = 0, chains = 2, sigma_y = c(2, 1), seed = 1)
+  refresh = 0, chains = 1, sigma_y = c(2, 1))
 ```
 
 We sometimes get a few (typically one) warning message about numerical problems, as the sampling algorithm warms up, but this is nothing to be concerned with (if more errors occur, then a Github issue for `walker` package is more than welcome). 
 
-The output of `walker` is `walker_fit` object, which is essentially a list with `stanfit` from `Stan`'s `sampling` function, and the original observations `y` and the covariate matrix `xreg`. Thus we can use all the ready made tools for postprocessing `stanfit` objects:
+The output of `walker` is `walker_fit` object, which is essentially a list with `stanfit` from `Stan`'s `sampling` function, and the original observations `y` and the covariate matrix `xreg`. Thus we can use all the available tools for postprocessing `stanfit` objects:
 
 ```{r pars}
 print(fit$stanfit, pars = c("sigma_y", "sigma_rw1"))
@@ -83,15 +84,15 @@ ts.plot(cbind(rw, beta1, beta2, matrix(betas, ncol = 3)),
   col = rep(1:3, 2), lty = rep(1:2, each = 3))
 ```
 
-There is also simpler (and prettier) `ggplot` based plotting function for coefficients:
+There is also simpler (and prettier) `ggplot2` based plotting function for coefficients:
 
 ```{r plot_pretty_betas}
-plot_coefs(fit, scales = "free") + theme_bw()
+plot_coefs(fit, scales = "free") + ggplot2::theme_bw()
 ```
 
 ### Posterior predictive checks
 
-The `walker` function also returns samples from the posterior predictive distribution $p(y^{\textrm{rep}} | y) = \int p(y^{\textrm{rep}} | \beta, \sigma, y) p(\beta, \sigma | y) \textrm{d}\beta\textrm{d}\sigma$. This can be used to used for example in assessment of model fit to the data. By comparing the replication series (mean and 95% quantiles in black) and the original observations (in red) we see that very good overlap, which is not that suprising given that we know the correct model:
+The `walker` function also returns samples from the posterior predictive distribution $p(y^{\textrm{rep}} | y) = \int p(y^{\textrm{rep}} | \beta, \sigma, y) p(\beta, \sigma | y) \textrm{d}\beta\textrm{d}\sigma$. This can be used to used for example in assessment of model fit to the data. By comparing the replication series (mean and 95% quantiles in black) and the original observations (in red) we see that very good overlap, which is not that surprising given that we know the correct model:
 
 ```{r ppc}
 pp_check(fit)
@@ -114,42 +115,77 @@ $$
 \beta_{t+1} = \beta_t + \nu_t,\\
 \nu_{t+1} = \nu_t + \eta_t.
 $$
-This is essentially local linear trend model [@harvey] with restriction that there is no noise on the $\beta$ level. This model can be estimated by switching `rw1` function inside of the walker formula to `rw1`, with almost identical interface, but now $\sigma$ correspond to the standard deviations of the slope terms $\nu$. The prior for $\nu$ most also be defined. Using RW2 model, the coefficient estimates of our example model are clearly smoother:
+This is essentially local linear trend model [@harvey] with restriction that there is no noise on the $\beta$ level. This model can be estimated by switching `rw1` function inside of the walker formula to `rw2`, with almost identical interface, but now $\sigma$ correspond to the standard deviations of the slope terms $\nu$. The prior for $\nu$ most also be defined. Using RW2 model, the coefficient estimates of our example model are clearly smoother:
 
 ```{r walker_rw2}
 fit_rw2 <-walker(y ~ -1 + 
     rw2(~ x1 + x2, beta = c(0, 10), sigma = c(2, 0.001), nu = c(0, 10)), 
-  refresh = 0, chains = 2, sigma_y = c(2, 0.001))
-plot_coefs(fit_rw2, scales = "free") + theme_bw()
+  refresh = 0, chains = 1, sigma_y = c(2, 0.001))
+plot_coefs(fit_rw2, scales = "free") + ggplot2::theme_bw()
 ```
 
-So far we have focused on simple Gaussian linear regression. The above treatment cannot be directly extended to non-Gaussian models such as Poisson regression, as the marginal log-likelihood is intractable. However, it is possible to use relatively accurate Gaussian approximations, and the resulting approximate posterior can then be weighted using importance sampling type correction [@vihola], leading to exact inference. Function `walker_glm` extends the the package to handle Poisson and binomial observations using the aforementioned methodology.
+So far we have focused on simple Gaussian linear regression. The above treatment cannot be directly extended to non-Gaussian models such as Poisson regression, as the marginal log-likelihood is intractable. However, it is possible to use relatively accurate Gaussian approximations, and the resulting approximate posterior can then be weighted using importance sampling type correction [@vihola], leading to asymptotically exact inference (if necessary). Function `walker_glm` extends the the package to handle Poisson and binomial observations using the aforementioned methodology.
 
 ## Comparison with naive approach
 
-We now compare the efficiency of the "naive" implementation and the state space approach. For this, we use function `walker_rw1`, which supports only basic random walk models (here priors for standard deviations are defined as truncated normal distributions). We can perform the same analysis with naive implementation by setting the argument `naive` to `TRUE`:
+We now compare the efficiency of the "naive" implementation and the state space approach. For this, we use function `walker_rw1`, which supports only basic random walk models (here priors for standard deviations are defined as truncated normal distributions). We can perform the same analysis with naive implementation by setting the argument `naive` to `TRUE`. Note that in this case we  need to adjust the default sampling parameters (argument `control`) to avoid (most of the) problems in sampling. 
 
-```{r naive}
-naive_fit <- walker_rw1(y ~ x1 + x2, seed = 1, refresh = 0, chains = 2,
+```{r naive, eval = FALSE}
+set.seed(1) # set seed to simulate same initial values for both methods
+naive_fit <- walker_rw1(y ~ x1 + x2, refresh = 0, 
+  chains = 2, cores = 2, iter = 1e4,
   beta = cbind(0, rep(5, 3)), sigma = cbind(0, rep(2, 4)),
-  naive = TRUE, control = list(adapt_delta = 0.95, max_treedepth = 15))
+  naive = TRUE,
+  control = list(adapt_delta = 0.99, max_treedepth = 12))
+
+set.seed(1)
+kalman_fit <- walker_rw1(y ~ x1 + x2, refresh = 0, 
+  chains = 2, cores = 2, iter = 1e4,
+  beta = cbind(0, rep(5, 3)), sigma = cbind(0, rep(2, 4)),
+  naive = FALSE)
 ```
 
-Let's run the state space version again:
-```{r kalman}
-kalman_fit <- walker_rw1(y ~ x1 + x2, seed = 1, refresh = 0, chains = 2,
-   beta = cbind(0, rep(5, 3)), sigma = cbind(0, rep(2, 4)),
-   naive = FALSE)
+```{r naive-run, eval = FALSE, echo = FALSE}
+# actual code run, remove betas in order to reduce size of the package
+set.seed(1)
+naive_fit <- walker_rw1(y ~ x1 + x2, refresh = 0, 
+  chains = 2, cores = 2, iter = 1e4,
+  beta = cbind(0, rep(5, 3)), sigma = cbind(0, rep(2, 4)),
+  naive = TRUE, save_warmup = FALSE, 
+  pars = c("sigma_y", "sigma_b"),
+  control = list(adapt_delta = 0.99, max_treedepth = 12))
+
+set.seed(1)
+kalman_fit <- walker_rw1(y ~ x1 + x2, refresh = 0, 
+  chains = 2, cores = 2, iter = 1e4,
+  beta = cbind(0, rep(5, 3)), sigma = cbind(0, rep(2, 4)),
+  naive = FALSE, save_warmup = FALSE, 
+  pars = c("sigma_y", "sigma_b"))
+
+save(naive_fit, kalman_fit, file = "vignette_results.rds")
+```
+(In order to keep CRAN checks fast, the results here are precomputed.)
+
+```{r, echo = FALSE}
+load("vignette_results.rds")
 ```
 
-```{r times}
+
+With naive implementation we get some warnings and much higher computation time:
+```{r warnings-and-time}
+check_hmc_diagnostics(naive_fit$stanfit)
+check_hmc_diagnostics(kalman_fit$stanfit)
+
+get_elapsed_time(naive_fit$stanfit)
+get_elapsed_time(kalman_fit$stanfit)
+```
+
+Naive implementation produces also much smaller effective sample sizes:
+```{r main-results}
 print(naive_fit$stanfit, pars = c("sigma_y", "sigma_b"))
 print(kalman_fit$stanfit, pars = c("sigma_y", "sigma_b"))
-sum(get_elapsed_time(naive_fit$stanfit))
-sum(get_elapsed_time(kalman_fit$stanfit))
 ```
 
-With naive implementation we get smaller effective sample sizes and much higher computation time, as well as some indications of divergence problems, even with adjusted step size (argument `adapt_delta`).
 
 
 ## Discussion

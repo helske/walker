@@ -3,7 +3,8 @@
 #' This function is the first iteration of the function \code{walker},
 #' which supports only time-varying model where all coefficients ~ rw1.
 #' This is kept as part of the package in order to compare "naive" and 
-#' state space versions of the model in the vignette.
+#' state space versions of the model in the vignette, 
+#' but there is little reason to use it for other purposes.
 #' 
 #' @export
 #' @param formula An object of class \code{\link[stats:formula]{formula}}. See \code{\link{lm}} for details.
@@ -134,15 +135,23 @@ walker_rw1 <- function(formula, data, beta, sigma, init, chains,
         sigma_b = structure(abs(rnorm(k, sigma[-1, 1], sigma[-1, 2])), dim = k), 
         beta = structure(rnorm(k, beta[, 1], beta[, 2]), dim = k)), simplify = FALSE)
   }
+  args <- list(...)
+  
   stanfit <- if (naive) {
-    sampling(stanmodels$rw1_model_naive,
-      data = stan_data, chains = chains, init = init,
-      pars = c("sigma_y", "sigma_b", "beta"), ...)
+    if (is.null(args$pars)) {
+      args$pars <- c("sigma_y", "sigma_b", "beta")
+    }
+    do.call(sampling, c(list(object = stanmodels$rw1_model_naive,
+      data = stan_data, chains = chains, init = init),
+      args))
   } else {
-    sampling(stanmodels$rw1_model,
-      data = stan_data, chains = chains, init = init,
-      pars = c("sigma_y", "sigma_b", "beta", 
-        "y_rep", if (n_new > 0) c("y_new", "beta_new")), ...)
+    if (is.null(args$pars)) {
+      args$pars <-c("sigma_y", "sigma_b", "beta", 
+        "y_rep", if (n_new > 0) c("y_new", "beta_new"))
+    }
+    do.call(sampling, c(list(object = stanmodels$rw1_model,
+      data = stan_data, chains = chains, init = init),
+      args))
   }
-  structure(list(stanfit = stanfit, y = y, xreg = xreg, xreg_new = xreg_new), class = "walker_fit")
+  structure(list(stanfit = stanfit, y = y, xreg = xreg, xreg_new = xreg_new), class = "walker_fit_old")
 }
