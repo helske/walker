@@ -148,6 +148,8 @@ walker <- function(formula, data, sigma_y_prior = c(2, 0.01), beta, init, chains
         rownames(attr(all_terms, "factors"))[rws])
     mf$formula <- formula(drop.terms(all_terms, drops, keep.response = TRUE))
     mf$formula <- update.formula(mf$formula, . ~ . - .emptyx., simplify = TRUE)
+  } else {
+    stop("Model does not contain time-varying part, use ordinary regression modelling instead.")
   }
   
   # build y and xreg
@@ -402,6 +404,8 @@ walker_glm <- function(formula, data, beta, init, chains,
         rownames(attr(all_terms, "factors"))[rws])
     mf$formula <- formula(drop.terms(all_terms, drops, keep.response = TRUE))
     mf$formula <- update.formula(mf$formula, . ~ . - .emptyx., simplify = TRUE)
+  } else {
+    stop("Model does not contain time-varying part, use ordinary GLM instead.")
   }
   
   # build y and xreg
