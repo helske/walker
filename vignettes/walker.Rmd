@@ -19,29 +19,17 @@ library(walker)
 
 ## Introduction
 
-This is complementary vignette to the paper @walkerpaper with more detailed examples and a short comparison with naive `Stan` implementation for regression model with time-varying coefficients. The varying coefficient regression models are extension to basic linear regression models where instead of constant but unknown regression coefficients, the underlying coefficients are assumed to vary over time according to random walk. In their simplest form these models can be used to model regression models with additional time series component, and they also allow robust modelling of phenomenas where the effect size of the predictor variables can vary during the period of the study, for example due to an interaction with an unobserved counfounder. The `R` [@R] package `walker` provides an efficient method for fully Bayesian inference of such models, where the main computations are performed using the Markov chain Monte Carlo (MCMC) algorithms provided by `Stan` [@stan, @rstan]. This also allows the use of many general diagnostic and graphical tools provided by several `Stan` related `R` packages such as `ShinyStan` [@shinystan].
+This is complementary vignette to the paper @walkerpaper with more detailed examples and a short comparison with naive `Stan` implementation for regression model with time-varying coefficients. The varying coefficient regression models are extension to basic linear regression models where instead of constant but unknown regression coefficients, the underlying coefficients are assumed to vary over time according to random walk. In their simplest form these models can be used to model regression models with additional time series component, and they also allow robust modelling of phenomenas where the effect size of the predictor variables can vary during the period of the study, for example due to interactions with unobserved counfounders. The `R` [@R] package `walker` provides an efficient method for fully Bayesian inference of such models, where the main computations are performed using the Markov chain Monte Carlo (MCMC) algorithms provided by `Stan` [@stan, @rstan]. This also allows the use of many general diagnostic and graphical tools provided by several `Stan` related `R` packages such as `ShinyStan` [@shinystan].
+the linear model with time-varying coefficients is defined as
 
-One approach to time-varying regression models it to consider case with one observed exogenous variable $X$, unobserved latent variable $U$ and observations $Y$, corresponding to following directed acyclic graph (DAG):
-
-![example_dag](dag.png)
-Now assume that $y_t$ is generated according to
-
-$$
-y_t = a + b_u u_t + b_x x_t + b_{ux} u_t x_t + \epsilon_t, 
-\quad \epsilon_t \sim N(0, \sigma^2),
-$$
-As we have not observed $u_t$, we rewrite the equation as
-$$
-y_t = \alpha_t + \beta_t x_t +\epsilon_t, 
-$$
-where $\alpha_t = a + b_u u_t$ and $\beta_t = b_x + b_{ux}u_t$. This leads to linear model with time-varying coefficients defined as
+A linear model with time-varying coefficients defined as
 $$
 \begin{aligned}
 y_t &= x'_t \beta_t + \epsilon_t, \quad t = 1,\ldots, n\\
 \beta_{t+1} &= \beta_t + \eta_t,
 \end{aligned}
 $$
-where $y_t$ is the observation at time $t$, $x_t$ contains the corresponding predictor variables (which now includes the intercept term as well), $\beta_t$ is a $k$ dimensional vector of regression coefficients at time $t$, $\epsilon_t \sim N(0, \sigma^2_{\epsilon})$, and $\eta_t \sim N(0, D)$, with $D$ being $k \times k$ diagonal matrix with diagonal elements $\sigma^2_{i,\eta}$, $i=1,\ldots,k$. Denote the unknown parameters of the model by $\beta = (\beta'_1, \ldots, \beta'_n)'$ and $\sigma = (\sigma_{\epsilon}, \sigma_{1, \eta}, \ldots, \sigma_{k, \eta})$. We define priors for first $\beta_1$ as $N(\mu_{\beta_1}, \sigma_{\beta_1})$, and for $\sigma_i \sim N(\mu_{\sigma_i}, \sigma_{\sigma_i})$, $i=1,\ldots,k+1$, truncated to positive values.
+where $y_t$ is the observation at time $t$, $x_t$ contains the corresponding predictor variables, $\beta_t$ is a $k$ dimensional vector of regression coefficients at time $t$, $\epsilon_t \sim N(0, \sigma^2_{\epsilon})$, and $\eta_t \sim N(0, D)$, with $D$ being $k \times k$ diagonal matrix with diagonal elements $\sigma^2_{i,\eta}$, $i=1,\ldots,k$. Denote the unknown parameters of the model by $\beta = (\beta'_1, \ldots, \beta'_n)'$ and $\sigma = (\sigma_{\epsilon}, \sigma_{1, \eta}, \ldots, \sigma_{k, \eta})$. We define priors for first $\beta_1$ as $N(\mu_{\beta_1}, \sigma_{\beta_1})$, and for $\sigma_i \sim N(\mu_{\sigma_i}, \sigma_{\sigma_i})$, $i=1,\ldots,k+1$, truncated to positive values.
 
 Although in principle writing this model as above in `Stan` is straightforward, standard implementation can lead to some computational problems (see the illustration in next Section). An alternative solution used by `walker` is based on the marginalization of the regression coefficients $\beta$ during the MCMC sampling by using the Kalman filter. This provides fast and accurate inference of marginal posterior $p(\sigma | y)$. Then, the corresponding joint posterior $p(\sigma, \beta | y) = p(\beta | \sigma, y)p(\sigma | y)$ can be obtained by simulating the regression coefficients given marginal posterior of standard deviations. This sampling can be performed for example by simulation smoothing algorithm by @durbin. Note that we have opted to sample the $\beta$ parameters given $\sigma$'s, but it is also possible to obtain somewhat more accurate summary statistics such as mean and variance of these parameters by using the standard Kalman smoother for computation of $\textrm{E}(\beta| \sigma, y)$ and $\textrm{Var}(\beta| \sigma, y)$, and using the law of total expectation.
 
