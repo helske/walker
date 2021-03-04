@@ -1,7 +1,7 @@
 Package: walker
 Type: Package
 Title: Bayesian Generalized Linear Models with Time-Varying Coefficients
-Version: 1.1.0
+Version: 1.0.2
 Date: 2021-03-03
 Description: Bayesian generalized linear models with time-varying coefficients 
     as in Helske (2020, <arXiv:2009.07063>). Gaussian, Poisson, and binomial 
