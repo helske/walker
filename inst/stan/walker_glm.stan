@@ -269,8 +269,8 @@ generated quantities{
   real weights;
   vector[n * (n_lfo == n)] y_fit;
   vector[n * (n_lfo == n)] y_rep;
-  // approximate log-likelihood, unbiased estimate is logLik + mean(w)
-  vector[n] logLik = loglik[, 1] + loglik[, 2];
+  // approximate log-likelihood, unbiased estimate is log_lik + mean(w)
+  vector[n] log_lik = loglik[, 1] + loglik[, 2];
   
   if(n_lfo == n) {
     

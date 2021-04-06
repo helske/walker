@@ -22,6 +22,11 @@ devtools::install_github("helske/walker")
 
 NEWS
 ---------------------------------------------
+
+### 6.4.2021
+
+* Chaned the name of the `logLik` variable to `log_lik` so it is compatible with `loo`.
+
 ### 27.1.2021
 
 * Fixed some issues in the vignette which resulted CRAN warnings.

@@ -938,10 +938,10 @@ public:
                 sigma_y = in__.scalar_lb_constrain(0);
             // transformed parameters
             current_statement_begin__ = 170;
-            validate_non_negative_index("logLik", "n", n);
-            Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> logLik(n);
-            stan::math::initialize(logLik, DUMMY_VAR__);
-            stan::math::fill(logLik, DUMMY_VAR__);
+            validate_non_negative_index("log_lik", "n", n);
+            Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> log_lik(n);
+            stan::math::initialize(log_lik, DUMMY_VAR__);
+            stan::math::fill(log_lik, DUMMY_VAR__);
             current_statement_begin__ = 171;
             validate_non_negative_index("Rt", "m", m);
             validate_non_negative_index("Rt", "n", n);
@@ -990,17 +990,17 @@ public:
                 }
             }
             current_statement_begin__ = 189;
-            stan::math::assign(logLik, gaussian_filter(y_, y_miss, a1, P1, pow(sigma_y, 2), Tt, Rt, xreg_rw, gamma2_y, pstream__));
+            stan::math::assign(log_lik, gaussian_filter(y_, y_miss, a1, P1, pow(sigma_y, 2), Tt, Rt, xreg_rw, gamma2_y, pstream__));
             // validate transformed parameters
             const char* function__ = "validate transformed params";
             (void) function__;  // dummy to suppress unused var warning
             current_statement_begin__ = 170;
-            size_t logLik_j_1_max__ = n;
-            for (size_t j_1__ = 0; j_1__ < logLik_j_1_max__; ++j_1__) {
-                if (stan::math::is_uninitialized(logLik(j_1__))) {
+            size_t log_lik_j_1_max__ = n;
+            for (size_t j_1__ = 0; j_1__ < log_lik_j_1_max__; ++j_1__) {
+                if (stan::math::is_uninitialized(log_lik(j_1__))) {
                     std::stringstream msg__;
-                    msg__ << "Undefined transformed parameter: logLik" << "(" << j_1__ << ")";
-                    stan::lang::rethrow_located(std::runtime_error(std::string("Error initializing variable logLik: ") + msg__.str()), current_statement_begin__, prog_reader__());
+                    msg__ << "Undefined transformed parameter: log_lik" << "(" << j_1__ << ")";
+                    stan::lang::rethrow_located(std::runtime_error(std::string("Error initializing variable log_lik: ") + msg__.str()), current_statement_begin__, prog_reader__());
                 }
             }
             current_statement_begin__ = 171;
@@ -1043,7 +1043,7 @@ public:
             current_statement_begin__ = 196;
             lp_accum__.add(gamma_log<propto__>(sigma_rw2, sigma_rw2_shape, sigma_rw2_rate));
             current_statement_begin__ = 198;
-            lp_accum__.add(sum(stan::model::rvalue(logLik, stan::model::cons_list(stan::model::index_min_max(1, n_lfo), stan::model::nil_index_list()), "logLik")));
+            lp_accum__.add(sum(stan::model::rvalue(log_lik, stan::model::cons_list(stan::model::index_min_max(1, n_lfo), stan::model::nil_index_list()), "log_lik")));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e, current_statement_begin__, prog_reader__());
             // Next line prevents compiler griping about no return
@@ -1068,7 +1068,7 @@ public:
         names__.push_back("sigma_rw1");
         names__.push_back("sigma_rw2");
         names__.push_back("sigma_y");
-        names__.push_back("logLik");
+        names__.push_back("log_lik");
         names__.push_back("Rt");
         names__.push_back("xbeta");
         names__.push_back("y_");
@@ -1169,10 +1169,10 @@ public:
         try {
             // declare and define transformed parameters
             current_statement_begin__ = 170;
-            validate_non_negative_index("logLik", "n", n);
-            Eigen::Matrix<double, Eigen::Dynamic, 1> logLik(n);
-            stan::math::initialize(logLik, DUMMY_VAR__);
-            stan::math::fill(logLik, DUMMY_VAR__);
+            validate_non_negative_index("log_lik", "n", n);
+            Eigen::Matrix<double, Eigen::Dynamic, 1> log_lik(n);
+            stan::math::initialize(log_lik, DUMMY_VAR__);
+            stan::math::fill(log_lik, DUMMY_VAR__);
             current_statement_begin__ = 171;
             validate_non_negative_index("Rt", "m", m);
             validate_non_negative_index("Rt", "n", n);
@@ -1221,16 +1221,16 @@ public:
                 }
             }
             current_statement_begin__ = 189;
-            stan::math::assign(logLik, gaussian_filter(y_, y_miss, a1, P1, pow(sigma_y, 2), Tt, Rt, xreg_rw, gamma2_y, pstream__));
+            stan::math::assign(log_lik, gaussian_filter(y_, y_miss, a1, P1, pow(sigma_y, 2), Tt, Rt, xreg_rw, gamma2_y, pstream__));
             if (!include_gqs__ && !include_tparams__) return;
             // validate transformed parameters
             const char* function__ = "validate transformed params";
             (void) function__;  // dummy to suppress unused var warning
             // write transformed parameters
             if (include_tparams__) {
-                size_t logLik_j_1_max__ = n;
-                for (size_t j_1__ = 0; j_1__ < logLik_j_1_max__; ++j_1__) {
-                    vars__.push_back(logLik(j_1__));
+                size_t log_lik_j_1_max__ = n;
+                for (size_t j_1__ = 0; j_1__ < log_lik_j_1_max__; ++j_1__) {
+                    vars__.push_back(log_lik(j_1__));
                 }
                 size_t Rt_j_2_max__ = n;
                 size_t Rt_j_1_max__ = m;
@@ -1435,10 +1435,10 @@ public:
         param_names__.push_back(param_name_stream__.str());
         if (!include_gqs__ && !include_tparams__) return;
         if (include_tparams__) {
-            size_t logLik_j_1_max__ = n;
-            for (size_t j_1__ = 0; j_1__ < logLik_j_1_max__; ++j_1__) {
+            size_t log_lik_j_1_max__ = n;
+            for (size_t j_1__ = 0; j_1__ < log_lik_j_1_max__; ++j_1__) {
                 param_name_stream__.str(std::string());
-                param_name_stream__ << "logLik" << '.' << j_1__ + 1;
+                param_name_stream__ << "log_lik" << '.' << j_1__ + 1;
                 param_names__.push_back(param_name_stream__.str());
             }
             size_t Rt_j_2_max__ = n;
@@ -1522,10 +1522,10 @@ public:
         param_names__.push_back(param_name_stream__.str());
         if (!include_gqs__ && !include_tparams__) return;
         if (include_tparams__) {
-            size_t logLik_j_1_max__ = n;
-            for (size_t j_1__ = 0; j_1__ < logLik_j_1_max__; ++j_1__) {
+            size_t log_lik_j_1_max__ = n;
+            for (size_t j_1__ = 0; j_1__ < log_lik_j_1_max__; ++j_1__) {
                 param_name_stream__.str(std::string());
-                param_name_stream__ << "logLik" << '.' << j_1__ + 1;
+                param_name_stream__ << "log_lik" << '.' << j_1__ + 1;
                 param_names__.push_back(param_name_stream__.str());
             }
             size_t Rt_j_2_max__ = n;

@@ -1211,7 +1211,7 @@ public:
         names__.push_back("weights");
         names__.push_back("y_fit");
         names__.push_back("y_rep");
-        names__.push_back("logLik");
+        names__.push_back("log_lik");
     }
     void get_dims(std::vector<std::vector<size_t> >& dimss__) const {
         dimss__.resize(0);
@@ -1420,11 +1420,11 @@ public:
             stan::math::initialize(y_rep, DUMMY_VAR__);
             stan::math::fill(y_rep, DUMMY_VAR__);
             current_statement_begin__ = 273;
-            validate_non_negative_index("logLik", "n", n);
-            Eigen::Matrix<double, Eigen::Dynamic, 1> logLik(n);
-            stan::math::initialize(logLik, DUMMY_VAR__);
-            stan::math::fill(logLik, DUMMY_VAR__);
-            stan::math::assign(logLik,add(stan::model::rvalue(loglik, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "loglik"), stan::model::rvalue(loglik, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(2), stan::model::nil_index_list())), "loglik")));
+            validate_non_negative_index("log_lik", "n", n);
+            Eigen::Matrix<double, Eigen::Dynamic, 1> log_lik(n);
+            stan::math::initialize(log_lik, DUMMY_VAR__);
+            stan::math::fill(log_lik, DUMMY_VAR__);
+            stan::math::assign(log_lik,add(stan::model::rvalue(loglik, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "loglik"), stan::model::rvalue(loglik, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(2), stan::model::nil_index_list())), "loglik")));
             // generated quantities statements
             current_statement_begin__ = 275;
             if (as_bool(logical_eq(n_lfo, n))) {
@@ -1679,9 +1679,9 @@ public:
                 vars__.push_back(y_rep(j_1__));
             }
             current_statement_begin__ = 273;
-            size_t logLik_j_1_max__ = n;
-            for (size_t j_1__ = 0; j_1__ < logLik_j_1_max__; ++j_1__) {
-                vars__.push_back(logLik(j_1__));
+            size_t log_lik_j_1_max__ = n;
+            for (size_t j_1__ = 0; j_1__ < log_lik_j_1_max__; ++j_1__) {
+                vars__.push_back(log_lik(j_1__));
             }
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e, current_statement_begin__, prog_reader__());
@@ -1798,10 +1798,10 @@ public:
             param_name_stream__ << "y_rep" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
-        size_t logLik_j_1_max__ = n;
-        for (size_t j_1__ = 0; j_1__ < logLik_j_1_max__; ++j_1__) {
+        size_t log_lik_j_1_max__ = n;
+        for (size_t j_1__ = 0; j_1__ < log_lik_j_1_max__; ++j_1__) {
             param_name_stream__.str(std::string());
-            param_name_stream__ << "logLik" << '.' << j_1__ + 1;
+            param_name_stream__ << "log_lik" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
     }
@@ -1894,10 +1894,10 @@ public:
             param_name_stream__ << "y_rep" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
-        size_t logLik_j_1_max__ = n;
-        for (size_t j_1__ = 0; j_1__ < logLik_j_1_max__; ++j_1__) {
+        size_t log_lik_j_1_max__ = n;
+        for (size_t j_1__ = 0; j_1__ < log_lik_j_1_max__; ++j_1__) {
             param_name_stream__.str(std::string());
-            param_name_stream__ << "logLik" << '.' << j_1__ + 1;
+            param_name_stream__ << "log_lik" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
     }

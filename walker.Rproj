@@ -14,7 +14,4 @@ LaTeX: pdfLaTeX
 
 BuildType: Package
 PackageUseDevtools: Yes
-PackageInstallArgs: --with-keep.source  --no-multiarch
-PackageBuildArgs: --compact-vignettes=both
-PackageCheckArgs: --compact-vignettes=both  --no-multiarch
-PackageRoxygenize: rd,namespace
+PackageInstallArgs: --no-multiarch --with-keep.source

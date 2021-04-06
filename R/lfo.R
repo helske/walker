@@ -79,10 +79,10 @@ lfo <- function(object, L, exact = FALSE, verbose = TRUE, k_thres = 0.7) {
           iter = object$stanfit@sim$iter,
           warmup = object$stanfit@sim$warmup,
           thin = object$stanfit@sim$thin,
-          pars = "logLik",
+          pars = "log_lik",
           refresh = 0
         )
-        ll[, i - L + 1] <- extract(f, "logLik")$logLik[, i + 1]
+        ll[, i - L + 1] <- extract(f, "log_lik")$log_lik[, i + 1]
       }
       elpds <- apply(ll, 2, log_mean_exp)
       elpd <- sum(elpds)
@@ -97,17 +97,17 @@ lfo <- function(object, L, exact = FALSE, verbose = TRUE, k_thres = 0.7) {
         iter = object$stanfit@sim$iter,
         warmup = object$stanfit@sim$warmup,
         thin = object$stanfit@sim$thin,
-        pars = "logLik",
+        pars = "log_lik",
         refresh = 0
       )
-      elpds[1] <- log_mean_exp(extract(f, "logLik")$logLik[, L + 1])
+      elpds[1] <- log_mean_exp(extract(f, "log_lik")$log_lik[, L + 1])
       i_refit <- L
       refits <- L
       ks <- numeric(d$n - L - 1)
       
       for (i in (L + 1):(d$n - 1)) {
-        loglik <- extract(f, "logLik")$logLik
-        logratio <- sum_log_ratios(loglik, (i_refit + 1):i)
+        log_lik <- extract(f, "log_lik")$log_lik
+        logratio <- sum_log_ratios(log_lik, (i_refit + 1):i)
         psis_obj <- suppressWarnings(loo::psis(logratio))
         k <- loo::pareto_k_values(psis_obj)
         ks[i] <- k
@@ -123,14 +123,14 @@ lfo <- function(object, L, exact = FALSE, verbose = TRUE, k_thres = 0.7) {
             iter = object$stanfit@sim$iter,
             warmup = object$stanfit@sim$warmup,
             thin = object$stanfit@sim$thin,
-            pars = "logLik",
+            pars = "log_lik",
             refresh = 0
           )
-          loglik <- extract(f, "logLik")$logLik
-          elpds[i - L + 1] <- log_mean_exp(loglik[, i + 1])
+          log_lik <- extract(f, "log_lik")$log_lik
+          elpds[i - L + 1] <- log_mean_exp(log_lik[, i + 1])
         } else {
           lw <- loo::weights.importance_sampling(psis_obj, normalize = TRUE)[, 1]
-          elpds[i - L + 1] <- log_sum_exp(lw + loglik[, i + 1])
+          elpds[i - L + 1] <- log_sum_exp(lw + log_lik[, i + 1])
         }
       }
       elpd <- sum(elpds)
@@ -160,10 +160,10 @@ lfo <- function(object, L, exact = FALSE, verbose = TRUE, k_thres = 0.7) {
           iter = object$stanfit@sim$iter,
           warmup = object$stanfit@sim$warmup,
           thin = object$stanfit@sim$thin,
-          pars = "logLik",
+          pars = "log_lik",
           refresh = 0
         )
-        ll[, i - L + 1] <- extract(f, "logLik")$logLik[, i + 1]
+        ll[, i - L + 1] <- extract(f, "log_lik")$log_lik[, i + 1]
       }
       elpds <- apply(ll, 2, log_mean_exp)
       elpd <- sum(elpds)
@@ -178,17 +178,17 @@ lfo <- function(object, L, exact = FALSE, verbose = TRUE, k_thres = 0.7) {
         iter = object$stanfit@sim$iter,
         warmup = object$stanfit@sim$warmup,
         thin = object$stanfit@sim$thin,
-        pars = "logLik",
+        pars = "log_lik",
         refresh = 0
       )
-      elpds[1] <- log_mean_exp(extract(f, "logLik")$logLik[, L + 1])
+      elpds[1] <- log_mean_exp(extract(f, "log_lik")$log_lik[, L + 1])
       i_refit <- L
       refits <- L
       ks <- numeric(d$n - L - 1)
       
       for (i in (L + 1):(d$n - 1)) {
-        loglik <- extract(f, "logLik")$logLik
-        logratio <- sum_log_ratios(loglik, (i_refit + 1):i)
+        log_lik <- extract(f, "log_lik")$log_lik
+        logratio <- sum_log_ratios(log_lik, (i_refit + 1):i)
         psis_obj <- suppressWarnings(loo::psis(logratio))
         k <- loo::pareto_k_values(psis_obj)
         ks[i] <- k
@@ -204,14 +204,14 @@ lfo <- function(object, L, exact = FALSE, verbose = TRUE, k_thres = 0.7) {
             iter = object$stanfit@sim$iter,
             warmup = object$stanfit@sim$warmup,
             thin = object$stanfit@sim$thin,
-            pars = "logLik",
+            pars = "log_lik",
             refresh = 0
           )
-          loglik <- extract(f, "logLik")$logLik
-          elpds[i - L + 1] <- log_mean_exp(loglik[, i + 1])
+          log_lik <- extract(f, "log_lik")$log_lik
+          elpds[i - L + 1] <- log_mean_exp(log_lik[, i + 1])
         } else {
           lw <- loo::weights.importance_sampling(psis_obj, normalize = TRUE)[, 1]
-          elpds[i - L + 1] <- log_sum_exp(lw + loglik[, i + 1])
+          elpds[i - L + 1] <- log_sum_exp(lw + log_lik[, i + 1])
         }
       }
       elpd <- sum(elpds)

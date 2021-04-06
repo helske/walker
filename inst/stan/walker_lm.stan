@@ -167,7 +167,7 @@ parameters {
 }
 
 transformed parameters {
-  vector[n] logLik;
+  vector[n] log_lik;
   matrix[m, n] Rt = rep_matrix(0.0, m, n);
   vector[n] xbeta;
   vector[n] y_;
@@ -186,7 +186,7 @@ transformed parameters {
       Rt[k + i, t] = (gamma_rw2[i, t] * sigma_rw2[i])^2;
     } 
   }
-  logLik = gaussian_filter(y_, y_miss, a1, P1, sigma_y^2, Tt, Rt, xreg_rw, gamma2_y);
+  log_lik = gaussian_filter(y_, y_miss, a1, P1, sigma_y^2, Tt, Rt, xreg_rw, gamma2_y);
 }
 
 model {
@@ -195,7 +195,7 @@ model {
   sigma_rw1 ~ gamma(sigma_rw1_shape, sigma_rw1_rate);
   sigma_rw2 ~ gamma(sigma_rw2_shape, sigma_rw2_rate);
   
-  target += sum(logLik[1:n_lfo]);
+  target += sum(log_lik[1:n_lfo]);
 }
 
 generated quantities{
