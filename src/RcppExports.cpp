@@ -7,6 +7,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // predict_walker
 Rcpp::List predict_walker(const arma::mat& sigma_rw1, const arma::mat& sigma_rw2, const arma::vec sigma_y, const arma::mat beta_fixed, const arma::mat& beta_rw, const arma::mat& slope, const arma::mat& xreg_fixed, const arma::mat& xreg_rw, const arma::uword n, const arma::uword k, const arma::uword k_rw1, const arma::uword k_rw2, const bool response);
 RcppExport SEXP _walker_predict_walker(SEXP sigma_rw1SEXP, SEXP sigma_rw2SEXP, SEXP sigma_ySEXP, SEXP beta_fixedSEXP, SEXP beta_rwSEXP, SEXP slopeSEXP, SEXP xreg_fixedSEXP, SEXP xreg_rwSEXP, SEXP nSEXP, SEXP kSEXP, SEXP k_rw1SEXP, SEXP k_rw2SEXP, SEXP responseSEXP) {

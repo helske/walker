@@ -23,9 +23,14 @@ devtools::install_github("helske/walker")
 NEWS
 ---------------------------------------------
 
+
+### 16.8.2021
+
+* Internal changes to make `walker` compatible with upcoming `StanHeaders`.
+
 ### 6.4.2021
 
-* Chaned the name of the `logLik` variable to `log_lik` so it is compatible with `loo`.
+* Changed the name of the `logLik` variable to `log_lik` so it is compatible with `loo`.
 
 ### 27.1.2021
 

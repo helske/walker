@@ -172,7 +172,7 @@ walker <- function(formula, data, sigma_y_prior = c(2, 0.01), beta, init, chains
     if (nrow(rw1_out$xreg) != n) stop("length of the series and covariates do not match.")
   } else {
     rw1_out <- list(xreg = matrix(0, n, 0), 
-      beta = numeric(2), sigma = numeric(2), 
+      beta = rep(1, 2), sigma = rep(1, 2), 
       gamma = matrix(0, 0, n))
   }
   if (!is.null(attr(all_terms, "specials")$rw2)) {
@@ -186,8 +186,8 @@ walker <- function(formula, data, sigma_y_prior = c(2, 0.01), beta, init, chains
     if (nrow(rw2_out$xreg) != n) stop("length of the series and covariates do not match.")
   } else {
     rw2_out <- list(xreg = matrix(0, n, 0), 
-      beta = numeric(2), sigma = numeric(2), 
-      nu = numeric(2), gamma = matrix(0, 0, n))
+      beta = rep(1, 2), sigma = rep(1, 2), 
+      nu = rep(1, 2), gamma = matrix(0, 0, n))
   }
   
   xreg_rw <- cbind(rw1_out$xreg, rw2_out$xreg)
@@ -201,7 +201,7 @@ walker <- function(formula, data, sigma_y_prior = c(2, 0.01), beta, init, chains
   if(k_fixed > 0 && length(beta) != 2) {
     stop("beta should be a vector of length two, defining the mean and standard deviation for the Gaussian prior of fixed coefficients. ")
   }
-  if(length(sigma_y_prior) != 2) {
+  if(length(sigma_y_prior) != 2 || !all(sigma_y_prior > 0)) {
     stop("sigma should be should be a vector of length two, defining the shape and rate for the Gamma prior of the standard deviation of y. ")
   }
   
@@ -428,7 +428,7 @@ walker_glm <- function(formula, data, beta, init, chains,
     if (nrow(rw1_out$xreg) != n) stop("length of the series and covariates do not match.")
   } else {
     rw1_out <- list(xreg = matrix(0, n, 0), 
-      beta = numeric(2), sigma = numeric(2), 
+      beta = rep(1, 2), sigma = rep(1, 2), 
       gamma = matrix(0, 0, n))
   }
   if (!is.null(attr(all_terms, "specials")$rw2)) {
@@ -442,8 +442,8 @@ walker_glm <- function(formula, data, beta, init, chains,
     if (nrow(rw2_out$xreg) != n) stop("length of the series and covariates do not match.")
   } else {
     rw2_out <- list(xreg = matrix(0, n, 0), 
-      beta = numeric(2), sigma = numeric(2), 
-      nu = numeric(2), gamma = matrix(0, 0, n))
+      beta = rep(1, 2), sigma = rep(1, 2), 
+      nu = rep(1, 2), gamma = matrix(0, 0, n))
   }
   
   xreg_rw <- cbind(rw1_out$xreg, rw2_out$xreg)
