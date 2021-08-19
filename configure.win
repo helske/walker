@@ -3,4 +3,6 @@
 #! /bin/sh
 "${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe" -e "rstantools::rstan_config()"
 "${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe" -e 'cat("PKG_LIBS += $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)", sep = "\n", file = "src/Makevars.win", append = TRUE)'
-"${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe" -e 'cat("PKG_LIBS += $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)", sep = "\n", file = "src/Makevars", append = TRUE)'
+# This needs some trickery in order to ensure LF line endings without need to fight with git (actions)
+"${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe" -e 'f<-"src/Makevars";l<-c(readLines(f),"PKG_LIBS += $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)");f<-file(f, "wb");cat(l,sep = "\n",file=f);close(f)'
+
