@@ -224,8 +224,8 @@ walker <- function(formula, data, sigma_y_prior = c(2, 0.01), beta, init, chains
     y_miss = as.integer(is.na(y)),
     sigma_y_shape = sigma_y_prior[1],
     sigma_y_rate = sigma_y_prior[2],
-    beta_fixed_mean = if (k_fixed > 0) beta[1] else 0,
-    beta_fixed_sd = if (k_fixed > 0) beta[2] else 0,
+    beta_fixed_mean = if (k_fixed > 0) beta[1] else 1,
+    beta_fixed_sd = if (k_fixed > 0) beta[2] else 1,
     beta_rw1_mean = rw1_out$beta[1],
     beta_rw1_sd = rw1_out$beta[2],
     beta_rw2_mean = rw2_out$beta[1],
@@ -462,8 +462,8 @@ walker_glm <- function(formula, data, beta, init, chains,
   
   if(distribution == "binomial" && any(u < y)) stop("Number of trials 'u' must be larger or equal to number of successes y. ")
   
-  beta_fixed_mean = if (k_fixed > 0) beta[1] else 0
-  beta_fixed_sd = if (k_fixed > 0) beta[2] else 0
+  beta_fixed_mean = if (k_fixed > 0) beta[1] else 1
+  beta_fixed_sd = if (k_fixed > 0) beta[2] else 1
   beta_rw1_mean = rw1_out$beta[1]
   beta_rw1_sd = rw1_out$beta[2]
   beta_rw2_mean = rw2_out$beta[1]

@@ -118,10 +118,10 @@ data {
   real<lower=0> sigma_y_rate;
   
   real beta_fixed_mean;
-  real beta_rw1_mean;
-  real beta_rw2_mean;
   real<lower=0> beta_fixed_sd;
+  real beta_rw1_mean;
   real<lower=0> beta_rw1_sd;
+  real beta_rw2_mean;
   real<lower=0> beta_rw2_sd;
   
   real<lower=0> sigma_rw1_shape;
