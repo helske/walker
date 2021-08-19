@@ -198,12 +198,8 @@ walker <- function(formula, data, sigma_y_prior = c(2, 0.01), beta, init, chains
   
   if (any(is.na(xreg_fixed)) || any(is.na(xreg_rw))) stop("Missing values in covariates are not allowed.")
   
-  if(k_fixed > 0 && length(beta) != 2) {
-    stop("beta should be a vector of length two, defining the mean and standard deviation for the Gaussian prior of fixed coefficients. ")
-  }
-  if(length(sigma_y_prior) != 2 || !all(sigma_y_prior > 0)) {
-    stop("sigma should be should be a vector of length two, defining the shape and rate for the Gamma prior of the standard deviation of y. ")
-  }
+  if(k_fixed > 0) check_normal(beta)
+  check_gamma(sigma_y_prior, "sigma_y_prior")
   
   if (is.null(gamma_y)) {
     gamma_y <- rep(1, n) 
@@ -455,9 +451,7 @@ walker_glm <- function(formula, data, beta, init, chains,
   
   if (any(is.na(xreg_fixed)) || any(is.na(xreg_rw))) stop("Missing values in covariates are not allowed.")
   
-  if(k_fixed > 0 && length(beta) != 2) {
-    stop("beta should be a vector of length two, defining the mean and standard deviation for the Gaussian prior of fixed coefficients. ")
-  }
+  if(k_fixed > 0) check_normal(beta, "beta")
   
   if (missing(u)) {
     u <- rep(1, n)

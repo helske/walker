@@ -22,12 +22,9 @@ rw1 <- function(formula, data, beta, sigma = c(2, 0.0001), gamma = NULL) {
   mf <- eval(mf, parent.frame())
   xreg <- model.matrix(attr(mf, "terms"), mf)
   
-  if(length(beta) != 2) {
-    stop("beta should be a vector of length two, defining the mean and standard deviation for the Gaussian prior of coefficients. ")
-  }
-  if(length(sigma) != 2) {
-    stop("sigma should be should be a vector of length two, defining the shape and rate parameter for the Gamma prior of standard deviations. ")
-  }
+  check_normal(beta, "beta")
+  check_gamma(sigma, "sigma")
+  
   n <- nrow(xreg)
   if (is.null(gamma)) {
     gamma <- matrix(1, ncol(xreg), n) 
@@ -68,21 +65,16 @@ rw2 <- function(formula, data, beta, sigma = c(2, 0.0001), nu, gamma = NULL) {
   mf <- eval(mf, parent.frame())
   xreg <- model.matrix(attr(mf, "terms"), mf)
   
-  if(length(beta) != 2) {
-    stop("beta should be a vector of length two, defining the mean and standard deviation for the Gaussian prior of initial coefficients. ")
-  }
-  if(length(sigma) != 2) {
-    stop("sigma should be should be a vector of length two, defining the shape and rate for the Gamma prior of standard deviations. ")
-  }
-  if(length(nu) != 2) {
-    stop("nu should be should be a vector of length two, defining the mean and standard deviation for the Gaussian prior of initial slope coeffients. ")
-  }
+  check_normal(beta, "beta")
+  check_gamma(sigma, "sigma")
+  check_normal(beta, "nu")
+  
   n <- nrow(xreg)
   if (is.null(gamma)) {
     gamma <- matrix(1, ncol(xreg), n)
   } else {
     if (ncol(gamma) != n) 
-      stop("The number of column of gamma matrix for 'rw1' should equal to the number of observations. ")
+      stop("The number of column of gamma matrix for 'rw2' should equal to the number of observations. ")
     if (!is.numeric(gamma) | any(gamma < 0 | is.na(gamma))) 
       stop("Argument 'gamma' should be numeric matrix of nonnegative values. ")
   } 
