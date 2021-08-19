@@ -12,7 +12,7 @@ test_that("we get proper output", {
   y <- 1:10
   expect_error(fit <- walker(y ~ -1 + 
       rw1(~ 1, beta = c(0, 1), sigma = c(2, 1)), 
-    sigma_y = c(0, 1), iter = 10, refresh=0), NA)
+    sigma_y = c(2, 1), iter = 10, refresh=0), NA)
   expect_s4_class(fit$stanfit, "stanfit")
 })
 
