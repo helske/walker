@@ -142,8 +142,9 @@ transformed data {
   matrix[m, m] Tt = diag_matrix(rep_vector(1.0, m));
   vector[n] gamma2_y = gamma_y .* gamma_y;
   
-  Tt[(k_rw1+1):k, (k+1):m] = diag_matrix(rep_vector(1.0, k_rw2));
-  
+  if(k_rw2 > 0) {
+    Tt[(k_rw1+1):k, (k+1):m] = diag_matrix(rep_vector(1.0, k_rw2));
+  }
   for(i in 1:k_rw1) {
     a1[i] = beta_rw1_mean;
     P1[i, i] = beta_rw1_sd^2;
@@ -156,7 +157,6 @@ transformed data {
     a1[i] = nu_mean;
     P1[i, i] = nu_sd^2;
   }
-  
 }
 
 parameters {
@@ -233,7 +233,7 @@ generated quantities{
       matrix[m, n] states = gaussian_smoother(y_ - y_rep, y_miss, a1, P1,
       sigma_y^2, Tt, Rt, xreg_rw, gamma2_y);
       beta_rw += states[1:k, 1:n];
-      nu += states[(k + 1):m, 1:n];
+      if(k_rw2 > 0) nu += states[(k + 1):m, 1:n];
     }
     
     // replicated data from posterior predictive distribution

@@ -36,6 +36,7 @@ Imports:
     KFAS,
     loo,
     methods,
+    RcppParallel,
     rlang,
     rstantools (>= 2.0.0)
 LinkingTo: 
@@ -44,7 +45,8 @@ LinkingTo:
     BH (>= 1.66.0),
     Rcpp (>= 0.12.9), 
     RcppArmadillo, 
-    RcppEigen (>= 0.3.3.3.0)
+    RcppEigen (>= 0.3.3.3.0),
+    RcppParallel
 SystemRequirements: C++14, GNU make 
 Biarch: true
 VignetteBuilder: knitr

@@ -19,6 +19,7 @@
 #' be careful in not defining multiple intercept terms (only one should be present).
 #' 
 #' @import rstan Rcpp methods
+#' @importFrom rstan sampling
 #' @importFrom Rcpp loadModule evalCpp
 #' @importFrom stats model.matrix model.response rnorm delete.response terms window ts end glm poisson rgamma
 #' @importFrom rstantools rstan_config

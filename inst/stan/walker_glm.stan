@@ -202,7 +202,9 @@ transformed data {
   matrix[m, m] P1 = rep_matrix(0.0, m, m);
   matrix[m, m] Tt = diag_matrix(rep_vector(1.0, m));
   
-  Tt[(k_rw1+1):k, (k+1):m] = diag_matrix(rep_vector(1.0, k_rw2));
+  if(k_rw2 > 0) {
+    Tt[(k_rw1+1):k, (k+1):m] = diag_matrix(rep_vector(1.0, k_rw2));
+  }
   
   for(i in 1:k_rw1) {
     a1[i] = beta_rw1_mean;
@@ -315,11 +317,11 @@ generated quantities{
         matrix[m, n] states = glm_approx_smoother(y_ - y_rep_j, y_miss, a1, P1,
         Ht, Tt, Rt, xreg_rw);
         beta_j += states[1:k, 1:n];
-        nu_j += states[(k + 1):m, 1:n];
+        if(k_rw2 > 0) nu_j += states[(k + 1):m, 1:n];
       }
       
       beta_array[1:k,1:n,j] = to_array_2d(beta_j);
-      nu_array[1:k_rw2,1:n,j] = to_array_2d(nu_j);
+      if(k_rw2 > 0) nu_array[1:k_rw2,1:n,j] = to_array_2d(nu_j);
       
       w[j] = -sum(loglik[,2]);
       if (distribution == 1) {
