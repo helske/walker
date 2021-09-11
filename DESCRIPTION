@@ -2,7 +2,7 @@ Package: walker
 Type: Package
 Title: Bayesian Generalized Linear Models with Time-Varying Coefficients
 Version: 1.0.3
-Date: 2021-08-16
+Date: 2021-09-11
 Description: Bayesian generalized linear models with time-varying coefficients 
     as in Helske (2020, <arXiv:2009.07063>). Gaussian, Poisson, and binomial 
     observations are supported. The Markov chain Monte Carlo (MCMC) computations are done using 

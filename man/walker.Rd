@@ -69,9 +69,37 @@ also a prior for the initial slope nu needs to be defined. See examples.
 }
 \note{
 Beware of overfitting and identifiability issues. In particular, 
-be careful in not defining multiple intercept terms (only one should be present).
+be careful in not defining multiple intercept terms 
+(only one should be present).
+By default \code{rw1} and \code{rw2} calls add their own time-varying 
+intercepts, so you should use \code{0} or \code{-1} to remove some of them 
+(or the time-invariant intercept in the fixed-part of the formula).
 }
 \examples{
+set.seed(1)
+x <- rnorm(10)
+y <- x + rnorm(10)
+
+# different intercept definitions:
+
+# both fixed intercept and time-varying level,
+# can be unidentifiable without strong priors:
+fit1 <- walker(y ~ rw1(~ x, beta = c(0, 1)), 
+  beta = c(0, 1), chains = 1, iter = 1000) 
+\dontrun{
+# only time-varying level, using 0 or -1 removes intercept:
+fit2 <- walker(y ~ 0 + rw1(~ x, beta = c(0, 1)), chains = 1, iter = 1000)
+
+# time-varying level, no covariates:
+fit3 <- walker(y ~ 0 + rw1(~ 1, beta = c(0, 1)), chains = 1, iter = 1000)
+
+# fixed intercept no time-varying level:
+fit4 <- walker(y ~ rw1(~ 0 + x, beta = c(0, 1)), 
+  beta = c(0, 1), chains = 1, iter = 1000) 
+
+# only time-varying effect of x:
+fit5 <- walker(y ~ 0 + rw1(~ 0 + x, beta = c(0, 1)), chains = 1, iter = 1000) 
+}
 
 \dontrun{
 
