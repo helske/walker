@@ -23,6 +23,10 @@ devtools::install_github("helske/walker")
 NEWS
 ---------------------------------------------
 
+### 24.9.2021, version 1.0.3-1
+
+* Added a flag for stanc3 compatibility, thanks to Andrew Johnson. Also added an 
+  import for RcppParallel.
 
 ### 16.8.2021
 
