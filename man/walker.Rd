@@ -76,6 +76,8 @@ intercepts, so you should use \code{0} or \code{-1} to remove some of them
 (or the time-invariant intercept in the fixed-part of the formula).
 }
 \examples{
+
+\dontrun{
 set.seed(1)
 x <- rnorm(10)
 y <- x + rnorm(10)
@@ -86,7 +88,7 @@ y <- x + rnorm(10)
 # can be unidentifiable without strong priors:
 fit1 <- walker(y ~ rw1(~ x, beta = c(0, 1)), 
   beta = c(0, 1), chains = 1, iter = 1000) 
-\dontrun{
+
 # only time-varying level, using 0 or -1 removes intercept:
 fit2 <- walker(y ~ 0 + rw1(~ x, beta = c(0, 1)), chains = 1, iter = 1000)
 
