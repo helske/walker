@@ -1,7 +1,7 @@
 ---
 title: "Efficient Bayesian generalized linear models with time-varying coefficients"
 author: "Jouni Helske"
-date: "3 March 2021"
+date: "3 March 2022"
 output:
 html_document: default
 bibliography: walker.bib
@@ -97,6 +97,23 @@ The `walker` function also returns samples from the posterior predictive distrib
 
 ```{r ppc}
 pp_check(fit)
+```
+
+### Counterfactual predictions
+
+We can also produce "counterfactual" predictions using our estimated model. For example, we can ask what if `x1` variable was constant 0 from time point 60 onward:
+```{r}
+library(ggplot2)
+library(dplyr)
+fitted <- fitted(fit) # estimates given our actual observed data
+newdata <- data.frame(x1 = c(x1[1:59], rep(0, 41)), x2 = x2)
+pred_x1_1 <- predict_counterfactual(fit, newdata, type = "mean")
+
+cbind(as.data.frame(rbind(fitted, pred_x1_1)), 
+    type = rep(c("observed", "counterfactual"), each = n), time = 1:n) %>% 
+    ggplot(aes(x = time, y = mean)) + 
+    geom_ribbon(aes(ymin = `2.5%`, ymax = `97.5%`, fill = type), alpha = 0.2) + 
+    geom_line(aes(colour = type)) + theme_bw()
 ```
 
 ### Out-of-sample prediction
@@ -196,6 +213,6 @@ The original motivation behind the `walker` was to test the efficiency of import
 
 ## Acknowledgements
 
-This work has been supported by the Academy of Finland research grants 284513, 312605, and 311877.
+This work has been supported by the Academy of Finland research grants 284513, 312605, 311877, and 331817.
 
 ## References

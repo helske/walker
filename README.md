@@ -10,9 +10,9 @@ regression coefficients are allowed to vary over time as a first or second order
 
 The Markov chain Monte Carlo (MCMC) algorithm uses Hamiltonian Monte Carlo provided by Stan, 
 using a state space representation of the model in order to marginalise over the coefficients for accurate and efficient sampling.
-For non-Gaussian models the MCMC targets approximate marginal posterior based on Gaussian approximation, which is then corrected using importance sampling as in [Vihola, Helske, Franks (2020)](https://arxiv.org/abs/1609.02541v6).
+For non-Gaussian models the MCMC targets approximate marginal posterior based on Gaussian approximation, which is then corrected using importance sampling as in [Vihola, Helske, Franks (2020)](https://onlinelibrary.wiley.com/doi/10.1111/sjos.12492).
 
-See the package [vignette](https://htmlpreview.github.io/?https://github.com/helske/walker/blob/master/walker_html/walker.html) and [documentation manual](https://cran.r-project.org/package=walker/walker.pdf) for details and examples.
+See the corresponding paper in [softwareX](https://www.sciencedirect.com/science/article/pii/S235271102200022X) for short introduction, and the package [vignette](https://htmlpreview.github.io/?https://github.com/helske/walker/blob/master/walker_html/walker.html) and [documentation manual](https://cran.r-project.org/package=walker/walker.pdf) for details and further examples.
 
 You can download the development version of `walker` from Github using the [`devtools`](https://cran.r-project.org/package=devtools) package:
 
@@ -22,6 +22,11 @@ devtools::install_github("helske/walker")
 
 NEWS
 ---------------------------------------------
+
+### 3.3.2022, version 1.0.4
+
+* Added an example of counterfactual predictions to the vignette.
+* Added citation info for the softwareX paper.
 
 ### 24.9.2021, version 1.0.3-1
 
