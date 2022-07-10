@@ -45,7 +45,7 @@
 #' predictors after processing the \code{formula}.
 #' @param gamma_y An optional vector defining known non-negative weights for the standard 
 #'   deviation of the observational level noise at each time point. 
-#'   More specifically, the observational level standard deviation \sigma_t is 
+#'   More specifically, the observational level standard deviation sigma_t is 
 #'   defined as \eqn{\sigma_t = gamma_t * \sigma_y} (in default case 
 #'   \eqn{\sigma_t = sigma_y})
 #' @param return_data if \code{TRUE}, returns data input to \code{sampling}. This is needed for
