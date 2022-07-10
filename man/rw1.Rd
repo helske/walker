@@ -18,8 +18,10 @@ prior mean and standard deviation of the Gaussian prior for coefficients at time
 the coefficient level standard deviation. First element corresponds to the shape parameter and 
 second to the rate parameter. Default is Gamma(2, 0.0001).}
 
-\item{gamma}{An optional vector defining a damping of the random walk noises. More specifically, 
-the variance of the conditional distribution of state_t+1 given state is of form gamma_t * sigma.}
+\item{gamma}{An optional k times n matrix defining a known non-negative weights of the 
+random walk noises, where k is the number of coefficients and n is the 
+number of time points. Then, the standard deviation of the random walk noise
+for each coefficient is of form gamma_t * sigma (instead of just sigma).}
 }
 \description{
 Auxiliary function used inside of the formula of \code{walker}.

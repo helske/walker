@@ -23,6 +23,10 @@ devtools::install_github("helske/walker")
 NEWS
 ---------------------------------------------
 
+### 10.7.2022, version 1.0.5 (upcoming)
+
+* Improved documentation of the gamma variables in `walker`, `rw1` and `rw2`.
+
 ### 3.3.2022, version 1.0.4
 
 * Added an example of counterfactual predictions to the vignette.

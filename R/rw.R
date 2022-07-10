@@ -10,8 +10,10 @@
 #' @param sigma A vector of length two, defining the Gamma prior for 
 #' the coefficient level standard deviation. First element corresponds to the shape parameter and 
 #' second to the rate parameter. Default is Gamma(2, 0.0001).
-#' @param gamma An optional vector defining a damping of the random walk noises. More specifically, 
-#' the variance of the conditional distribution of state_t+1 given state is of form gamma_t * sigma.
+#' @param gamma An optional k times n matrix defining a known non-negative weights of the 
+#' random walk noises, where k is the number of coefficients and n is the 
+#' number of time points. Then, the standard deviation of the random walk noise
+#' for each coefficient is of form gamma_t * sigma (instead of just sigma).
 rw1 <- function(formula, data, beta, sigma = c(2, 0.0001), gamma = NULL) {
  
   mf <- match.call(expand.dots = FALSE)
@@ -32,7 +34,7 @@ rw1 <- function(formula, data, beta, sigma = c(2, 0.0001), gamma = NULL) {
     if (ncol(gamma) != n) 
       stop("The number of column of gamma matrix for 'rw1' should equal to the number of observations. ")
     if (!is.numeric(gamma) | any(gamma < 0 | is.na(gamma))) 
-      stop("Argument 'gamma' should be numeric matrix of nonnegative values. ")
+      stop("Argument 'gamma' should be numeric matrix of non-negative values. ")
   } 
   list(xreg = xreg, beta = beta, 
     sigma = sigma, gamma = gamma)
@@ -52,8 +54,11 @@ rw1 <- function(formula, data, beta, sigma = c(2, 0.0001), gamma = NULL) {
 #' second to the rate parameter. Default is Gamma(2, 0.0001).
 #' @param nu A vector of length two which defines the 
 #' prior mean and standard deviation of the Gaussian prior for the slopes nu at time 1.
-#'@param gamma An optional vector defining a damping of the slope level noises. More specifically, 
-#' the variance of the conditional distribution of state_t+1 given state is of form gamma_t * sigma.
+#' @param gamma An optional k times n matrix defining a known non-negative 
+#' weights of the slope noises, where k is the number of coefficients 
+#' and n is the number of time points. Then, the standard deviation of the 
+#' noise term for each coefficient's slope is of form gamma_t * sigma 
+#' (instead of just sigma).
 #' @export
 rw2 <- function(formula, data, beta, sigma = c(2, 0.0001), nu, gamma = NULL) {
   
@@ -76,7 +81,7 @@ rw2 <- function(formula, data, beta, sigma = c(2, 0.0001), nu, gamma = NULL) {
     if (ncol(gamma) != n) 
       stop("The number of column of gamma matrix for 'rw2' should equal to the number of observations. ")
     if (!is.numeric(gamma) | any(gamma < 0 | is.na(gamma))) 
-      stop("Argument 'gamma' should be numeric matrix of nonnegative values. ")
+      stop("Argument 'gamma' should be numeric matrix of non-negative values. ")
   } 
   list(xreg = xreg, beta = beta, 
     sigma = sigma, nu = nu, gamma = gamma)
