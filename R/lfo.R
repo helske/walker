@@ -70,25 +70,27 @@ lfo <- function(object, L, exact = FALSE, verbose = TRUE, k_thres = 0.7) {
       refits <-  L:(d$n - 1)
       ll <- matrix(NA, n_samples, d$n - L)
       for(i in L:(d$n - 1)) {
-        if (verbose) print(paste0("Estimating model with ", i, " observations.")) 
-        # increase number of observations used for estimating the parameters
-        d$n_lfo <- i
-        f <- stan(fit = object$stanfit, data = d, 
-          init = init, 
-          chains = object$stanfit@sim$chains,
-          iter = object$stanfit@sim$iter,
-          warmup = object$stanfit@sim$warmup,
-          thin = object$stanfit@sim$thin,
-          pars = "log_lik",
-          refresh = 0
-        )
-        ll[, i - L + 1] <- extract(f, "log_lik")$log_lik[, i + 1]
+        if (d$y_miss[i + 1] == 0) {
+          if (verbose) print(paste0("Estimating model with ", i, " observations.")) 
+          # increase number of observations used for estimating the parameters
+          d$n_lfo <- i
+          f <- stan(fit = object$stanfit, data = d, 
+            init = init, 
+            chains = object$stanfit@sim$chains,
+            iter = object$stanfit@sim$iter,
+            warmup = object$stanfit@sim$warmup,
+            thin = object$stanfit@sim$thin,
+            pars = "log_lik",
+            refresh = 0
+          )
+          ll[, i - L + 1] <- extract(f, "log_lik")$log_lik[, i + 1]
+        }
       }
       elpds <- apply(ll, 2, log_mean_exp)
-      elpd <- sum(elpds)
+      elpd <- sum(elpds[which(d$y_miss[(L + 1):d$n] == 0)])
     } else {
       # Based on the Bürkner et al.: https://mc-stan.org/loo/articles/loo2-lfo.html
-      elpds <- numeric(d$n - L)
+      elpds <- rep(NA, d$n - L)
       d$n_lfo <- L
       if (verbose) print(paste0("Estimating model with ", L, " observations.")) 
       f <- stan(fit = object$stanfit, data = d, 
@@ -103,37 +105,40 @@ lfo <- function(object, L, exact = FALSE, verbose = TRUE, k_thres = 0.7) {
       elpds[1] <- log_mean_exp(extract(f, "log_lik")$log_lik[, L + 1])
       i_refit <- L
       refits <- L
-      ks <- numeric(d$n - L - 1)
+      ks <- rep(NA, d$n - L - 1)
       
       for (i in (L + 1):(d$n - 1)) {
-        log_lik <- extract(f, "log_lik")$log_lik
-        logratio <- sum_log_ratios(log_lik, (i_refit + 1):i)
-        psis_obj <- suppressWarnings(loo::psis(logratio))
-        k <- loo::pareto_k_values(psis_obj)
-        ks[i] <- k
-        if (k > k_thres) {
-          if (verbose) print(paste0("Estimating model with ", i, " observations.")) 
-          # refit the model based on the first i observations
-          i_refit <- i
-          refits <- c(refits, i)
-          d$n_lfo <- i
-          f <- stan(fit = object$stanfit, data = d, 
-            init = init, 
-            chains = object$stanfit@sim$chains,
-            iter = object$stanfit@sim$iter,
-            warmup = object$stanfit@sim$warmup,
-            thin = object$stanfit@sim$thin,
-            pars = "log_lik",
-            refresh = 0
-          )
+        if (d$y_miss[i + 1] == 0) {
           log_lik <- extract(f, "log_lik")$log_lik
-          elpds[i - L + 1] <- log_mean_exp(log_lik[, i + 1])
-        } else {
-          lw <- loo::weights.importance_sampling(psis_obj, normalize = TRUE)[, 1]
-          elpds[i - L + 1] <- log_sum_exp(lw + log_lik[, i + 1])
+          not_na <- ((i_refit + 1):i)[which(d$y_miss[(i_refit + 1):i] == 0)]
+          logratio <- sum_log_ratios(log_lik, not_na)
+          psis_obj <- suppressWarnings(loo::psis(logratio))
+          k <- loo::pareto_k_values(psis_obj)
+          ks[i] <- k
+          if (k > k_thres) {
+            if (verbose) print(paste0("Estimating model with ", i, " observations.")) 
+            # refit the model based on the first i observations
+            i_refit <- i
+            refits <- c(refits, i)
+            d$n_lfo <- i
+            f <- stan(fit = object$stanfit, data = d, 
+              init = init, 
+              chains = object$stanfit@sim$chains,
+              iter = object$stanfit@sim$iter,
+              warmup = object$stanfit@sim$warmup,
+              thin = object$stanfit@sim$thin,
+              pars = "log_lik",
+              refresh = 0
+            )
+            log_lik <- extract(f, "log_lik")$log_lik
+            elpds[i - L + 1] <- log_mean_exp(log_lik[, i + 1])
+          } else {
+            lw <- loo::weights.importance_sampling(psis_obj, normalize = TRUE)[, 1]
+            elpds[i - L + 1] <- log_sum_exp(lw + log_lik[, i + 1])
+          }
         }
       }
-      elpd <- sum(elpds)
+      elpd <- sum(elpds[which(d$y_miss[(L + 1):d$n] == 0)])
     }
   } else {
     warning("LFO for non-Gaussian models is based on the approximating Gaussian model.")
@@ -152,6 +157,7 @@ lfo <- function(object, L, exact = FALSE, verbose = TRUE, k_thres = 0.7) {
       refits <-  L:(d$n - 1)
       ll <- matrix(NA, n_samples, d$n - L)
       for(i in L:(d$n - 1)) {
+        if (d$y_miss[i + 1] == 0) {
         if (verbose) print(paste0("Estimating model with ", i, " observations.")) 
         d$n_lfo <- i
         f <- stan(fit = object$stanfit, data = d, 
@@ -164,13 +170,14 @@ lfo <- function(object, L, exact = FALSE, verbose = TRUE, k_thres = 0.7) {
           refresh = 0
         )
         ll[, i - L + 1] <- extract(f, "log_lik")$log_lik[, i + 1]
+        }
       }
       elpds <- apply(ll, 2, log_mean_exp)
-      elpd <- sum(elpds)
+      elpd <- sum(elpds[which(d$y_miss[(L + 1):d$n] == 0)])
       
     } else {
       # Based on the Bürkner et al.: https://mc-stan.org/loo/articles/loo2-lfo.html
-      elpds <- numeric(d$n - L)
+      elpds <- rep(NA, d$n - L)
       d$n_lfo <- L
       f <- stan(fit = object$stanfit, data = d, 
         init = init, 
@@ -184,37 +191,40 @@ lfo <- function(object, L, exact = FALSE, verbose = TRUE, k_thres = 0.7) {
       elpds[1] <- log_mean_exp(extract(f, "log_lik")$log_lik[, L + 1])
       i_refit <- L
       refits <- L
-      ks <- numeric(d$n - L - 1)
+      ks <- rep(NA, d$n - L - 1)
       
       for (i in (L + 1):(d$n - 1)) {
-        log_lik <- extract(f, "log_lik")$log_lik
-        logratio <- sum_log_ratios(log_lik, (i_refit + 1):i)
-        psis_obj <- suppressWarnings(loo::psis(logratio))
-        k <- loo::pareto_k_values(psis_obj)
-        ks[i] <- k
-        if (k > k_thres) {
-          if (verbose) print(paste0("Estimating model with ", i, " observations.")) 
-          # refit the model based on the first i observations
-          i_refit <- i
-          refits <- c(refits, i)
-          d$n_lfo <- i
-          f <- stan(fit = object$stanfit, data = d, 
-            init = init, 
-            chains = object$stanfit@sim$chains,
-            iter = object$stanfit@sim$iter,
-            warmup = object$stanfit@sim$warmup,
-            thin = object$stanfit@sim$thin,
-            pars = "log_lik",
-            refresh = 0
-          )
+        if (d$y_miss[i + 1] == 0) {
           log_lik <- extract(f, "log_lik")$log_lik
-          elpds[i - L + 1] <- log_mean_exp(log_lik[, i + 1])
-        } else {
-          lw <- loo::weights.importance_sampling(psis_obj, normalize = TRUE)[, 1]
-          elpds[i - L + 1] <- log_sum_exp(lw + log_lik[, i + 1])
+          not_na <- ((i_refit + 1):i)[which(d$y_miss[(i_refit + 1):i] == 0)]
+          logratio <- sum_log_ratios(log_lik, not_na)
+          psis_obj <- suppressWarnings(loo::psis(logratio))
+          k <- loo::pareto_k_values(psis_obj)
+          ks[i] <- k
+          if (k > k_thres) {
+            if (verbose) print(paste0("Estimating model with ", i, " observations.")) 
+            # refit the model based on the first i observations
+            i_refit <- i
+            refits <- c(refits, i)
+            d$n_lfo <- i
+            f <- stan(fit = object$stanfit, data = d, 
+              init = init, 
+              chains = object$stanfit@sim$chains,
+              iter = object$stanfit@sim$iter,
+              warmup = object$stanfit@sim$warmup,
+              thin = object$stanfit@sim$thin,
+              pars = "log_lik",
+              refresh = 0
+            )
+            log_lik <- extract(f, "log_lik")$log_lik
+            elpds[i - L + 1] <- log_mean_exp(log_lik[, i + 1])
+          } else {
+            lw <- loo::weights.importance_sampling(psis_obj, normalize = TRUE)[, 1]
+            elpds[i - L + 1] <- log_sum_exp(lw + log_lik[, i + 1])
+          }
         }
       }
-      elpd <- sum(elpds)
+      elpd <- sum(elpds[which(d$y_miss[(L + 1):d$n] == 0)])
     }
   }
   list(ELPD = elpd, ELPDs = elpds, ks = ks, refits = refits)

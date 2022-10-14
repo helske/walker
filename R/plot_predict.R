@@ -34,14 +34,14 @@
 #'                     rw2(~ -1 + x,
 #'                         beta = c(0, 10), 
 #'                         nu = c(0, 10)),
-#'                   beta = c(0, 10),
-#'                   iter = 300, chains = 1, data = data_old)
+#'                   beta = c(0, 10), data = data_old,
+#'                   iter = 300, chains = 1, init = 0, refresh = 0)
 #' 
 #' pred <- predict(rw2_fit, newdata = data.frame(x=x[(n-9):n]))
 #' data_new <- data.frame(t = (n-9):n, y = y[(n-9):n])
 #' plot_predict(pred) + 
-#'   geom_line(data=data_new, aes(t, y), linetype = "dashed", 
-#'   colour = "red", inherit.aes = FALSE)
+#'   ggplot2::geom_line(data = data_new, ggplot2:: aes(t, y), 
+#'   linetype = "dashed", colour = "red", inherit.aes = FALSE)
 #'
 plot_predict <- function(object, draw_obs = NULL, level = 0.05, alpha = 0.33){
   

@@ -1,7 +1,7 @@
 ---
 title: "Efficient Bayesian generalized linear models with time-varying coefficients"
 author: "Jouni Helske"
-date: "3 March 2022"
+date: "13 October 2022"
 output:
 html_document: default
 bibliography: walker.bib
@@ -99,6 +99,8 @@ The `walker` function also returns samples from the posterior predictive distrib
 pp_check(fit)
 ```
 
+It is also possible to perform leave-future-out cross validation (LFO-CV) for the `walker` models. While the exact LFO-CV can be computationally demanding, `walker` also supports approximate PSIS-LFO-CV [@lfo] via function `lfo`.
+
 ### Counterfactual predictions
 
 We can also produce "counterfactual" predictions using our estimated model. For example, we can ask what if `x1` variable was constant 0 from time point 60 onward:
@@ -144,7 +146,6 @@ plot_coefs(fit_rw2, scales = "free") + ggplot2::theme_bw()
 
 So far we have focused on simple Gaussian linear regression. The above treatment cannot be directly extended to non-Gaussian models such as Poisson regression, as the marginal log-likelihood is intractable. However, it is possible to use relatively accurate Gaussian approximations, and the resulting approximate posterior can then be weighted using importance sampling type correction [@vihola], leading to asymptotically exact inference (if necessary). Function `walker_glm` extends the the package to handle Poisson and binomial observations using the aforementioned methodology. Further extension to negative binomial distribution is planned in future.
 
-Current versions of `walker` support also approximate and exact leave-future-out cross-validation [@lfo} via function `lfo`, and counterfactual predictions using `predict_counterfactual` function.
 
 ## Comparison with naive approach
 

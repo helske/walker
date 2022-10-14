@@ -23,7 +23,11 @@ devtools::install_github("helske/walker")
 NEWS
 ---------------------------------------------
 
-### 10.7.2022, version 1.0.5 (upcoming)
+### 13.10.2022, version 1.0.6
+
+* Fixed the LFO computations in case the data contains missing values.
+
+### 10.7.2022, version 1.0.5
 
 * Improved documentation of the gamma variables in `walker`, `rw1` and `rw2`.
 

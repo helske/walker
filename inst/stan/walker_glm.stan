@@ -18,7 +18,7 @@ functions {
     int k = rows(xreg);
     int n = rows(y);
     int m = rows(a1);
-    matrix[n,2] loglik = rep_matrix(0, n, 2);
+    matrix[n, 2] loglik = rep_matrix(negative_infinity(), n, 2);
     vector[m] x = a1;
     matrix[m, m] P = P1;
     vector[n] v;
@@ -198,10 +198,20 @@ data {
 }
 
 transformed data {
+  // indexing for non-missing observations for log_lik
+  int obs_idx[n_lfo - sum(y_miss[1:n_lfo])];
   vector[m] a1;
   matrix[m, m] P1 = rep_matrix(0.0, m, m);
   matrix[m, m] Tt = diag_matrix(rep_vector(1.0, m));
-  
+  {
+    int ii = 0;
+    for(i in 1:n_lfo) {
+      if(y_miss[i] == 0) {
+        ii = ii + 1;
+        obs_idx[ii] = i;
+      }
+    }
+  }
   if(k_rw2 > 0) {
     Tt[(k_rw1+1):k, (k+1):m] = diag_matrix(rep_vector(1.0, k_rw2));
   }
@@ -258,10 +268,10 @@ model {
   beta_fixed ~ normal(beta_fixed_mean, beta_fixed_sd);
   sigma_rw1 ~ gamma(sigma_rw1_shape, sigma_rw1_rate);
   sigma_rw2 ~ gamma(sigma_rw2_shape, sigma_rw2_rate);
-  // n_lfo is for easier computation of leave-future-out cross-validation
-  // use only observations up to n_lfo (default n_lfo = n)
-  // (not very optimal way to do this though, we running KF etc with y_1:n...)
-  target += sum(loglik[1:n_lfo, 1:2]);
+  // For leave-future-out cross-validation use only observations up to n_lfo 
+  // (default n_lfo = n).
+  // not the optimal way to do though, we are still running KF with y_1:n...)
+  target += sum(loglik[obs_idx, 1:2]);
 }
 
 
@@ -284,7 +294,7 @@ generated quantities{
     real nu_array[k_rw2, n, N];
     vector[N] w = rep_vector(0.0, N); //importance sampling weights
     
-    // This is the simplest but not most efficient way to sample multiple realizations
+    // This is the simplest but not the most efficient way to sample multiple realizations
     // We could save a lot by running only one full Kalman smoother and then doing some
     // tricks (see for example Durbin and Koopman (2002), 
     // and implementations in KFAS (in Fortran) and in bssm (in C++))
@@ -323,7 +333,7 @@ generated quantities{
       beta_array[1:k,1:n,j] = to_array_2d(beta_j);
       if(k_rw2 > 0) nu_array[1:k_rw2,1:n,j] = to_array_2d(nu_j);
       
-      w[j] = -sum(loglik[,2]);
+      w[j] = -sum(loglik[obs_idx,2]);
       if (distribution == 1) {
         for(t in 1:n) {
           real xbeta_tmp = xbeta[t] + dot_product(xreg_rw[,t], beta_j[1:k,t]);

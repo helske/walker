@@ -9,7 +9,7 @@ functions {
     int k = rows(xreg);
     int n = rows(y);
     int m = rows(a1);
-    vector[n] loglik = rep_vector(0, n);
+    vector[n] loglik = rep_vector(negative_infinity(), n);
     
     vector[m] x = a1;
     matrix[m, m] P = P1;
@@ -46,7 +46,6 @@ functions {
     int k = rows(xreg);
     int n = rows(y);
     int m = rows(a1);
-    real loglik = 0.0;
     vector[m] x = a1;
     matrix[m, m] P = P1;
     vector[n] v;
@@ -67,7 +66,6 @@ functions {
         for (i in 1:m) {
           P[i, i] += Rt[i, t];
         }
-        loglik -= 0.5 * (log(F[t]) + v[t] * v[t] / F[t]);
       } else {
         x = Tt * x;
         P = quad_form_sym(P, Tt');
@@ -137,11 +135,22 @@ data {
 }
 
 transformed data {
+  // indexing for non-missing observations for log_lik
+  int obs_idx[n_lfo - sum(y_miss[1:n_lfo])];
   vector[m] a1;
   matrix[m, m] P1 = rep_matrix(0.0, m, m);
   matrix[m, m] Tt = diag_matrix(rep_vector(1.0, m));
   vector[n] gamma2_y = gamma_y .* gamma_y;
   
+  {
+    int ii = 0;
+    for(i in 1:n_lfo) {
+      if(y_miss[i] == 0) {
+        ii = ii + 1;
+        obs_idx[ii] = i;
+      }
+    }
+  }
   if(k_rw2 > 0) {
     Tt[(k_rw1+1):k, (k+1):m] = diag_matrix(rep_vector(1.0, k_rw2));
   }
@@ -194,8 +203,10 @@ model {
   sigma_y ~ gamma(sigma_y_shape, sigma_y_rate);
   sigma_rw1 ~ gamma(sigma_rw1_shape, sigma_rw1_rate);
   sigma_rw2 ~ gamma(sigma_rw2_shape, sigma_rw2_rate);
-  
-  target += sum(log_lik[1:n_lfo]);
+  // For leave-future-out cross-validation use only observations up to n_lfo 
+  // (default n_lfo = n).
+  // not the optimal way to do though, we are still running KF with y_1:n...)
+  target += sum(log_lik[obs_idx]);
 }
 
 generated quantities{
