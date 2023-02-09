@@ -8,7 +8,7 @@ c(
     pages = "101016",
     year = "2022",
     issn = "2352-7110",
-    doi = "https://doi.org/10.1016/j.softx.2022.101016",
+    doi = "10.1016/j.softx.2022.101016",
     url = "https://www.sciencedirect.com/science/article/pii/S235271102200022X",
     key = "walker"
   ),

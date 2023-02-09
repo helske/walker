@@ -23,6 +23,12 @@ devtools::install_github("helske/walker")
 NEWS
 ---------------------------------------------
 
+
+### 22.11.2022, version 1.0.6-2
+
+* Fixed the initial values in the examples of walker in order to get sampler 
+  started.
+
 ### 13.10.2022, version 1.0.6
 
 * Fixed the LFO computations in case the data contains missing values.
