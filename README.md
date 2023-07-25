@@ -24,10 +24,11 @@ NEWS
 ---------------------------------------------
 
 
-### 22.11.2022, version 1.0.6-2
+### 25.7.2023, version 1.0.7
 
 * Fixed the initial values in the examples of walker in order to get sampler 
   started.
+* Fully delegated the installation to rstantools via PR by Andrew Johnson.
 
 ### 13.10.2022, version 1.0.6
 
