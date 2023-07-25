@@ -49,7 +49,7 @@ LinkingTo:
 SystemRequirements: C++14, GNU make 
 Biarch: true
 VignetteBuilder: knitr
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 ByteCompile: true
 URL: https://github.com/helske/walker
 BugReports: https://github.com/helske/walker/issues

@@ -90,10 +90,11 @@ y <- x + rnorm(10)
 # both fixed intercept and time-varying level,
 # can be unidentifiable without strong priors:
 fit1 <- walker(y ~ rw1(~ x, beta = c(0, 1)), 
-  beta = c(0, 1), chains = 1, iter = 1000) 
+  beta = c(0, 1), chains = 1, iter = 1000, init = 0) 
 
 # only time-varying level, using 0 or -1 removes intercept:
-fit2 <- walker(y ~ 0 + rw1(~ x, beta = c(0, 1)), chains = 1, iter = 1000)
+fit2 <- walker(y ~ 0 + rw1(~ x, beta = c(0, 1)), chains = 1, iter = 1000,
+  init = 0)
 
 # time-varying level, no covariates:
 fit3 <- walker(y ~ 0 + rw1(~ 1, beta = c(0, 1)), chains = 1, iter = 1000)
