@@ -46,7 +46,7 @@ LinkingTo:
     RcppArmadillo, 
     RcppEigen (>= 0.3.3.3.0),
     RcppParallel
-SystemRequirements: C++14, GNU make 
+SystemRequirements: GNU make 
 Biarch: true
 VignetteBuilder: knitr
 RoxygenNote: 7.2.3
