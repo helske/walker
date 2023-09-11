@@ -11,8 +11,8 @@ functions {
   // univariate Kalman filter & smoother for non-gaussian model, 
   // returns the log-likelihood of the corresponding approximating Gaussian model
   // and a extra correction term
-  matrix glm_approx_loglik(vector y, int[] y_miss, vector a1, matrix P1, vector Ht, 
-  matrix Tt, matrix Rt, matrix xreg, int distribution, int[] u, 
+  matrix glm_approx_loglik(vector y, array[] int y_miss, vector a1, matrix P1, vector Ht, 
+  matrix Tt, matrix Rt, matrix xreg, int distribution, array[] int u, 
   vector y_original, vector xbeta_fixed) {
     
     int k = rows(xreg);
@@ -99,7 +99,7 @@ functions {
   // univariate Kalman filter & smoother for non-gaussian model, 
   // returns the log-likelihood of the corresponding approximating Gaussian model
   // and a extra correction term
-  matrix glm_approx_smoother(vector y, int[] y_miss, vector a1, matrix P1, vector Ht, 
+  matrix glm_approx_smoother(vector y, array[] int y_miss, vector a1, matrix P1, vector Ht, 
   matrix Tt, matrix Rt, matrix xreg) {
     
     int k = rows(xreg);
@@ -171,7 +171,7 @@ data {
   matrix[n, k_fixed] xreg_fixed;
   matrix[k, n] xreg_rw;
   vector[n] y;
-  int<lower=0> y_miss[n];
+  array[n] int<lower=0> y_miss;
 
   real beta_fixed_mean;
   real<lower=0> beta_fixed_sd;
@@ -190,7 +190,7 @@ data {
   
   vector[n] Ht;
   vector[n] y_original;
-  int<lower=0> u[n];
+  array[n] int<lower=0> u;
   int distribution;
   int<lower=0> N;
   matrix[k_rw1, n] gamma_rw1;
@@ -199,7 +199,7 @@ data {
 
 transformed data {
   // indexing for non-missing observations for log_lik
-  int obs_idx[n_lfo - sum(y_miss[1:n_lfo])];
+  array[n_lfo - sum(y_miss[1:n_lfo])] int obs_idx;
   vector[m] a1;
   matrix[m, m] P1 = rep_matrix(0.0, m, m);
   matrix[m, m] Tt = diag_matrix(rep_vector(1.0, m));
@@ -233,8 +233,8 @@ transformed data {
 
 parameters {
   vector[k_fixed] beta_fixed;
-  real<lower=0> sigma_rw1[k_rw1];
-  real<lower=0> sigma_rw2[k_rw2];
+  array[k_rw1] real<lower=0> sigma_rw1;
+  array[k_rw2] real<lower=0> sigma_rw2;
 }
 
 transformed parameters {
@@ -290,8 +290,8 @@ generated quantities{
     vector[n] y_rep_j;
     matrix[k, n] beta_j;
     matrix[k_rw2, n] nu_j;
-    real beta_array[k, n, N];
-    real nu_array[k_rw2, n, N];
+    array[k, n, N] real beta_array;
+    array[k_rw2, n, N] real nu_array;
     vector[N] w = rep_vector(0.0, N); //importance sampling weights
     
     // This is the simplest but not the most efficient way to sample multiple realizations

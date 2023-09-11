@@ -17,7 +17,7 @@ transformed data {
 }
 
 parameters {
-  real<lower=0> sigma_b[k];
+  array[k] real<lower=0> sigma_b;
   real<lower=0> sigma_y;
   matrix[k, n] beta_raw;
 }

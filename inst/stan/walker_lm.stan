@@ -3,7 +3,7 @@ functions {
   // note that these functions are not fully optimised yet
   
   // univariate Kalman filter for RW1+RW2 model, returns the log-likelihood
-  vector gaussian_filter(vector y, int[] y_miss, vector a1, matrix P1, real Ht, 
+  vector gaussian_filter(vector y, array[] int y_miss, vector a1, matrix P1, real Ht, 
   matrix Tt, matrix Rt, matrix xreg, vector gamma2_y) {
     
     int k = rows(xreg);
@@ -40,7 +40,7 @@ functions {
     
   }
   
-  matrix gaussian_smoother(vector y, int[] y_miss, vector a1, matrix P1, real Ht, 
+  matrix gaussian_smoother(vector y, array[] int y_miss, vector a1, matrix P1, real Ht, 
   matrix Tt, matrix Rt, matrix xreg,vector gamma2_y) {
     
     int k = rows(xreg);
@@ -111,7 +111,7 @@ data {
   matrix[n, k_fixed] xreg_fixed;
   matrix[k, n] xreg_rw;
   vector[n] y;
-  int<lower=0> y_miss[n];
+  array[n] int<lower=0> y_miss;
   real<lower=0> sigma_y_shape;
   real<lower=0> sigma_y_rate;
   
@@ -136,7 +136,7 @@ data {
 
 transformed data {
   // indexing for non-missing observations for log_lik
-  int obs_idx[n_lfo - sum(y_miss[1:n_lfo])];
+  array[n_lfo - sum(y_miss[1:n_lfo])] int obs_idx;
   vector[m] a1;
   matrix[m, m] P1 = rep_matrix(0.0, m, m);
   matrix[m, m] Tt = diag_matrix(rep_vector(1.0, m));
@@ -170,8 +170,8 @@ transformed data {
 
 parameters {
   vector[k_fixed] beta_fixed;
-  real<lower=0> sigma_rw1[k_rw1];
-  real<lower=0> sigma_rw2[k_rw2];
+  array[k_rw1] real<lower=0> sigma_rw1;
+  array[k_rw2] real<lower=0> sigma_rw2;
   real<lower=0> sigma_y;
 }
 
