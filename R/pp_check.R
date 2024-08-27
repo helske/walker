@@ -3,12 +3,12 @@
 #' Plots sample quantiles from posterior predictive sample. 
 #' 
 #' @details 
-#' For other types of posterior predictive checks for example with \code{bayesplot}, 
-#' you can extract the variable \code{yrep} from the output, see examples.#' 
+#' For other types of posterior predictive checks for example with `bayesplot`, 
+#' you can extract the variable `yrep` from the output, see examples.
 #' 
 #' @importFrom bayesplot pp_check
-#' @param object An output from \code{\link{walker}}.
-#' @param ... Further parameters to \code{\link{ppc_ribbon}}.
+#' @param object An output from [walker()].
+#' @param ... Further parameters to [bayesplot::ppc_ribbon()].
 #' @export
 #' @examples 
 #' \dontrun{

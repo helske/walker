@@ -13,28 +13,28 @@ predict_counterfactual(
 )
 }
 \arguments{
-\item{object}{An output from \code{\link{walker}} or \code{\link{walker_glm}}.}
+\item{object}{An output from \code{\link[=walker]{walker()}} or \code{\link[=walker_glm]{walker_glm()}}.}
 
-\item{newdata}{A \code{data.frame} containing covariates used for prediction. 
+\item{newdata}{A \code{data.frame} containing covariates used for prediction.
 Should have equal number of rows as the original data}
 
-\item{u}{For Poisson model, a vector of exposures i.e. E(y) = u*exp(x*beta). 
+\item{u}{For Poisson model, a vector of exposures i.e. E(y) = u\emph{exp(x}beta).
 For binomial, a vector containing the number of trials. Defaults 1.}
 
 \item{summary}{If \code{TRUE} (default), return summary statistics. Otherwise returns samples.}
 
-\item{type}{If \code{"response"} (default for Gaussian model), predictions are on the response level 
-(e.g., number of successes for Binomial case, and for Gaussian case the observational 
+\item{type}{If \code{"response"} (default for Gaussian model), predictions are on the response level
+(e.g., number of successes for Binomial case, and for Gaussian case the observational
 level noise is added to the mean predictions).
 If \code{"mean"} (default for non-Gaussian case), predict means (e.g., success probabilities in Binomial case).
 If \code{"link"}, predictions for non-Gaussian models are returned before applying the inverse of the link-function.}
 }
 \value{
-If \code{summary=TRUE}, time series containing summary statistics of predicted values. 
+If \code{summary=TRUE}, time series containing summary statistics of predicted values.
 Otherwise a matrix of samples from predictive distribution.
 }
 \description{
-Given the new covariate data and output from \code{walker}, 
+Given the new covariate data and output from \code{walker},
 obtain samples from posterior predictive distribution for counterfactual case,
 i.e. for past time points with different covariate values.
 }

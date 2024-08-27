@@ -1,6 +1,6 @@
 #' Construct a first-order random walk component 
 #' 
-#' Auxiliary function used inside of the formula of \code{walker}.
+#' Auxiliary function used inside of the formula of `walker`.
 #' 
 #' @export
 #' @param formula Formula for RW1 part of the model. Only right-hand-side is used. 
@@ -42,7 +42,7 @@ rw1 <- function(formula, data, beta, sigma = c(2, 0.0001), gamma = NULL) {
 }
 #' Construct a second-order random walk component 
 #' 
-#' Auxiliary function used inside of the formula of \code{walker}.
+#' Auxiliary function used inside of the formula of `walker`.
 #' 
 #' @export
 #' @param formula Formula for RW2 part of the model. Only right-hand-side is used. 

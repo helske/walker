@@ -14,11 +14,11 @@ plot_coefs(
 )
 }
 \arguments{
-\item{object}{An output from \code{\link{walker}}.}
+\item{object}{An output from \code{\link[=walker]{walker()}}.}
 
-\item{level}{Level for intervals. Default is 0.05, leading to 90\% intervals.}
+\item{level}{Level for intervals. Default is 0.05, leading to 90\\% intervals.}
 
-\item{alpha}{Transparency level for \code{geom_ribbon}.}
+\item{alpha}{Transparency level for \code{\link[ggplot2:geom_ribbon]{ggplot2::geom_ribbon()}}.}
 
 \item{transform}{Optional vectorized function for transforming the coefficients (for example \code{exp}).}
 
@@ -27,6 +27,6 @@ plot_coefs(
 \item{add_zero}{Logical, should a dashed line indicating a zero be included?}
 }
 \description{
-Plots sample quantiles from posterior predictive sample. 
-See \code{\link{ppc_ribbon}} for details.
+Plots sample quantiles from posterior predictive sample.
+See \code{\link[bayesplot:PPC-intervals]{bayesplot::ppc_ribbon()}} for details.
 }

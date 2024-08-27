@@ -7,7 +7,7 @@
 \method{summary}{walker_fit}(object, type = "tiv", ...)
 }
 \arguments{
-\item{object}{An output from \code{\link{walker}} or \code{\link{walker_glm}}.}
+\item{object}{An output from \code{\link[=walker]{walker()}} or \code{\link[=walker_glm]{walker_glm()}}.}
 
 \item{type}{Either \code{tiv} (time-invariant parameters, the default) or \code{tv} (time-varying coefficients).}
 

@@ -20,67 +20,67 @@ walker_glm(
 )
 }
 \arguments{
-\item{formula}{An object of class \code{{formula}} with additional terms 
+\item{formula}{An object of class \code{{formula}} with additional terms
 \code{rw1} and/or \code{rw2} e.g. \code{y ~ x1 + rw1(~ -1 + x2)}. See details.}
 
 \item{data}{An optional data.frame or object coercible to such, as in \code{{lm}}.}
 
-\item{beta}{A length vector of length two which defines the 
+\item{beta}{A length vector of length two which defines the
 prior mean and standard deviation of the Gaussian prior for time-invariant coefficients}
 
-\item{init}{Initial value specification, see \code{\link{sampling}}. 
+\item{init}{Initial value specification, see \code{\link[rstan:stanmodel-method-sampling]{rstan::sampling()}}.
 Note that compared to default in \code{rstan}, here the default is a to sample from the priors.}
 
 \item{chains}{Number of Markov chains. Default is 4.}
 
-\item{return_x_reg}{If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
+\item{return_x_reg}{If \code{TRUE}, does not perform sampling, but instead returns the matrix of
 predictors after processing the \code{formula}.}
 
 \item{distribution}{Either \code{"poisson"} or \code{"binomial"}.}
 
-\item{initial_mode}{The initial guess of the fitted values on log-scale. 
+\item{initial_mode}{The initial guess of the fitted values on log-scale.
 Defines the Gaussian approximation used in the MCMC.
-Either \code{"obs"} (corresponds to log(y+0.1) in Poisson case), 
-\code{"glm"} (mode is obtained from time-invariant GLM), \code{"mle"} 
-(default; mode is obtained from maximum likelihood estimate of the model), 
+Either \code{"obs"} (corresponds to log(y+0.1) in Poisson case),
+\code{"glm"} (mode is obtained from time-invariant GLM), \code{"mle"}
+(default; mode is obtained from maximum likelihood estimate of the model),
 or numeric vector (custom guess).}
 
-\item{u}{For Poisson model, a vector of exposures i.e. \eqn{E(y) = u*exp(x*beta)}. 
+\item{u}{For Poisson model, a vector of exposures i.e. \eqn{E(y) = u*exp(x*beta)}.
 For binomial, a vector containing the number of trials. Defaults 1.}
 
 \item{mc_sim}{Number of samples used in importance sampling. Default is 50.}
 
-\item{return_data}{if \code{TRUE}, returns data input to \code{sampling}. This is needed for
-\code{lfo}.}
+\item{return_data}{if \code{TRUE}, returns data input to \code{\link[rstan:stanmodel-method-sampling]{rstan::sampling()}}.
+This is needed for \code{lfo}.}
 
-\item{...}{Further arguments to \code{\link{sampling}}.}
+\item{...}{Further arguments to \code{\link[rstan:stanmodel-method-sampling]{rstan::sampling()}}.}
 }
 \value{
 A list containing the \code{stanfit} object, observations \code{y},
-  covariates \code{xreg_fixed}, and \code{xreg_rw}.
+covariates \code{xreg_fixed}, and \code{xreg_rw}.
 }
 \description{
-Function \code{walker_glm} is a generalization of \code{walker} for non-Gaussian 
-models. Compared to \code{walker}, the returned samples are based on Gaussian approximation, 
-which can then be used for exact-approximate analysis by weighting the sample properly. These weights 
-are also returned as a part of the \code{stanfit} (they are generated in the 
-generated quantities block of Stan model). Note that plotting functions \code{pp_check}, 
-\code{plot_coefs}, and \code{plot_predict} resample the posterior based on weights 
+Function \code{walker_glm} is a generalization of \code{walker} for non-Gaussian
+models. Compared to \code{walker}, the returned samples are based on Gaussian approximation,
+which can then be used for exact-approximate analysis by weighting the sample properly. These weights
+are also returned as a part of the \code{stanfit} (they are generated in the
+generated quantities block of Stan model). Note that plotting functions \code{pp_check},
+\code{plot_coefs}, and \code{plot_predict} resample the posterior based on weights
 before plotting, leading to "exact" analysis.
 }
 \details{
-The underlying idea of \code{walker_glm} is based on paper 
-"Importance sampling type estimators based on approximate marginal MCMC" by 
+The underlying idea of \code{walker_glm} is based on paper
+"Importance sampling type estimators based on approximate marginal MCMC" by
 Vihola M, Helske J and Franks J which is available at ArXiv.
 
-\code{walker_glm} uses the global approximation (i.e. start of the MCMC) instead of more accurate 
-but slower local approximation (where model is approximated at each iteration). 
-However for these restricted models global approximation should be sufficient, 
-assuming the the initial estimate of the conditional mode of p(xbeta | y, sigma) not too 
-far away from the true posterior. Therefore by default \code{walker_glm} first finds the 
-maximum likelihood estimates of the standard deviation parameters 
-(using \code{\link[KFAS]{KFAS}}) package, and 
-constructs the approximation at that point, before running the Bayesian 
+\code{walker_glm} uses the global approximation (i.e. start of the MCMC) instead of more accurate
+but slower local approximation (where model is approximated at each iteration).
+However for these restricted models global approximation should be sufficient,
+assuming the the initial estimate of the conditional mode of p(xbeta | y, sigma) not too
+far away from the true posterior. Therefore by default \code{walker_glm} first finds the
+maximum likelihood estimates of the standard deviation parameters
+(using \code{\link[KFAS:KFAS]{KFAS::KFAS()}}) package, and
+constructs the approximation at that point, before running the Bayesian
 analysis.
 }
 \examples{
@@ -135,6 +135,6 @@ d \%>\% ggplot(aes(time, mean)) +
 
 }
 \seealso{
-Package \code{diagis} in CRAN, which provides functions for computing weighted 
+Package \code{diagis} in CRAN, which provides functions for computing weighted
 summary statistics.
 }

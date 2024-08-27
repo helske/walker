@@ -1,23 +1,23 @@
 #' Leave-Future-Out Cross-Validation
 #'
-#' Estimates the leave-future-out (LFO) information criterion for \code{walker} and \code{walker_glm} models.
+#' Estimates the leave-future-out (LFO) information criterion for `walker` and `walker_glm` models.
 #' 
 #' The LFO for non-Gaussian models is (currently) based on the corresponding Gaussian approximation and 
 #' not the importance sampling corrected true posterior. 
 #' 
 #' @export
 #' @importFrom loo psis pareto_k_values weights.importance_sampling
-#' @param object Output of \code{walker} or \code{walker_glm}.
+#' @param object Output of `walker` or `walker_glm`.
 #' @param L Positive integer defining how many observations should be used for the initial fit.
-#' @param exact If \code{TRUE}, computes exact 1-step predictions by re-estimating the model repeatedly. 
-#' If \code{FALSE} (default), uses approximate method based on Bürkner, Gabry and Vehtari (2020).
-#' @param verbose If \code{TRUE} (default), print the progress of the LFO computations to the console.
+#' @param exact If `TRUE`, computes exact 1-step predictions by re-estimating the model repeatedly. 
+#' If `FALSE` (default), uses approximate method based on Bürkner, Gabry and Vehtari (2020).
+#' @param verbose If `TRUE` (default), print the progress of the LFO computations to the console.
 #' @param k_thres Threshold for the pareto k estimate triggering refit. Default is 0.7. 
 #' @references Paul-Christian Bürkner, Jonah Gabry & Aki Vehtari (2020). 
 #' Approximate leave-future-out cross-validation for Bayesian time series models, 
 #' Journal of Statistical Computation and Simulation, 90:14, 2499-2523, DOI: 10.1080/00949655.2020.1783262.
-#' @return List with components \code{ELPD} (Expected log predictive density), \code{ELPDs} (observation-specific ELPDs),
-#' \code{ks} (Pareto k values in case of approximation was used), and \code{refits} (time points where model was re-estimated)
+#' @return List with components `ELPD` (Expected log predictive density), `ELPDs` (observation-specific ELPDs),
+#' `ks` (Pareto k values in case of approximation was used), and `refits` (time points where model was re-estimated)
 #' @examples 
 #' \dontrun{
 #' fit <- walker(Nile ~ -1 + 

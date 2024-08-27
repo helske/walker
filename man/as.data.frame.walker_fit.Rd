@@ -7,9 +7,9 @@
 \method{as.data.frame}{walker_fit}(x, row.names = NULL, optional = FALSE, type, ...)
 }
 \arguments{
-\item{x}{An output from \code{\link{walker}} or \code{\link{walker_glm}}.}
+\item{x}{An output from \code{\link[=walker]{walker()}} or \code{\link[=walker_glm]{walker_glm()}}.}
 
-\item{row.names}{\code{NULL} (default) or a character vector giving the row names 
+\item{row.names}{\code{NULL} (default) or a character vector giving the row names
 for the data frame.}
 
 \item{optional}{Ignored (part of generic \code{as.data.frame} signature).}

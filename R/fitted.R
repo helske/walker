@@ -1,14 +1,14 @@
 #' Extract Fitted Values of Walker Fit
 #'
-#' Returns fitted values (posterior means) from output of \code{walker} or \code{walker_glm}.
+#' Returns fitted values (posterior means) from output of `walker` or `walker_glm`.
 #' 
 #' @export
 #' @importFrom stats fitted sd
 #' @name fitted.walker_fit
-#' @param object Output of \code{walker} or \code{walker_glm}.
-#' @param summary If \code{TRUE} (default), return summary statistics. Otherwise returns samples.
+#' @param object Output of `walker` or `walker_glm`.
+#' @param summary If `TRUE` (default), return summary statistics. Otherwise returns samples.
 #' @param ... Ignored.
-#' @return If \code{summary=TRUE}, matrix containing summary statistics of fitted values. 
+#' @return If `summary=TRUE`, matrix containing summary statistics of fitted values. 
 #' Otherwise a matrix of samples.
 fitted.walker_fit <- function(object, summary = TRUE, ...) {
   
@@ -31,13 +31,13 @@ fitted.walker_fit <- function(object, summary = TRUE, ...) {
 
 #' Extract Coeffients of Walker Fit
 #'
-#' Returns the time-varying regression coefficients from output of \code{walker} or \code{walker_glm}.
+#' Returns the time-varying regression coefficients from output of `walker` or `walker_glm`.
 #' 
 #' @export
 #' @importFrom stats coef
 #' @name coef.walker_fit
-#' @param object Output of \code{walker} or \code{walker_glm}.
-#' @param summary If \code{TRUE} (default), return summary statistics. Otherwise returns samples.
+#' @param object Output of `walker` or `walker_glm`.
+#' @param summary If `TRUE` (default), return summary statistics. Otherwise returns samples.
 #' @param transform Optional vectorized function for transforming the coefficients (for example exp).
 #' @param ... Ignored.
 #' @return Time series containing coefficient values.

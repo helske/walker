@@ -1,6 +1,7 @@
 [![R-CMD-check](https://github.com/helske/walker/workflows/R-CMD-check/badge.svg)](https://github.com/helske/walker/actions)
 [![cran version](https://www.r-pkg.org/badges/version/walker)](https://cran.r-project.org/package=walker)
 [![downloads](https://cranlogs.r-pkg.org/badges/walker)](https://cranlogs.r-pkg.org/badges/walker)
+[![Project Status: Inactive – The project has reached a stable, usable state but is no longer being actively developed; support/maintenance will be provided as time allows.](https://www.repostatus.org/badges/latest/inactive.svg)](https://www.repostatus.org/#inactive)
 
 walker: Bayesian Generalized Linear Models with Time-Varying Coefficients
 ==========================================================================
@@ -12,7 +13,7 @@ The Markov chain Monte Carlo (MCMC) algorithm uses Hamiltonian Monte Carlo provi
 using a state space representation of the model in order to marginalise over the coefficients for accurate and efficient sampling.
 For non-Gaussian models the MCMC targets approximate marginal posterior based on Gaussian approximation, which is then corrected using importance sampling as in [Vihola, Helske, Franks (2020)](https://onlinelibrary.wiley.com/doi/10.1111/sjos.12492).
 
-See the corresponding paper in [softwareX](https://www.sciencedirect.com/science/article/pii/S235271102200022X) for short introduction, and the package [vignette](https://htmlpreview.github.io/?https://github.com/helske/walker/blob/master/walker_html/walker.html) and [documentation manual](https://cran.r-project.org/package=walker/walker.pdf) for details and further examples.
+See the corresponding paper in [SoftwareX](https://www.sciencedirect.com/science/article/pii/S235271102200022X) for short introduction, and the package [vignette](https://htmlpreview.github.io/?https://github.com/helske/walker/blob/master/walker_html/walker.html) and [documentation manual](https://cran.r-project.org/package=walker/walker.pdf) for details and further examples.
 
 You can download the development version of `walker` from Github using the [`devtools`](https://cran.r-project.org/package=devtools) package:
 
@@ -23,6 +24,13 @@ devtools::install_github("helske/walker")
 NEWS
 ---------------------------------------------
 
+### 28.8.2024, version 1.0.9
+
+  * Fixed function links in to other packages in documentation.
+  
+### 11.9.2023, version 1.0.8
+
+  * Updated the Stan codes to accomodate the new array syntax. PR by Andrew Johnson.
 
 ### 25.7.2023, version 1.0.7
 

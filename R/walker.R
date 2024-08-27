@@ -1,6 +1,6 @@
 #' Bayesian regression with random walk coefficients
 #' 
-#' Function \code{walker} performs Bayesian inference of a linear 
+#' Function `walker` performs Bayesian inference of a linear 
 #' regression model with time-varying, random walk regression coefficients, 
 #' i.e. ordinary regression model where instead of constant coefficients the 
 #' coefficients follow first or second order random walks. 
@@ -8,18 +8,18 @@
 #' Monte Carlo provided by Stan, using a state space representation of the model 
 #' in order to marginalise over the coefficients for efficient sampling.
 #' 
-#' The \code{rw1} and \code{rw2} functions used in the formula define new formulas 
+#' The `rw1` and `rw2` functions used in the formula define new formulas 
 #' for the first and second order random walks. In addition, these functions 
 #' need to be supplied with priors for initial coefficients and the 
 #' standard deviations. For second order random walk model, these sigma priors 
-#' correspond to the standard deviation of slope disturbances. For \code{rw2}, 
+#' correspond to the standard deviation of slope disturbances. For `rw2`, 
 #' also a prior for the initial slope nu needs to be defined. See examples.
 #' 
 #' @note Beware of overfitting and identifiability issues. In particular, 
 #' be careful in not defining multiple intercept terms 
 #' (only one should be present).
-#' By default \code{rw1} and \code{rw2} calls add their own time-varying 
-#' intercepts, so you should use \code{0} or \code{-1} to remove some of them 
+#' By default `rw1` and `rw2` calls add their own time-varying 
+#' intercepts, so you should use `0` or `-1` to remove some of them 
 #' (or the time-invariant intercept in the fixed-part of the formula).
 #' 
 #' @import rstan Rcpp methods
@@ -31,29 +31,29 @@
 #' @rdname walker
 #' @useDynLib walker, .registration = TRUE
 #' @param formula An object of class \code{{formula}} with additional terms 
-#' \code{rw1} and/or \code{rw2} e.g. \code{y ~ x1 + rw1(~ -1 + x2)}. See details.
+#' `rw1` and/or `rw2` e.g. `y ~ x1 + rw1(~ -1 + x2)`. See details.
 #' @param data An optional data.frame or object coercible to such, as in \code{{lm}}.
 #' @param beta A length vector of length two which defines the 
 #' prior mean and standard deviation of the Gaussian prior for time-invariant coefficients
 #' @param sigma_y_prior A vector of length two, defining the a Gamma prior for 
 #' the observation level standard deviation with first element corresponding to the shape parameter and 
-#' second to rate parameter. Default is Gamma(2, 0.0001). Not used in \code{walker_glm}. 
+#' second to rate parameter. Default is Gamma(2, 0.0001). Not used in `walker_glm`. 
 #' @param chains Number of Markov chains. Default is 4.
-#' @param init Initial value specification, see \code{\link{sampling}}. 
-#' Note that compared to default in \code{rstan}, here the default is a to sample from the priors.
-#' @param return_x_reg If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
-#' predictors after processing the \code{formula}.
+#' @param init Initial value specification, see [rstan::sampling()]. 
+#' Note that compared to default in `rstan`, here the default is a to sample from the priors.
+#' @param return_x_reg If `TRUE`, does not perform sampling, but instead returns the matrix of 
+#' predictors after processing the `formula`.
 #' @param gamma_y An optional vector defining known non-negative weights for the standard 
 #'   deviation of the observational level noise at each time point. 
 #'   More specifically, the observational level standard deviation sigma_t is 
 #'   defined as \eqn{\sigma_t = gamma_t * \sigma_y} (in default case 
 #'   \eqn{\sigma_t = sigma_y})
-#' @param return_data if \code{TRUE}, returns data input to \code{sampling}. This is needed for
-#' \code{lfo}.
-#' @param ... Further arguments to \code{\link{sampling}}.
-#' @return A list containing the \code{stanfit} object, observations \code{y},
-#'   and covariates \code{xreg} and \code{xreg_new}.
-#' @seealso \code{\link{walker_glm}} for non-Gaussian models.
+#' @param return_data if `TRUE`, returns data input to [rstan::sampling()].
+#'  This is needed for `lfo`.
+#' @param ... Further arguments to [rstan::sampling()].
+#' @return A list containing the `stanfit` object, observations `y`,
+#'   and covariates `xreg` and `xreg_new`.
+#' @seealso [walker_glm()] for non-Gaussian models.
 #' @export
 #' @examples 
 #' 
@@ -314,45 +314,45 @@ walker <- function(formula, data, sigma_y_prior = c(2, 0.01), beta, init, chains
 
 #' Bayesian generalized linear model with time-varying coefficients
 #' 
-#' Function \code{walker_glm} is a generalization of \code{walker} for non-Gaussian 
-#' models. Compared to \code{walker}, the returned samples are based on Gaussian approximation, 
+#' Function `walker_glm` is a generalization of `walker` for non-Gaussian 
+#' models. Compared to `walker`, the returned samples are based on Gaussian approximation, 
 #' which can then be used for exact-approximate analysis by weighting the sample properly. These weights 
-#' are also returned as a part of the \code{stanfit} (they are generated in the 
-#' generated quantities block of Stan model). Note that plotting functions \code{pp_check}, 
-#' \code{plot_coefs}, and \code{plot_predict} resample the posterior based on weights 
+#' are also returned as a part of the `stanfit` (they are generated in the 
+#' generated quantities block of Stan model). Note that plotting functions `pp_check`, 
+#' `plot_coefs`, and `plot_predict` resample the posterior based on weights 
 #' before plotting, leading to "exact" analysis.
 #' 
-#' The underlying idea of \code{walker_glm} is based on paper 
+#' The underlying idea of `walker_glm` is based on paper 
 #' "Importance sampling type estimators based on approximate marginal MCMC" by 
 #' Vihola M, Helske J and Franks J which is available at ArXiv.
 #' 
-#' \code{walker_glm} uses the global approximation (i.e. start of the MCMC) instead of more accurate 
+#' `walker_glm` uses the global approximation (i.e. start of the MCMC) instead of more accurate 
 #' but slower local approximation (where model is approximated at each iteration). 
 #' However for these restricted models global approximation should be sufficient, 
 #' assuming the the initial estimate of the conditional mode of p(xbeta | y, sigma) not too 
-#' far away from the true posterior. Therefore by default \code{walker_glm} first finds the 
+#' far away from the true posterior. Therefore by default `walker_glm` first finds the 
 #' maximum likelihood estimates of the standard deviation parameters 
-#' (using \code{\link[KFAS]{KFAS}}) package, and 
+#' (using [KFAS::KFAS()]) package, and 
 #' constructs the approximation at that point, before running the Bayesian 
 #' analysis.
 #' 
 #' @inheritParams walker
 #' @importFrom KFAS SSModel SSMcustom fitSSM approxSSM
-#' @param distribution Either \code{"poisson"} or \code{"binomial"}.
+#' @param distribution Either `"poisson"` or `"binomial"`.
 #' @param initial_mode The initial guess of the fitted values on log-scale. 
 #' Defines the Gaussian approximation used in the MCMC.
-#' Either \code{"obs"} (corresponds to log(y+0.1) in Poisson case), 
-#' \code{"glm"} (mode is obtained from time-invariant GLM), \code{"mle"} 
+#' Either `"obs"` (corresponds to log(y+0.1) in Poisson case), 
+#' `"glm"` (mode is obtained from time-invariant GLM), `"mle"` 
 #' (default; mode is obtained from maximum likelihood estimate of the model), 
 #' or numeric vector (custom guess).
 #' @param u For Poisson model, a vector of exposures i.e. \eqn{E(y) = u*exp(x*beta)}. 
 #' For binomial, a vector containing the number of trials. Defaults 1.
 #' @param mc_sim Number of samples used in importance sampling. Default is 50. 
-#' @param return_data if \code{TRUE}, returns data input to \code{sampling}. This is needed for
-#' \code{lfo}.
-#' @return A list containing the \code{stanfit} object, observations \code{y},
-#'   covariates \code{xreg_fixed}, and \code{xreg_rw}.
-#' @seealso Package \code{diagis} in CRAN, which provides functions for computing weighted 
+#' @param return_data if `TRUE`, returns data input to [rstan::sampling()]. 
+#' This is needed for `lfo`.
+#' @return A list containing the `stanfit` object, observations `y`,
+#'   covariates `xreg_fixed`, and `xreg_rw`.
+#' @seealso Package `diagis` in CRAN, which provides functions for computing weighted 
 #' summary statistics.
 #' @export
 #' @examples

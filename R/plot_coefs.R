@@ -1,18 +1,18 @@
 #' Posterior predictive check for walker object
 #' 
 #' Plots sample quantiles from posterior predictive sample. 
-#' See \code{\link{ppc_ribbon}} for details.
+#' See [bayesplot::ppc_ribbon()] for details.
 #' 
 #' @importFrom dplyr group_by summarise
 #' @importFrom rlang .data
 #' @importFrom stats quantile time update.formula drop.terms
 #' @import ggplot2
 #' @import bayesplot
-#' @param object An output from \code{\link{walker}}.
+#' @param object An output from [walker()].
 #' @param level Level for intervals. Default is 0.05, leading to 90\% intervals.
-#' @param alpha Transparency level for \code{geom_ribbon}.
-#' @param transform Optional vectorized function for transforming the coefficients (for example \code{exp}).
-#' @param scales Should y-axis of the panels be \code{"fixed"} (default) or \code{"free"}?
+#' @param alpha Transparency level for [ggplot2::geom_ribbon()].
+#' @param transform Optional vectorized function for transforming the coefficients (for example `exp`).
+#' @param scales Should y-axis of the panels be `"fixed"` (default) or `"free"`?
 #' @param add_zero Logical, should a dashed line indicating a zero be included?
 #' @export
 plot_coefs <- function(object, level = 0.05, alpha = 0.33, transform = identity, scales = "fixed", add_zero = TRUE){

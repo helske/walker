@@ -75,7 +75,7 @@ using stan::math::pow;
 stan::math::profile_map profiles__;
 static int current_statement__= 0;
 static const std::vector<string> locations_array__ = {" (found before start of program)",
-                                                      " (in 'string', line 74, column 2 to column 27)",
+                                                      " (in 'string', line 74, column 2 to column 33)",
                                                       " (in 'string', line 75, column 2 to column 24)",
                                                       " (in 'string', line 78, column 2 to column 21)",
                                                       " (in 'string', line 79, column 2 to column 22)",
@@ -142,7 +142,7 @@ static const std::vector<string> locations_array__ = {" (found before start of p
                                                       " (in 'string', line 69, column 2 to column 38)",
                                                       " (in 'string', line 70, column 2 to column 36)",
                                                       " (in 'string', line 71, column 2 to column 32)",
-                                                      " (in 'string', line 74, column 24 to column 25)",
+                                                      " (in 'string', line 74, column 8 to column 9)",
                                                       " (in 'string', line 78, column 9 to column 10)",
                                                       " (in 'string', line 79, column 9 to column 10)",
                                                       " (in 'string', line 92, column 9 to column 10)",

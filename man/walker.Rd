@@ -18,64 +18,64 @@ walker(
 )
 }
 \arguments{
-\item{formula}{An object of class \code{{formula}} with additional terms 
+\item{formula}{An object of class \code{{formula}} with additional terms
 \code{rw1} and/or \code{rw2} e.g. \code{y ~ x1 + rw1(~ -1 + x2)}. See details.}
 
 \item{data}{An optional data.frame or object coercible to such, as in \code{{lm}}.}
 
-\item{sigma_y_prior}{A vector of length two, defining the a Gamma prior for 
-the observation level standard deviation with first element corresponding to the shape parameter and 
+\item{sigma_y_prior}{A vector of length two, defining the a Gamma prior for
+the observation level standard deviation with first element corresponding to the shape parameter and
 second to rate parameter. Default is Gamma(2, 0.0001). Not used in \code{walker_glm}.}
 
-\item{beta}{A length vector of length two which defines the 
+\item{beta}{A length vector of length two which defines the
 prior mean and standard deviation of the Gaussian prior for time-invariant coefficients}
 
-\item{init}{Initial value specification, see \code{\link{sampling}}. 
+\item{init}{Initial value specification, see \code{\link[rstan:stanmodel-method-sampling]{rstan::sampling()}}.
 Note that compared to default in \code{rstan}, here the default is a to sample from the priors.}
 
 \item{chains}{Number of Markov chains. Default is 4.}
 
-\item{return_x_reg}{If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
+\item{return_x_reg}{If \code{TRUE}, does not perform sampling, but instead returns the matrix of
 predictors after processing the \code{formula}.}
 
-\item{gamma_y}{An optional vector defining known non-negative weights for the standard 
-deviation of the observational level noise at each time point. 
-More specifically, the observational level standard deviation sigma_t is 
-defined as \eqn{\sigma_t = gamma_t * \sigma_y} (in default case 
+\item{gamma_y}{An optional vector defining known non-negative weights for the standard
+deviation of the observational level noise at each time point.
+More specifically, the observational level standard deviation sigma_t is
+defined as \eqn{\sigma_t = gamma_t * \sigma_y} (in default case
 \eqn{\sigma_t = sigma_y})}
 
-\item{return_data}{if \code{TRUE}, returns data input to \code{sampling}. This is needed for
-\code{lfo}.}
+\item{return_data}{if \code{TRUE}, returns data input to \code{\link[rstan:stanmodel-method-sampling]{rstan::sampling()}}.
+This is needed for \code{lfo}.}
 
-\item{...}{Further arguments to \code{\link{sampling}}.}
+\item{...}{Further arguments to \code{\link[rstan:stanmodel-method-sampling]{rstan::sampling()}}.}
 }
 \value{
 A list containing the \code{stanfit} object, observations \code{y},
-  and covariates \code{xreg} and \code{xreg_new}.
+and covariates \code{xreg} and \code{xreg_new}.
 }
 \description{
-Function \code{walker} performs Bayesian inference of a linear 
-regression model with time-varying, random walk regression coefficients, 
-i.e. ordinary regression model where instead of constant coefficients the 
-coefficients follow first or second order random walks. 
-All Markov chain Monte Carlo computations are done using Hamiltonian 
-Monte Carlo provided by Stan, using a state space representation of the model 
+Function \code{walker} performs Bayesian inference of a linear
+regression model with time-varying, random walk regression coefficients,
+i.e. ordinary regression model where instead of constant coefficients the
+coefficients follow first or second order random walks.
+All Markov chain Monte Carlo computations are done using Hamiltonian
+Monte Carlo provided by Stan, using a state space representation of the model
 in order to marginalise over the coefficients for efficient sampling.
 }
 \details{
-The \code{rw1} and \code{rw2} functions used in the formula define new formulas 
-for the first and second order random walks. In addition, these functions 
-need to be supplied with priors for initial coefficients and the 
-standard deviations. For second order random walk model, these sigma priors 
-correspond to the standard deviation of slope disturbances. For \code{rw2}, 
+The \code{rw1} and \code{rw2} functions used in the formula define new formulas
+for the first and second order random walks. In addition, these functions
+need to be supplied with priors for initial coefficients and the
+standard deviations. For second order random walk model, these sigma priors
+correspond to the standard deviation of slope disturbances. For \code{rw2},
 also a prior for the initial slope nu needs to be defined. See examples.
 }
 \note{
-Beware of overfitting and identifiability issues. In particular, 
-be careful in not defining multiple intercept terms 
+Beware of overfitting and identifiability issues. In particular,
+be careful in not defining multiple intercept terms
 (only one should be present).
-By default \code{rw1} and \code{rw2} calls add their own time-varying 
-intercepts, so you should use \code{0} or \code{-1} to remove some of them 
+By default \code{rw1} and \code{rw2} calls add their own time-varying
+intercepts, so you should use \code{0} or \code{-1} to remove some of them
 (or the time-invariant intercept in the fixed-part of the formula).
 }
 \examples{
@@ -181,5 +181,5 @@ plot(log2(n), log2(times))
 }
 }
 \seealso{
-\code{\link{walker_glm}} for non-Gaussian models.
+\code{\link[=walker_glm]{walker_glm()}} for non-Gaussian models.
 }

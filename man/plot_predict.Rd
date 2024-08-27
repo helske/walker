@@ -7,18 +7,18 @@
 plot_predict(object, draw_obs = NULL, level = 0.05, alpha = 0.33)
 }
 \arguments{
-\item{object}{An output from \code{\link{predict.walker_fit}}.}
+\item{object}{An output from \code{\link[=predict.walker_fit]{predict.walker_fit()}}.}
 
-\item{draw_obs}{Either \code{"response"}, \code{"mean"}, or \code{"none"}, 
-where \code{"mean"} is response variable divided by number of trials or exposures 
+\item{draw_obs}{Either \code{"response"}, \code{"mean"}, or \code{"none"},
+where \code{"mean"} is response variable divided by number of trials or exposures
 in case of binomial/poisson models.}
 
-\item{level}{Level for intervals. Default is 0.05, leading to 90\% intervals.}
+\item{level}{Level for intervals. Default is 0.05, leading to 90\\% intervals.}
 
-\item{alpha}{Transparency level for \code{\link{geom_ribbon}}.}
+\item{alpha}{Transparency level for \code{\link[ggplot2:geom_ribbon]{ggplot2::geom_ribbon()}}.}
 }
 \description{
-Plots sample quantiles and posterior means of the predictions 
+Plots sample quantiles and posterior means of the predictions
 of the \code{predict.walker_fit} output.
 }
 \examples{

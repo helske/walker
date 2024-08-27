@@ -1,22 +1,22 @@
 #' Predictions for walker object
 #' 
-#' Given the new covariate data and output from \code{walker}, 
+#' Given the new covariate data and output from `walker`, 
 #' obtain samples from posterior predictive distribution for future time points.
 #' 
 #' @importFrom stats deltat tsp
-#' @param object An output from \code{\link{walker}} or \code{\link{walker_glm}}.
-#' @param newdata A \code{data.frame} containing covariates used for prediction.
+#' @param object An output from [walker()] or [walker_glm()].
+#' @param newdata A `data.frame` containing covariates used for prediction.
 #' @param u For Poisson model, a vector of future exposures i.e. E(y) = u*exp(x*beta). 
 #' For binomial, a vector containing the number of trials for future time points. Defaults 1.
-#' @param type If \code{"response"} (default for Gaussian model), predictions are on the response level 
+#' @param type If `"response"` (default for Gaussian model), predictions are on the response level 
 #' (e.g., number of successes for Binomial case, and for Gaussian case the observational 
 #' level noise is added to the mean predictions).
-#' If \code{"mean"} (default for non-Gaussian case), predict means (e.g., success probabilities in Binomial case).
-#' If \code{"link"}, predictions for non-Gaussian models are returned before applying the inverse of the link-function.
+#' If `"mean"` (default for non-Gaussian case), predict means (e.g., success probabilities in Binomial case).
+#' If `"link"`, predictions for non-Gaussian models are returned before applying the inverse of the link-function.
 #' @param ... Ignored.
 #' @return A list containing samples from posterior predictive distribution.
 #' @method predict walker_fit
-#' @seealso \code{\link{plot_predict}} for example.
+#' @seealso [plot_predict()] for example.
 #' @export
 predict.walker_fit <- function(object, newdata, u, 
   type = ifelse(object$distribution == "gaussian", "response", "mean"), ...){

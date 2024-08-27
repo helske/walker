@@ -1,35 +1,35 @@
 #' Comparison of naive and state space implementation of RW1 regression model
 #' 
-#' This function is the first iteration of the function \code{walker},
+#' This function is the first iteration of the function `walker`,
 #' which supports only time-varying model where all coefficients ~ rw1.
 #' This is kept as part of the package in order to compare "naive" and 
 #' state space versions of the model in the vignette, 
 #' but there is little reason to use it for other purposes.
 #' 
 #' @export
-#' @param formula An object of class \code{\link[stats:formula]{formula}}. See \code{\link{lm}} for details.
-#' @param data An optional data.frame or object coercible to such, as in \code{\link{lm}}.
+#' @param formula An object of class [stats::formula()]. See [lm()] for details.
+#' @param data An optional data.frame or object coercible to such, as in [lm()].
 #' @param beta A matrix with \eqn{k} rows and 2 columns, where first columns defines the 
 #' prior means of the Gaussian priors of the corresponding \eqn{k} regression coefficients, 
 #' and the second column defines the the standard deviations of those prior distributions.
 #' @param sigma A matrix with \eqn{k + 1} rows and two colums with similar structure as 
-#' \code{beta}, with first row corresponding to the prior of the standard deviation of the 
+#' `beta`, with first row corresponding to the prior of the standard deviation of the 
 #' observation level noise, and rest of the rows define the priors for the standard deviations of 
 #' random walk noise terms. The prior distributions for all sigmas are 
 #' Gaussians truncated to positive real axis. For non-Gaussian models, this should contain only k rows. 
 #' For second order random walk model, these priors correspond to the slope level standard deviations.
-#' @param naive Only used for \code{walker} function. 
-#' If \code{TRUE}, use "standard" approach which samples the joint posterior 
-#' \eqn{p(beta, sigma | y)}. If \code{FALSE} (the default), use marginalisation approach 
+#' @param naive Only used for `walker` function. 
+#' If `TRUE`, use "standard" approach which samples the joint posterior 
+#' \eqn{p(beta, sigma | y)}. If `FALSE` (the default), use marginalisation approach 
 #' where we sample the marginal posterior \eqn{p(sigma | y)} and generate the samples of 
 #' \eqn{p(beta | sigma, y)} using state space modelling techniques 
 #' (namely simulation smoother by Durbin and Koopman (2002)). Both methods give asymptotically 
 #' identical results, but the latter approach is computationally much more efficient.
-#' @param return_x_reg If \code{TRUE}, does not perform sampling, but instead returns the matrix of 
-#' predictors after processing the \code{formula}.
+#' @param return_x_reg If `TRUE`, does not perform sampling, but instead returns the matrix of 
+#' predictors after processing the `formula`.
 #' @param chains Number of Markov chains. Default is 4.
-#' @param init Initial value specification, see \code{\link{sampling}}. 
-#' @param ... Additional arguments to \code{\link{sampling}}. 
+#' @param init Initial value specification, see [rstan::sampling()]. 
+#' @param ... Additional arguments to [rstan::sampling()]. 
 #' @examples
 #' \dontrun{
 #' ## Comparing the approaches, note that with such a small data 

@@ -11,7 +11,7 @@ lfo(object, L, exact = FALSE, verbose = TRUE, k_thres = 0.7)
 
 \item{L}{Positive integer defining how many observations should be used for the initial fit.}
 
-\item{exact}{If \code{TRUE}, computes exact 1-step predictions by re-estimating the model repeatedly. 
+\item{exact}{If \code{TRUE}, computes exact 1-step predictions by re-estimating the model repeatedly.
 If \code{FALSE} (default), uses approximate method based on Bürkner, Gabry and Vehtari (2020).}
 
 \item{verbose}{If \code{TRUE} (default), print the progress of the LFO computations to the console.}
@@ -26,7 +26,7 @@ List with components \code{ELPD} (Expected log predictive density), \code{ELPDs}
 Estimates the leave-future-out (LFO) information criterion for \code{walker} and \code{walker_glm} models.
 }
 \details{
-The LFO for non-Gaussian models is (currently) based on the corresponding Gaussian approximation and 
+The LFO for non-Gaussian models is (currently) based on the corresponding Gaussian approximation and
 not the importance sampling corrected true posterior.
 }
 \examples{
@@ -43,7 +43,7 @@ fit_lfo$ELPD
 }
 }
 \references{
-Paul-Christian Bürkner, Jonah Gabry & Aki Vehtari (2020). 
-Approximate leave-future-out cross-validation for Bayesian time series models, 
+Paul-Christian Bürkner, Jonah Gabry & Aki Vehtari (2020).
+Approximate leave-future-out cross-validation for Bayesian time series models,
 Journal of Statistical Computation and Simulation, 90:14, 2499-2523, DOI: 10.1080/00949655.2020.1783262.
 }

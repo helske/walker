@@ -1,9 +1,9 @@
 #' Plot the fitted values and sample quantiles for a walker object
 #' 
-#' @param object An output from \code{\link{walker}} or \code{\link{walker_glm}}.
+#' @param object An output from [walker()] or [walker_glm()].
 #' @param level Level for intervals. Default is 0.05, leading to 90\% intervals.
-#' @param alpha Transparency level for \code{geom_ribbon}.
-#' @param ... Further arguments to \code{\link{ppc_ribbon}}.
+#' @param alpha Transparency level for [ggplot2::geom_ribbon()].
+#' @param ... Further arguments to [bayesplot::ppc_ribbon()].
 #' @export
 plot_fit <- function(object, level = 0.05, alpha = 0.33, ...){
   

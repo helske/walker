@@ -13,15 +13,15 @@
 )
 }
 \arguments{
-\item{object}{An output from \code{\link{walker}} or \code{\link{walker_glm}}.}
+\item{object}{An output from \code{\link[=walker]{walker()}} or \code{\link[=walker_glm]{walker_glm()}}.}
 
 \item{newdata}{A \code{data.frame} containing covariates used for prediction.}
 
-\item{u}{For Poisson model, a vector of future exposures i.e. E(y) = u*exp(x*beta). 
+\item{u}{For Poisson model, a vector of future exposures i.e. E(y) = u\emph{exp(x}beta).
 For binomial, a vector containing the number of trials for future time points. Defaults 1.}
 
-\item{type}{If \code{"response"} (default for Gaussian model), predictions are on the response level 
-(e.g., number of successes for Binomial case, and for Gaussian case the observational 
+\item{type}{If \code{"response"} (default for Gaussian model), predictions are on the response level
+(e.g., number of successes for Binomial case, and for Gaussian case the observational
 level noise is added to the mean predictions).
 If \code{"mean"} (default for non-Gaussian case), predict means (e.g., success probabilities in Binomial case).
 If \code{"link"}, predictions for non-Gaussian models are returned before applying the inverse of the link-function.}
@@ -32,9 +32,9 @@ If \code{"link"}, predictions for non-Gaussian models are returned before applyi
 A list containing samples from posterior predictive distribution.
 }
 \description{
-Given the new covariate data and output from \code{walker}, 
+Given the new covariate data and output from \code{walker},
 obtain samples from posterior predictive distribution for future time points.
 }
 \seealso{
-\code{\link{plot_predict}} for example.
+\code{\link[=plot_predict]{plot_predict()}} for example.
 }

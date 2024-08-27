@@ -3,8 +3,8 @@
 #' Prints the summary information of time-invariant model parameters. In case of non-Gaussian models, 
 #' results based on approximate model are returned with a warning.
 #' 
-#' @param x An output from \code{\link{walker}} or \code{\link{walker_glm}}.
-#' @param ... Additional arguments to \code{\link{print.stanfit}}.
+#' @param x An output from [walker()] or [walker_glm()].
+#' @param ... Additional arguments to [rstan::print.stanfit()].
 #' @method print walker_fit
 #' @export
 print.walker_fit <- function(x, ...) {
@@ -17,11 +17,11 @@ print.walker_fit <- function(x, ...) {
 #' 
 #' Creates a data.frame object from the output of walker fit.
 #' 
-#' @param x An output from \code{\link{walker}} or \code{\link{walker_glm}}.
-#' @param row.names \code{NULL} (default) or a character vector giving the row names 
+#' @param x An output from [walker()] or [walker_glm()].
+#' @param row.names `NULL` (default) or a character vector giving the row names 
 #' for the data frame.
-#' @param optional Ignored (part of generic \code{as.data.frame} signature).
-#' @param type Either \code{tiv} (time-invariant parameters) or \code{tv} (time-varying coefficients).
+#' @param optional Ignored (part of generic `as.data.frame` signature).
+#' @param type Either `tiv` (time-invariant parameters) or `tv` (time-varying coefficients).
 #' @param ... Ignored.
 #' @method as.data.frame walker_fit
 #' @export
@@ -75,8 +75,8 @@ as.data.frame.walker_fit <- function(x, row.names = NULL, optional = FALSE,  typ
 #' 
 #' Return summary information of time-invariant model parameters.
 #' 
-#' @param object An output from \code{\link{walker}} or \code{\link{walker_glm}}.
-#' @param type Either \code{tiv} (time-invariant parameters, the default) or \code{tv} (time-varying coefficients).
+#' @param object An output from [walker()] or [walker_glm()].
+#' @param type Either `tiv` (time-invariant parameters, the default) or `tv` (time-varying coefficients).
 #' @param ... Ignored.
 #' @importFrom Hmisc wtd.mean wtd.var wtd.quantile
 #' @importFrom coda spectrum0.ar

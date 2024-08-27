@@ -7,16 +7,16 @@
 \method{pp_check}{walker_fit}(object, ...)
 }
 \arguments{
-\item{object}{An output from \code{\link{walker}}.}
+\item{object}{An output from \code{\link[=walker]{walker()}}.}
 
-\item{...}{Further parameters to \code{\link{ppc_ribbon}}.}
+\item{...}{Further parameters to \code{\link[bayesplot:PPC-intervals]{bayesplot::ppc_ribbon()}}.}
 }
 \description{
 Plots sample quantiles from posterior predictive sample.
 }
 \details{
-For other types of posterior predictive checks for example with \code{bayesplot}, 
-you can extract the variable \code{yrep} from the output, see examples.#'
+For other types of posterior predictive checks for example with \code{bayesplot},
+you can extract the variable \code{yrep} from the output, see examples.
 }
 \examples{
 \dontrun{

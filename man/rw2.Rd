@@ -11,20 +11,20 @@ rw2(formula, data, beta, sigma = c(2, 1e-04), nu, gamma = NULL)
 
 \item{data}{Optional data.frame.}
 
-\item{beta}{A vector of length two which defines the 
+\item{beta}{A vector of length two which defines the
 prior mean and standard deviation of the Gaussian prior for coefficients at time 1.}
 
-\item{sigma}{A vector of length two, defining the Gamma prior for 
-the slope level standard deviation. First element corresponds to the shape parameter and 
+\item{sigma}{A vector of length two, defining the Gamma prior for
+the slope level standard deviation. First element corresponds to the shape parameter and
 second to the rate parameter. Default is Gamma(2, 0.0001).}
 
-\item{nu}{A vector of length two which defines the 
+\item{nu}{A vector of length two which defines the
 prior mean and standard deviation of the Gaussian prior for the slopes nu at time 1.}
 
-\item{gamma}{An optional k times n matrix defining a known non-negative 
-weights of the slope noises, where k is the number of coefficients 
-and n is the number of time points. Then, the standard deviation of the 
-noise term for each coefficient's slope is of form gamma_t * sigma 
+\item{gamma}{An optional k times n matrix defining a known non-negative
+weights of the slope noises, where k is the number of coefficients
+and n is the number of time points. Then, the standard deviation of the
+noise term for each coefficient's slope is of form gamma_t * sigma
 (instead of just sigma).}
 }
 \description{

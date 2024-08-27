@@ -14,7 +14,7 @@
 \item{...}{Ignored.}
 }
 \value{
-If \code{summary=TRUE}, matrix containing summary statistics of fitted values. 
+If \code{summary=TRUE}, matrix containing summary statistics of fitted values.
 Otherwise a matrix of samples.
 }
 \description{

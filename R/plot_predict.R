@@ -1,16 +1,16 @@
 #' Prediction intervals for walker object
 #' 
 #' Plots sample quantiles and posterior means of the predictions 
-#' of the \code{predict.walker_fit} output.
+#' of the `predict.walker_fit` output.
 #' 
 #' @importFrom ggplot2 ggplot facet_wrap geom_ribbon geom_line 
 #' @importFrom bayesplot color_scheme_get theme_default
-#' @param object An output from \code{\link{predict.walker_fit}}.
-#' @param draw_obs Either \code{"response"}, \code{"mean"}, or \code{"none"}, 
-#' where \code{"mean"} is response variable divided by number of trials or exposures 
+#' @param object An output from [predict.walker_fit()].
+#' @param draw_obs Either `"response"`, `"mean"`, or `"none"`, 
+#' where `"mean"` is response variable divided by number of trials or exposures 
 #' in case of binomial/poisson models. 
 #' @param level Level for intervals. Default is 0.05, leading to 90\% intervals.
-#' @param alpha Transparency level for \code{\link{geom_ribbon}}.
+#' @param alpha Transparency level for [ggplot2::geom_ribbon()].
 #' @export
 #' @examples 
 #' set.seed(1)

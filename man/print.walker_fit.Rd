@@ -7,11 +7,11 @@
 \method{print}{walker_fit}(x, ...)
 }
 \arguments{
-\item{x}{An output from \code{\link{walker}} or \code{\link{walker_glm}}.}
+\item{x}{An output from \code{\link[=walker]{walker()}} or \code{\link[=walker_glm]{walker_glm()}}.}
 
-\item{...}{Additional arguments to \code{\link{print.stanfit}}.}
+\item{...}{Additional arguments to \code{\link[rstan:print.stanfit]{rstan::print.stanfit()}}.}
 }
 \description{
-Prints the summary information of time-invariant model parameters. In case of non-Gaussian models, 
+Prints the summary information of time-invariant model parameters. In case of non-Gaussian models,
 results based on approximate model are returned with a warning.
 }
