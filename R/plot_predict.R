@@ -9,7 +9,7 @@
 #' @param draw_obs Either `"response"`, `"mean"`, or `"none"`, 
 #' where `"mean"` is response variable divided by number of trials or exposures 
 #' in case of binomial/poisson models. 
-#' @param level Level for intervals. Default is 0.05, leading to 90\% intervals.
+#' @param level Level for intervals. Default is 0.05, leading to 90% intervals.
 #' @param alpha Transparency level for [ggplot2::geom_ribbon()].
 #' @export
 #' @examples 

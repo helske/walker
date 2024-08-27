@@ -16,7 +16,7 @@ plot_coefs(
 \arguments{
 \item{object}{An output from \code{\link[=walker]{walker()}}.}
 
-\item{level}{Level for intervals. Default is 0.05, leading to 90\\% intervals.}
+\item{level}{Level for intervals. Default is 0.05, leading to 90\% intervals.}
 
 \item{alpha}{Transparency level for \code{\link[ggplot2:geom_ribbon]{ggplot2::geom_ribbon()}}.}
 

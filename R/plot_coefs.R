@@ -9,7 +9,7 @@
 #' @import ggplot2
 #' @import bayesplot
 #' @param object An output from [walker()].
-#' @param level Level for intervals. Default is 0.05, leading to 90\% intervals.
+#' @param level Level for intervals. Default is 0.05, leading to 90% intervals.
 #' @param alpha Transparency level for [ggplot2::geom_ribbon()].
 #' @param transform Optional vectorized function for transforming the coefficients (for example `exp`).
 #' @param scales Should y-axis of the panels be `"fixed"` (default) or `"free"`?
