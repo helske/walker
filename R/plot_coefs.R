@@ -7,7 +7,6 @@
 #' @importFrom rlang .data
 #' @importFrom stats quantile time update.formula drop.terms
 #' @import ggplot2
-#' @import bayesplot
 #' @param object An output from [walker()].
 #' @param level Level for intervals. Default is 0.05, leading to 90% intervals.
 #' @param alpha Transparency level for [ggplot2::geom_ribbon()].
