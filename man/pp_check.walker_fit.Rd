@@ -22,10 +22,10 @@ you can extract the variable \code{yrep} from the output, see examples.
 \dontrun{
 # Extracting the yrep variable for general use:
 # extract yrep
-y_rep <- rstan::extract(object$stanfit, pars = "y_rep", permuted = TRUE)$y_rep
+y_rep <- extract(object$stanfit, pars = "y_rep", permuted = TRUE)$y_rep
 
 # For non-gaussian model:
-weights <- rstan::extract(object$stanfit, 
+weights <- extract(object$stanfit, 
 pars = "weights", permuted = TRUE)$weights
 y_rep <- y_rep[sample(1:nrow(y_rep), 
   size = nrow(y_rep), replace = TRUE, prob = weights), , drop = FALSE]
