@@ -2,14 +2,13 @@ c(
   bibentry(
     bibtype = "article",
     author = "Jouni Helske",
-    title = "Efficient Bayesian generalized linear models with time-varying coefficients: The walker package in R", 
+    title = "Efficient Bayesian generalized linear models with time-varying coefficients: The walker package in R",
     journal = "SoftwareX",
     volume = "18",
     pages = "101016",
     year = "2022",
     issn = "2352-7110",
     doi = "10.1016/j.softx.2022.101016",
-    url = "https://www.sciencedirect.com/science/article/pii/S235271102200022X",
     key = "walker"
   ),
   bibentry(
@@ -18,7 +17,7 @@ c(
     author = "Jouni Helske",
     year = sub("-.*", "", meta$Date),
     note = sprintf("R package version %s", meta$Version),
-    url = "https://github.com/helske/walker",
+    doi = "10.32614/CRAN.package.walker",
     key = "package"
   )
 )

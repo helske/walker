@@ -322,9 +322,7 @@ walker <- function(formula, data, sigma_y_prior = c(2, 0.01), beta, init, chains
 #' `plot_coefs`, and `plot_predict` resample the posterior based on weights 
 #' before plotting, leading to "exact" analysis.
 #' 
-#' The underlying idea of `walker_glm` is based on paper 
-#' "Importance sampling type estimators based on approximate marginal MCMC" by 
-#' Vihola M, Helske J and Franks J which is available at ArXiv.
+#' The underlying idea of `walker_glm` is based on Vihola, Helske, Franks (2020).
 #' 
 #' `walker_glm` uses the global approximation (i.e. start of the MCMC) instead of more accurate 
 #' but slower local approximation (where model is approximated at each iteration). 
@@ -336,6 +334,9 @@ walker <- function(formula, data, sigma_y_prior = c(2, 0.01), beta, init, chains
 #' constructs the approximation at that point, before running the Bayesian 
 #' analysis.
 #' 
+#' @references Vihola, M, Helske, J, Franks, J. (2020). Importance sampling 
+#' type estimators based on approximate marginal Markov chain Monte Carlo. 
+#' Scandinavian Journal of Statistics. 47: 1339–1376. \doi{doi:10.1111/sjos.12492}
 #' @inheritParams walker
 #' @importFrom KFAS SSModel SSMcustom fitSSM approxSSM
 #' @param distribution Either `"poisson"` or `"binomial"`.

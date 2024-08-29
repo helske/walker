@@ -69,9 +69,7 @@ generated quantities block of Stan model). Note that plotting functions \code{pp
 before plotting, leading to "exact" analysis.
 }
 \details{
-The underlying idea of \code{walker_glm} is based on paper
-"Importance sampling type estimators based on approximate marginal MCMC" by
-Vihola M, Helske J and Franks J which is available at ArXiv.
+The underlying idea of \code{walker_glm} is based on Vihola, Helske, Franks (2020).
 
 \code{walker_glm} uses the global approximation (i.e. start of the MCMC) instead of more accurate
 but slower local approximation (where model is approximated at each iteration).
@@ -133,6 +131,11 @@ d \%>\% ggplot(aes(time, mean)) +
   geom_line() + facet_wrap(~ beta, scales = "free") + theme_bw()
 }
 
+}
+\references{
+Vihola, M, Helske, J, Franks, J. (2020). Importance sampling
+type estimators based on approximate marginal Markov chain Monte Carlo.
+Scandinavian Journal of Statistics. 47: 1339–1376. \doi{doi:10.1111/sjos.12492}
 }
 \seealso{
 Package \code{diagis} in CRAN, which provides functions for computing weighted
